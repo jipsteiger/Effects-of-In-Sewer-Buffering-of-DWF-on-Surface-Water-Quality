@@ -1,0 +1,3 @@
+# Ignore all model data, both for privacy reasons and size limitations.
+data/
+

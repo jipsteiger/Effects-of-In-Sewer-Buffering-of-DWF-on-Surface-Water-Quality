@@ -6,3 +6,6 @@ api_key.txt
 !/data/precipitation/
 !/data/precipitation/dat_swmm_rain_data/
 !/data/precipitation/dat_swmm_rain_data/*
+
+!/data/SWMM/
+!/data/SWMM/model_jip.inp

@@ -1,0 +1,950 @@
+[TITLE]
+;;Project Title/Notes
+
+[OPTIONS]
+;;Option            	Value
+FLOW_UNITS          	CMS
+INFILTRATION        	HORTON
+FLOW_ROUTING        	DYNWAVE
+LINK_OFFSETS        	DEPTH
+MIN_SLOPE           	0
+ALLOW_PONDING       	NO
+SKIP_STEADY_STATE   	NO
+
+START_DATE          	12/01/2024
+START_TIME          	00:00:00
+REPORT_START_DATE   	12/01/2020
+REPORT_START_TIME   	00:00:00
+END_DATE            	12/31/2024
+END_TIME            	23:55:00
+SWEEP_START         	12/01
+SWEEP_END           	12/31
+DRY_DAYS            	0
+REPORT_STEP         	00:05:00
+WET_STEP            	00:01:00
+DRY_STEP            	00:10:00
+ROUTING_STEP        	0:00:01 
+RULE_STEP           	00:05:00
+
+INERTIAL_DAMPING    	PARTIAL
+NORMAL_FLOW_LIMITED 	BOTH
+FORCE_MAIN_EQUATION 	D-W
+VARIABLE_STEP       	0.75
+LENGTHENING_STEP    	0
+MIN_SURFAREA        	0.10
+MAX_TRIALS          	12
+HEAD_TOLERANCE      	0.0002
+SYS_FLOW_TOL        	5
+LAT_FLOW_TOL        	5
+MINIMUM_STEP        	0.5
+THREADS             	2
+
+[EVAPORATION]
+;;Data Source   	Parameters
+;;--------------	----------------
+CONSTANT        	4.0
+DRY_ONLY        	NO
+
+[RAINGAGES]
+;;Name          	Format   	Interval	SCF     	Source    
+;;--------------	---------	------	------	----------
+rain_gage_ES_1  	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\swmm_rain_data\ES_month_12.dat"	ES        	MM   
+rain_gage_Geldrop_1	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\swmm_rain_data\GE_month_12.dat"	GE        	MM   
+rain_gage_Zuid_1	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\swmm_rain_data\RZ1_month_12.dat"	RZ1       	MM   
+rain_gage_Zuid_2	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\swmm_rain_data\RZ2_month_12.dat"	RZ2       	MM   
+
+[SUBCATCHMENTS]
+;;Name          	Rain Gage       	Outlet          	Area    	%Imperv 	Width   	%Slope  	CurbLen 	SnowPack        
+;;--------------	----------------	----------------	--------	--------	--------	--------	--------	----------------
+c_24_catchment  	rain_gage_ES_1  	c_24_vr_storage 	1918.8  	50      	400     	0.5     	0       	                
+c_23_catchment  	rain_gage_ES_1  	c_23_vr_storage 	3.0     	50      	400     	0.5     	0       	                
+c_22_catchment  	rain_gage_ES_1  	c_22_vr_storage 	1.6     	50      	400     	0.5     	0       	                
+c_21_catchment  	rain_gage_ES_1  	c_21_vr_storage 	3.2     	50      	400     	0.5     	0       	                
+c_12_catchment  	rain_gage_ES_1  	c_12_vr_storage 	3.7     	50      	400     	0.5     	0       	                
+c_20_catchment  	rain_gage_ES_1  	c_20_vr_storage 	10      	50      	400     	0.5     	0       	                
+c_19_catchment  	rain_gage_ES_1  	c_19_vr_storage 	3.4     	50      	400     	0.5     	0       	                
+c_10_catchment  	rain_gage_ES_1  	c_10_vr_storage 	6.2     	50      	400     	0.5     	0       	                
+c_16_catchment  	rain_gage_ES_1  	c_16_vr_storage 	26.4    	50      	400     	0.5     	0       	                
+c_15_catchment  	rain_gage_ES_1  	c_15_vr_storage 	33.9    	50      	400     	0.5     	0       	                
+c_14_catchment  	rain_gage_ES_1  	c_14_vr_storage 	35.6    	50      	400     	0.5     	0       	                
+c_129_catchment 	rain_gage_Geldrop_1	c_129_vr_storage	5       	50      	400     	0.5     	0       	                
+c_128_catchment 	rain_gage_Geldrop_1	c_128_vr_storage	255.1   	50      	400     	0.5     	0       	                
+c_1285_catchment	rain_gage_Geldrop_1	c_1285_vr_storage	5.8     	50      	400     	0.5     	0       	                
+c_127_catchment 	rain_gage_Geldrop_1	c_127_vr_storage	134.9   	50      	400     	0.5     	0       	                
+c_126_catchment 	rain_gage_Geldrop_1	c_126_vr_storage	15.8    	50      	400     	0.5     	0       	                
+c_125_catchment 	rain_gage_Geldrop_1	c_125_vr_storage	5.3     	50      	400     	0.5     	0       	                
+c_124_catchment 	rain_gage_Geldrop_1	c_124_vr_storage	1       	50      	400     	0.5     	0       	                
+c_136_catchment 	rain_gage_Geldrop_1	c_136_vr_storage	50.5    	50      	400     	0.5     	0       	                
+c_135_catchment 	rain_gage_Geldrop_1	c_135_vr_storage	22      	50      	400     	0.5     	0       	                
+c_131_catchment 	rain_gage_Geldrop_1	c_131_vr_storage	21.5    	50      	400     	0.5     	0       	                
+c_130_catchment 	rain_gage_Geldrop_1	c_130_vr_storage	3.9     	50      	400     	0.5     	0       	                
+c_134_catchment 	rain_gage_Geldrop_1	c_134_vr_storage	5.3     	50      	400     	0.5     	0       	                
+c_132_catchment 	rain_gage_Geldrop_1	c_132_vr_storage	3.9     	50      	400     	0.5     	0       	                
+c_150_catchment 	rain_gage_Zuid_1	c_150_vr_storage	205     	50      	400     	0.5     	0       	                
+c_123_catchment 	rain_gage_Zuid_1	c_123_vr_storage	101.5   	50      	400     	0.5     	0       	                
+c_143_catchment 	rain_gage_Zuid_1	c_143_vr_storage	308     	50      	400     	0.5     	0       	                
+c_147_catchment 	rain_gage_Zuid_1	c_147_vr_storage	4.3     	50      	400     	0.5     	0       	                
+c_160_catchment 	rain_gage_Zuid_1	c_160_vr_storage	5       	50      	400     	0.5     	0       	                
+c_145_catchment 	rain_gage_Zuid_1	c_145_vr_storage	1       	50      	400     	0.5     	0       	                
+c_144_catchment 	rain_gage_Zuid_1	c_144_vr_storage	22.8    	50      	400     	0.5     	0       	                
+c_142_catchment 	rain_gage_Zuid_1	c_142_vr_storage	76.8    	50      	400     	0.5     	0       	                
+c_148_catchment 	rain_gage_Zuid_1	c_148_vr_storage	11.2    	50      	400     	0.5     	0       	                
+c_149_catchment 	rain_gage_Zuid_1	c_149_vr_storage	18.3    	50      	400     	0.5     	0       	                
+c_151_catchment 	rain_gage_Zuid_1	c_151_vr_storage	29.4    	50      	400     	0.5     	0       	                
+c_161_catchment 	rain_gage_Zuid_1	c_161_vr_storage	68      	50      	400     	0.5     	0       	                
+c_138_catchment 	rain_gage_Zuid_1	c_138_vr_storage	28.9    	50      	400     	0.5     	0       	                
+c_139_catchment 	rain_gage_Zuid_1	c_139_vr_storage	4.6     	50      	400     	0.5     	0       	                
+c_137_catchment 	rain_gage_Zuid_1	c_137_vr_storage	1       	50      	400     	0.5     	0       	                
+c_122_catchment 	rain_gage_Zuid_1	c_122_vr_storage	52.2    	50      	400     	0.5     	0       	                
+c_121_catchment 	rain_gage_Zuid_1	c_121_vr_storage	10.3    	50      	400     	0.5     	0       	                
+c_120_catchment 	rain_gage_Zuid_1	c_120_vr_storage	4.9     	50      	400     	0.5     	0       	                
+c_119_catchment 	rain_gage_Zuid_1	c_119_vr_storage	393     	50      	400     	0.5     	0       	                
+c_100_catchment 	rain_gage_Zuid_1	c_100_vr_storage	6.7     	50      	400     	0.5     	0       	                
+c_118_catchment 	rain_gage_Zuid_1	c_118_vr_storage	11.3    	50      	400     	0.5     	0       	                
+c_116_catchment 	rain_gage_Zuid_1	c_116_vr_storage	12.9    	50      	400     	0.5     	0       	                
+c_114_catchment 	rain_gage_Zuid_1	c_114_vr_storage	6.1     	50      	400     	0.5     	0       	                
+c_112_catchment 	rain_gage_Zuid_1	c_112_vr_storage	28.5    	50      	400     	0.5     	0       	                
+c_107_catchment 	rain_gage_Zuid_1	c_107_vr_storage	77.2    	50      	400     	0.5     	0       	                
+c_107_2_catchment	rain_gage_Zuid_1	c_107_2_vr_storage	9       	50      	400     	0.5     	0       	                
+c_106_catchment 	rain_gage_Zuid_1	c_106_vr_storage	11.2    	50      	400     	0.5     	0       	                
+c_99_catchment  	rain_gage_Zuid_1	c_99_vr_storage 	103.7   	50      	400     	0.5     	0       	                
+c_103_catchment 	rain_gage_Zuid_1	c_103_vr_storage	3.8     	50      	400     	0.5     	0       	                
+c_98_catchment  	rain_gage_Zuid_1	c_98_vr_storage 	26.2    	50      	400     	0.5     	0       	                
+
+[SUBAREAS]
+;;Subcatchment  	N-Imperv  	N-Perv    	S-Imperv  	S-Perv    	PctZero   	RouteTo   	PctRouted 
+;;--------------	----------	----------	----------	----------	----------	----------	----------
+c_24_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_23_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_22_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_21_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_12_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_20_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_19_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_10_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_16_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_15_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_14_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_129_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_128_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_1285_catchment	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_127_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_126_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_125_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_124_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_136_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_135_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_131_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_130_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_134_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_132_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_150_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_123_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_143_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_147_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_160_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_145_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_144_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_142_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_148_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_149_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_151_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_161_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_138_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_139_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_137_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_122_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_121_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_120_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_119_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_100_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_118_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_116_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_114_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_112_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_107_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_107_2_catchment	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_106_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_99_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_103_catchment 	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+c_98_catchment  	0.01      	0.1       	2         	0.05      	25        	OUTLET    
+
+[INFILTRATION]
+;;Subcatchment  	Param1    	Param2    	Param3    	Param4    	Param5    
+;;--------------	----------	----------	----------	----------	----------
+c_24_catchment  	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_23_catchment  	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_22_catchment  	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_21_catchment  	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_12_catchment  	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_20_catchment  	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_19_catchment  	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_10_catchment  	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_16_catchment  	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_15_catchment  	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_14_catchment  	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_129_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_128_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_1285_catchment	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_127_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_126_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_125_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_124_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_136_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_135_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_131_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_130_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_134_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_132_catchment 	3.5       	0.5       	0.26      	7         	0         	MODIFIED_GREEN_AMPT
+c_150_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_123_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_143_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_147_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_160_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_145_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_144_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_142_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_148_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_149_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_151_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_161_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_138_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_139_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_137_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_122_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_121_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_120_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_119_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_100_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_118_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_116_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_114_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_112_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_107_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_107_2_catchment	3.5       	0.5       	0.26      	7         	0         
+c_106_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_99_catchment  	3.5       	0.5       	0.26      	7         	0         
+c_103_catchment 	3.5       	0.5       	0.26      	7         	0         
+c_98_catchment  	3.5       	0.5       	0.26      	7         	0         
+
+[JUNCTIONS]
+;;Name          	Elevation 	MaxDepth  	InitDepth 	SurDepth  	Aponded   
+;;--------------	----------	----------	----------	----------	----------
+Nod_100         	14.480000 	2.970000  	0.000000  	0.000000  	0.000000  
+Mierlo_2        	16.300000 	3.040000  	0.000000  	0         	0         
+Nod_890         	12.930000 	3.000000  	0.000000  	0.000000  	1000.00000
+Nod_891         	13.000000 	2.870000  	0.000000  	0.000000  	1000.00000
+Nod_892         	13.060000 	4         	0.000000  	0.000000  	1000.00000
+Nod_A*HLCMRZ1135	12.840000 	7.160000  	0.000000  	0.000000  	1000.00000
+Nod_103         	13.970000 	2.000000  	0.000000  	0.000000  	0.000000  
+Nod_104         	13.780000 	2.000000  	0.000000  	0.000000  	0.000000  
+Nod_105         	13.760000 	2.000000  	0.000000  	0.000000  	0.000000  
+Nod_106         	13.570000 	2.000000  	0.000000  	0.000000  	0.000000  
+Nod_107         	13.550000 	2.000000  	0.000000  	0.000000  	0.000000  
+Nod_108         	11.200000 	9.800000  	0.000000  	0.000000  	1000.00000
+Nod_109         	11.520000 	28.480000 	0.000000  	0.000000  	1000.00000
+Nod_110         	13.540000 	7.460000  	0.000000  	0.000000  	1000.00000
+Nod_111         	13.470000 	7.530000  	0.000000  	0.000000  	1000.00000
+Nod_112         	12.840000 	8.160000  	0.000000  	0.000000  	1000.00000
+Nod_113         	12.800000 	8.200000  	0.000000  	0.000000  	1000.00000
+Nod_114         	12.770000 	8.230000  	0.000000  	0.000000  	1000.00000
+Nod_115         	12.700000 	8.300000  	0.000000  	0.000000  	1000.00000
+Nod_116         	12.670000 	8.330000  	0.000000  	0.000000  	1000.00000
+Nod_117         	12.270000 	8.730000  	0.000000  	0.000000  	1000.00000
+Nod_118         	11.910000 	9.090000  	0.000000  	0.000000  	1000.00000
+Nod_119         	11.440000 	28.560000 	0.000000  	0.000000  	1000.00000
+Nod_120         	11.370000 	28.630000 	0.000000  	0.000000  	1000.00000
+Nod_121         	11.260000 	28.740000 	0.000000  	0.000000  	1000.00000
+Nod_122         	11.140000 	28.860000 	0.000000  	0.000000  	1000.00000
+Nod_123         	11.090000 	28.910000 	0.000000  	0.000000  	1000.00000
+Nod_124         	11.010000 	28.990000 	0.000000  	0.000000  	1000.00000
+Nod_126         	17.170000 	2.830000  	0.000000  	0.000000  	1000.00000
+Nod_127         	18.010000 	11.990000 	0.000000  	999.000000	1000.00000
+Nod_128         	17.720000 	3.280000  	0.000000  	0.000000  	1000.00000
+Nod_129         	15.640000 	5.360000  	0.000000  	0.000000  	1000.00000
+Nod_130         	15.060000 	5.940000  	0.000000  	0.000000  	1000.00000
+Nod_131         	14.540000 	6.460000  	0.000000  	0.000000  	1000.00000
+Nod_132         	14.330000 	6.670000  	0.000000  	0.000000  	1000.00000
+Nod_133         	14.280000 	6.720000  	0.000000  	0.000000  	1000.00000
+Nod_134         	14.100000 	6.900000  	0.000000  	0.000000  	1000.00000
+Nod_135         	14.050000 	6.950000  	0.000000  	0.000000  	1000.00000
+Nod_136         	13.930000 	7.070000  	0.000000  	0.000000  	1000.00000
+Nod_222         	11.200000 	9.800000  	0.000000  	0.000000  	1000.00000
+Nod_233         	11.520000 	28.480000 	0.000000  	0.000000  	1000.00000
+Nod_244         	11.440000 	28.560000 	0.000000  	0.000000  	1000.00000
+Nod_266         	11.370000 	28.630000 	0.000000  	0.000000  	1000.00000
+Nod_277         	11.260000 	28.740000 	0.000000  	0.000000  	1000.00000
+Nod_139         	9         	5         	0         	0         	0         
+Nod_141         	8         	5         	0         	0         	0         
+Nod_909         	10        	5         	0         	0         	0         
+
+[OUTFALLS]
+;;Name          	Elevation 	Type      	Stage Data      	Gated   	Route To        
+;;--------------	----------	----------	----------------	--------	----------------
+cso_Geldrop     	4.6231    	FREE      	                	NO      	                
+cso_gb_136      	1         	FREE      	                	NO      	                
+Nod_A*HLCMRZ1135OUT	16.070000 	FREE      	                	NO      	                
+Nod_Ontvangkelder	7         	FREE      	                	NO      	                
+E_outfall       	8         	FREE      	                	NO      	                
+ES_outfall      	1.25      	FREE      	                	NO      	                
+Aalst_outfall   	0         	FREE      	                	NO      	                
+
+[STORAGE]
+;;Name          	Elev.   	MaxDepth  	InitDepth 	Shape     	Curve Type/Params           	SurDepth 	Fevap   	Psi     	Ksat    	IMD     
+;;--------------	--------	----------	-----------	----------	----------------------------	---------	--------	        	--------	--------
+c_24_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_23_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_22_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_21_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_12_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_20_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_19_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_10_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_16_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_15_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_14_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+pipe_ES         	0       	3         	0         	PYRAMIDAL 	100       	1000      	0       	0        	0       
+pipe_Geldrop    	0       	5         	0         	PYRAMIDAL 	100       	100       	0       	0        	0       
+gb_136          	0       	1.5       	0         	PYRAMIDAL 	10        	100       	0       	0        	0       
+c_129_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_128_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_1285_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_127_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_126_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_125_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_124_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_136_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_135_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_131_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_130_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_134_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_132_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+Aalst_gemaal    	0       	2         	0         	PYRAMIDAL 	100       	1000      	0       	0        	0       
+Mierlo_1        	14.8    	4.100000  	0.000000  	TABULAR   	mierlo_kelder               	0        	0       
+pre_ontvangstkelder	8       	29.01     	0         	TABULAR   	ont_keld                    	0        	0       
+Eindhoven       	10      	7         	0         	TABULAR   	Curve_Storein               	0        	0       
+c_150_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_123_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_143_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_147_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_160_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_145_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_144_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_142_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_148_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_149_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_151_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_161_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_138_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_139_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_137_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_122_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_121_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_120_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_119_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_100_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_118_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_116_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_114_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_112_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_107_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_107_2_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_106_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_99_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_103_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_98_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+
+[CONDUITS]
+;;Name          	From Node       	To Node         	Length    	Roughness 	InOffset  	OutOffset 	InitFlow  	MaxFlow   
+;;--------------	----------------	----------------	----------	----------	----------	----------	----------	----------
+Con_161         	Mierlo_2        	Mierlo_1        	15.000000 	0.001     	0.000000  	1.040000  	0.000000  	0         
+Con_158         	Nod_890         	Nod_891         	199.703806	0.002     	0.000000  	0.000000  	0.2       	0         
+Con_159         	Nod_891         	Nod_892         	151.624437	0.014431  	0.000000  	0.000000  	0.2       	0         
+Con_160         	Nod_892         	Nod_A*HLCMRZ1135	59.705529 	0.014431  	0.000000  	0.000000  	0.2       	0         
+Con_101         	Nod_103         	Nod_100         	1071.545818	0.028     	0.2       	0.000000  	0.000000  	0         
+Con_102         	Nod_104         	Nod_103         	408.465678	0.025     	0.000000  	0.000000  	0.000000  	0         
+Con_103         	Nod_105         	Nod_106         	412.461986	0.015     	0.000000  	0.000000  	0.2       	0         
+Con_104         	Nod_105         	Nod_104         	27.060118 	0.014431  	0.000000  	0.000000  	0.2       	0         
+Con_105         	Nod_107         	Nod_106         	41.067018 	0.025     	0.000000  	0.000000  	0.2       	0         
+Con_106         	Nod_108         	Nod_107         	1473.565597	0.015     	1.650000  	0.000000  	0.2       	0         
+Con_107         	Nod_108         	Nod_109         	552.795116	0.013     	0.650000  	0.000000  	0.2       	0         
+Con_108         	Nod_109         	Nod_119         	116.329059	0.013     	0.000000  	0.000000  	0.2       	0         
+Con_109         	Nod_110         	Nod_111         	118.562220	0.02      	0.000000  	0.000000  	0.2       	0         
+Con_110         	Nod_111         	Nod_112         	483.012350	0.015     	0.000000  	0.33      	0.2       	0         
+Con_157         	Nod_112         	Nod_890         	261.162114	0.002     	0.000000  	0.000000  	0.2       	0         
+Con_111         	Nod_113         	Nod_112         	82.708706 	0.015     	0.000000  	0.000000  	0.2       	0         
+Con_112         	Nod_113         	Nod_114         	580.852133	0.013     	0.320000  	0.000000  	0.2       	0         
+Con_113         	Nod_114         	Nod_115         	105.807797	0.013     	0.000000  	0.000000  	0.2       	0         
+Con_114         	Nod_115         	Nod_116         	54.141481 	0.013     	0.000000  	0.000000  	0.2       	0         
+Con_115         	Nod_116         	Nod_117         	653.889173	0.013     	0.000000  	0.000000  	0.2       	0         
+Con_116         	Nod_117         	Nod_118         	592.888691	0.013     	0.000000  	0.000000  	0.2       	0         
+Con_117         	Nod_118         	Nod_222         	100       	0.013     	0.090000  	0.000000  	0.2       	0         
+Con_118         	Nod_119         	Nod_120         	127.542346	0.013     	0.000000  	0.000000  	0.2       	0         
+Con_119         	Nod_120         	Nod_121         	169.824174	0.013     	0.000000  	0.000000  	0.2       	0         
+Con_120         	Nod_121         	Nod_122         	203.550215	0.013     	0.000000  	0.000000  	0.2       	0         
+Con_121         	Nod_122         	Nod_123         	74.738544 	0.013     	0.000000  	0.000000  	0.2       	0         
+Con_122         	Nod_123         	Nod_124         	142.494807	0.013     	0.000000  	0.000000  	0.2       	0         
+Con_123         	Nod_124         	pre_ontvangstkelder	90.402519 	0.013     	0.000000  	1.5       	0.2       	0         
+Con_125         	Nod_126         	Nod_129         	1822.226621	0.02      	0.000000  	0.000000  	1         	0         
+Con_126         	Nod_127         	Nod_128         	863.000209	0.02      	0.000000  	0.000000  	1         	0         
+Con_127         	Nod_128         	Nod_126         	136.400147	0.02      	0.000000  	0.000000  	1         	0         
+Con_128         	Nod_129         	Nod_130         	145.234225	0.02      	0.000000  	0.450000  	0.2       	0         
+Con_129         	Nod_130         	Nod_131         	140.724021	0.02      	0         	0         	0.2       	0         
+Con_130         	Nod_131         	Nod_132         	352.328739	0.02      	0.000000  	0.000000  	0.2       	0         
+Con_140         	Nod_132         	Nod_133         	66.496616 	0.02      	0.000000  	0.000000  	0.2       	0         
+Con_141         	Nod_133         	Nod_134         	300.800831	0.02      	0.000000  	0.000000  	0.2       	0         
+Con_142         	Nod_134         	Nod_135         	84.802653 	0.02      	0.000000  	0.000000  	0.2       	0         
+Con_143         	Nod_135         	Nod_136         	199.828426	0.02      	0.000000  	0.000000  	0.2       	0         
+Con_144         	Nod_136         	Nod_110         	633.328351	0.02      	0.000000  	0.16      	0.2       	0         
+Con_152         	Nod_222         	Nod_233         	552.795116	0.02      	0.650000  	0.000000  	0.2       	0         
+Con_153         	Nod_233         	Nod_244         	116.329059	0.02      	0.000000  	0.000000  	0.2       	0         
+Con_154         	Nod_244         	Nod_266         	127.542346	0.02      	0.000000  	0.000000  	0.2       	0         
+Con_155         	Nod_266         	Nod_277         	169.824174	0.02      	0.000000  	0.000000  	0.2       	0         
+Con_156         	Nod_277         	Nod_123         	203.550215	0.02      	0.000000  	0.000000  	0.2       	0         
+Con_162         	Nod_909         	Nod_141         	400       	0.01      	0         	0         	0         	0         
+Con_147         	Nod_139         	Nod_141         	400       	0.01      	0         	0         	0         	0         
+Con_148         	Nod_141         	Nod_Ontvangkelder	400       	0.01      	0         	0         	0         	0         
+
+[PUMPS]
+;;Name          	From Node       	To Node         	Pump Curve      	Status  	Sartup	Shutoff 
+;;--------------	----------------	----------------	----------------	------	--------	--------
+P_c_24_d_175    	c_24_vr_storage 	pipe_ES         	virtual_pump_curve	ON      	0       	0       
+P_c_23_d_7      	c_23_vr_storage 	c_24_vr_storage 	virtual_pump_curve	ON      	0       	0       
+P_c_22_d_5      	c_22_vr_storage 	c_24_vr_storage 	virtual_pump_curve	ON      	0       	0       
+P_c_21_d_7      	c_21_vr_storage 	c_24_vr_storage 	virtual_pump_curve	ON      	0       	0       
+P_c_12_d_8      	c_12_vr_storage 	c_24_vr_storage 	virtual_pump_curve	ON      	0       	0       
+P_c_20_d_13     	c_20_vr_storage 	c_24_vr_storage 	virtual_pump_curve	ON      	0       	0       
+P_c_19_d_7      	c_19_vr_storage 	c_24_vr_storage 	virtual_pump_curve	ON      	0       	0       
+P_c_10_d_10     	c_10_vr_storage 	c_24_vr_storage 	virtual_pump_curve	ON      	0       	0       
+P_c_16_d_20     	c_16_vr_storage 	c_24_vr_storage 	virtual_pump_curve	ON      	0       	0       
+P_c_15_d_24     	c_15_vr_storage 	c_24_vr_storage 	virtual_pump_curve	ON      	0       	0       
+P_c_14_d_24     	c_14_vr_storage 	c_24_vr_storage 	virtual_pump_curve	ON      	0       	0       
+P_c_129_d_2     	c_129_vr_storage	c_128_vr_storage	virtual_pump_curve	ON      	0       	0       
+P_c_128_d_64    	c_128_vr_storage	pipe_Geldrop    	virtual_pump_curve	ON      	0       	0       
+P_c_1285_d_10   	c_1285_vr_storage	c_128_vr_storage	virtual_pump_curve	ON      	0       	0       
+P_c_127_d_46    	c_127_vr_storage	c_128_vr_storage	virtual_pump_curve	ON      	0       	0       
+P_c_126_d_16    	c_126_vr_storage	c_127_vr_storage	virtual_pump_curve	ON      	0       	0       
+P_c_125_d_8     	c_125_vr_storage	c_126_vr_storage	virtual_pump_curve	ON      	0       	0       
+P_c_136_d_28    	c_136_vr_storage	gb_136          	virtual_pump_curve	ON      	0       	0       
+P_c_135_d_18    	c_135_vr_storage	c_136_vr_storage	virtual_pump_curve	ON      	0       	0       
+P_c_131_d_18    	c_131_vr_storage	c_136_vr_storage	virtual_pump_curve	ON      	0       	0       
+P_c_130_d_8     	c_130_vr_storage	c_131_vr_storage	virtual_pump_curve	ON      	0       	0       
+P_c_134_d_8     	c_134_vr_storage	c_136_vr_storage	virtual_pump_curve	ON      	0       	0       
+P_c_132_d_8     	c_132_vr_storage	c_136_vr_storage	virtual_pump_curve	ON      	0       	0       
+Con_1119.1      	Mierlo_1        	Nod_100         	Curve_1119.1    	ON      	0       	0       
+WWTP_Inflow     	pre_ontvangstkelder	Nod_139         	Curve_WWTP_Inlet	ON      	0       	0       
+E_pump          	Eindhoven       	Nod_909         	pumpcurveein    	ON      	0       	0       
+c_150_d_57      	c_150_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+c_123_d_40      	c_123_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+c_143_d_70      	c_143_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+c_147_d_4       	c_147_vr_storage	c_143_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_160_d_8       	c_160_vr_storage	c_143_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_145_d_4       	c_145_vr_storage	c_143_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_144_d_19      	c_144_vr_storage	c_143_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_142_d_35      	c_142_vr_storage	c_143_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_148_d_12      	c_148_vr_storage	c_143_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_149_d_17      	c_149_vr_storage	c_143_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_151_d_22      	c_151_vr_storage	c_143_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_161_d_32      	c_161_vr_storage	c_143_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_138_d_22      	c_138_vr_storage	c_143_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_139_d_8       	c_139_vr_storage	c_138_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_137_d_4       	c_137_vr_storage	c_138_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_122_d_29      	c_122_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+c_121_d_12      	c_121_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+c_120_d_8       	c_120_vr_storage	c_121_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_119_d_80      	c_119_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+c_100_d_10      	c_100_vr_storage	c_119_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_118_d_13      	c_118_vr_storage	c_119_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_116_d_15      	c_116_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+c_114_d_10      	c_114_vr_storage	c_116_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_112_d_21      	c_112_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+c_107_d_36      	c_107_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+c_107_2_d_12    	c_107_2_vr_storage	c_107_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_106_d_13      	c_106_vr_storage	c_107_vr_storage	virtual_pump_curve	ON      	0       	0       
+c_99_d_41       	c_99_vr_storage 	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+c_103_d_8       	c_103_vr_storage	c_99_vr_storage 	virtual_pump_curve	ON      	0       	0       
+c_98_d_20       	c_98_vr_storage 	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+RG_AALST.2      	Aalst_gemaal    	Nod_127         	38.RG_AALST.2   	ON      	0       	0       
+RG_AALST.3      	Aalst_gemaal    	Nod_127         	38.RG_AALST.3   	ON      	0       	0       
+RG_AALST.4      	Aalst_gemaal    	Nod_127         	38.RG_AALST.4   	ON      	0       	0       
+RG_AALST.5      	Aalst_gemaal    	Nod_127         	38.RG_AALST.5   	ON      	0       	0       
+
+[WEIRS]
+;;Name          	From Node       	To Node         	Type        	CrestHt   	Qcoeff    	Gated   	EndCon  	EndCoeff  	Surcharge 	RoadWidth 	RoadSurf  	Coeff. Curve
+;;--------------	----------------	----------------	------------	----------	----------	--------	--------	----------	----------	----------	----------	----------------
+weir_Geldrop    	pipe_Geldrop    	cso_Geldrop     	TRANSVERSE  	4.6231    	100000    	NO      	0       	0         	YES       
+weir_gb_136     	gb_136          	cso_gb_136      	TRANSVERSE  	1.2962    	100000    	NO      	0       	0         	YES       
+Con_A*HLCMRZ1135.1	Nod_A*HLCMRZ1135	Nod_A*HLCMRZ1135OUT	TRANSVERSE  	3.240000  	2.505246  	NO      	0.000000	0.000000  	YES       
+E_weir          	Eindhoven       	E_outfall       	TRANSVERSE  	5         	3.33      	NO      	0       	0         	YES       
+weir_ES         	pipe_ES         	ES_outfall      	TRANSVERSE  	2.5       	20000     	NO      	0       	0         	YES       
+Aalst_weir      	Aalst_gemaal    	Aalst_outfall   	TRANSVERSE  	1.67      	100000    	NO      	0       	0         	YES       
+
+[XSECTIONS]
+;;Link          	Shape       	Geom1           	Geom2     	Geom3     	Geom4     	Barrels   	Culvert   
+;;--------------	------------	----------------	----------	----------	----------	----------	----------
+Con_161         	CIRCULAR    	0.700000        	0.000000  	0.000000  	0.000000  	1         	          
+Con_158         	RECT_CLOSED 	2.100000        	2.650000  	0.000000  	0.000000  	1         	          
+Con_159         	RECT_OPEN   	2.100000        	2.650000  	0.000000  	0.000000  	1         	          
+Con_160         	RECT_OPEN   	2.100000        	2.650000  	0.000000  	0.000000  	1         	          
+Con_101         	CIRCULAR    	1.220000        	0.000000  	0.000000  	0.000000  	1         	          
+Con_102         	CIRCULAR    	1.220000        	0.000000  	0.000000  	0.000000  	1         	          
+Con_103         	CIRCULAR    	1.220000        	0.000000  	0.000000  	0.000000  	1         	          
+Con_104         	CIRCULAR    	1.220000        	0.000000  	0.000000  	0.000000  	1         	          
+Con_105         	CIRCULAR    	1.220000        	0.000000  	0.000000  	0.000000  	1         	          
+Con_106         	CIRCULAR    	1.220000        	0.000000  	0.000000  	0.000000  	1         	          
+Con_107         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
+Con_108         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
+Con_109         	RECT_OPEN   	2.100000        	2.650000  	0.000000  	0.000000  	1         	          
+Con_110         	RECT_CLOSED 	2.100000        	2.650000  	0.000000  	0.000000  	1         	          
+Con_157         	RECT_CLOSED 	2.100000        	2.650000  	0.000000  	0.000000  	1         	          
+Con_111         	RECT_CLOSED 	2.1             	2.65      	0         	0         	1         	          
+Con_112         	RECT_CLOSED 	2.1             	2.65      	0         	0         	1         	          
+Con_113         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
+Con_114         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
+Con_115         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
+Con_116         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
+Con_117         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
+Con_118         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
+Con_119         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	1         	          
+Con_120         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	1         	          
+Con_121         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	1         	          
+Con_122         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	1         	          
+Con_123         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	1         	          
+Con_125         	RECT_CLOSED 	1.500000        	1.900000  	0.000000  	0.000000  	1         	          
+Con_126         	RECT_CLOSED 	1.500000        	1.900000  	0.000000  	0.000000  	1         	          
+Con_127         	RECT_OPEN   	1.500000        	1.900000  	0.000000  	0.000000  	1         	          
+Con_128         	RECT_CLOSED 	1.500000        	1.900000  	0.000000  	0.000000  	1         	          
+Con_129         	RECT_CLOSED 	2               	2         	0         	0         	1         	          
+Con_130         	RECT_CLOSED 	2.100000        	2.650000  	0         	0         	1         	          
+Con_140         	RECT_CLOSED 	2.100000        	2.650000  	0.000000  	0.000000  	1         	          
+Con_141         	RECT_CLOSED 	2.100000        	2.650000  	0.000000  	0.000000  	1         	          
+Con_142         	RECT_CLOSED 	2.100000        	2.650000  	0.000000  	0.000000  	1         	          
+Con_143         	RECT_CLOSED 	2.100000        	2.650000  	0.000000  	0.000000  	1         	          
+Con_144         	RECT_CLOSED 	2.100000        	2.650000  	0.000000  	0.000000  	1         	          
+Con_152         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
+Con_153         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
+Con_154         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
+Con_155         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	1         	          
+Con_156         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	1         	          
+Con_162         	CIRCULAR    	1               	0         	0         	0         	1         	          
+Con_147         	CIRCULAR    	1               	0         	0         	0         	1         	          
+Con_148         	CIRCULAR    	1               	0         	0         	0         	1         	          
+weir_Geldrop    	RECT_OPEN   	1               	1         	0         	0         
+weir_gb_136     	RECT_OPEN   	1               	1         	0         	0         
+Con_A*HLCMRZ1135.1	RECT_OPEN   	0.500000        	9.000000  	0.000000  	0.000000  
+E_weir          	RECT_OPEN   	10              	10        	0         	0         
+weir_ES         	RECT_OPEN   	1               	1         	0         	0         
+Aalst_weir      	RECT_OPEN   	1               	1         	0         	0         
+
+[DWF]
+;;Node          	Constituent     	Baseline  	Patterns  
+;;--------------	----------------	----------	----------
+c_24_vr_storage 	FLOW            	36.56     	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
+c_23_vr_storage 	FLOW            	0.06817   	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
+c_22_vr_storage 	FLOW            	0         	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
+c_21_vr_storage 	FLOW            	0.06378   	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
+c_12_vr_storage 	FLOW            	0.09129   	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
+c_20_vr_storage 	FLOW            	0         	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
+c_19_vr_storage 	FLOW            	0.05058   	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
+c_10_vr_storage 	FLOW            	0         	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
+c_16_vr_storage 	FLOW            	0         	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
+c_15_vr_storage 	FLOW            	0.07455   	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
+c_14_vr_storage 	FLOW            	0         	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
+c_129_vr_storage	FLOW            	0.00000   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_128_vr_storage	FLOW            	5.14043   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_1285_vr_storage	FLOW            	0.11325   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_127_vr_storage	FLOW            	1.96623   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_126_vr_storage	FLOW            	0.25344   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_125_vr_storage	FLOW            	0.07653   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_124_vr_storage	FLOW            	1.03950   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_136_vr_storage	FLOW            	1.34931   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_135_vr_storage	FLOW            	0.76087   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_131_vr_storage	FLOW            	0.72348   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_130_vr_storage	FLOW            	0.22013   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_134_vr_storage	FLOW            	0.16230   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_132_vr_storage	FLOW            	0.15980   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
+c_150_vr_storage	FLOW            	1.74291   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_123_vr_storage	FLOW            	2.31911   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_143_vr_storage	FLOW            	20.60527  	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_147_vr_storage	FLOW            	0.00000   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_160_vr_storage	FLOW            	12.57145  	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_145_vr_storage	FLOW            	0.16449   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_144_vr_storage	FLOW            	0.41169   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_142_vr_storage	FLOW            	1.99914   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_148_vr_storage	FLOW            	0.22122   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_149_vr_storage	FLOW            	0.00000   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_151_vr_storage	FLOW            	0.16777   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_161_vr_storage	FLOW            	0.00000   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_138_vr_storage	FLOW            	0.92908   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_139_vr_storage	FLOW            	0.00000   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_137_vr_storage	FLOW            	0.42156   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_122_vr_storage	FLOW            	1.19458   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_121_vr_storage	FLOW            	0.30189   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_120_vr_storage	FLOW            	0.29248   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_119_vr_storage	FLOW            	7.64330   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_100_vr_storage	FLOW            	0.16207   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_118_vr_storage	FLOW            	0.00000   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_116_vr_storage	FLOW            	0.33361   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_114_vr_storage	FLOW            	0.17614   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_112_vr_storage	FLOW            	0.44116   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_107_vr_storage	FLOW            	1.83249   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_107_2_vr_storage	FLOW            	0.00225   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_106_vr_storage	FLOW            	0.39260   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_99_vr_storage 	FLOW            	1.76871   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_103_vr_storage	FLOW            	0.15218   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_98_vr_storage 	FLOW            	0.67687   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+
+[CURVES]
+;;Name          	Type      	X-Value   	Y-Value   
+;;--------------	----------	----------	----------
+virtual_pump_curve	Pump4     	0         	20000     
+;
+Curve_WWTP_Inlet	Pump4     	0         	1.23      
+Curve_WWTP_Inlet	          	1.23      	2.46      
+Curve_WWTP_Inlet	          	2.46      	3.3       
+;
+pumpcurveein    	Pump2     	0         	8.3       
+;
+Curve_1119.1    	Pump2     	0.000000  	0.316     
+;
+38.RG_AALST.2   	PUMP2     	0.000000  	0.560000  
+;
+38.RG_AALST.3   	PUMP2     	0.000000  	0.560000  
+;
+38.RG_AALST.4   	PUMP2     	0.000000  	0.490000  
+;
+38.RG_AALST.5   	PUMP2     	0.000000  	0.490000  
+;
+mierlo_kelder   	Storage   	0         	25        
+mierlo_kelder   	          	2         	25        
+mierlo_kelder   	          	2.1       	1         
+mierlo_kelder   	          	5         	1         
+;
+ont_keld        	Storage   	0         	100       
+ont_keld        	          	2         	100       
+ont_keld        	          	2.1       	10        
+ont_keld        	          	8         	10        
+;
+Curve_Storein   	Storage   	0         	0         
+Curve_Storein   	          	0.1       	33000     
+Curve_Storein   	          	5         	33000     
+
+[PATTERNS]
+;;Name          	Type      	Multipliers
+;;--------------	----------	-----------
+daily_ES        	DAILY     	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+;
+hourly_ES       	HOURLY    	1.117	0.997	0.807	0.722	0.635	0.595
+hourly_ES       	          	0.5895	0.639	0.790	0.960	1.079	1.174
+hourly_ES       	          	1.205	1.232	1.233	1.205	1.168	1.149
+hourly_ES       	          	1.145	1.176	1.180	1.162	1.133	1.0  
+;
+weekend_ES      	WEEKEND   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+weekend_ES      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+weekend_ES      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+weekend_ES      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+;
+monthly_ES      	MONTHLY   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+monthly_ES      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+;
+daily_Geldrop   	DAILY     	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+;
+hourly_Geldrop  	HOURLY    	1.117	0.997	0.807	0.722	0.635	0.595
+hourly_Geldrop  	          	0.5895	0.639	0.790	0.960	1.079	1.174
+hourly_Geldrop  	          	1.205	1.232	1.233	1.205	1.168	1.149
+hourly_Geldrop  	          	1.145	1.176	1.180	1.162	1.133	1.0  
+;
+weekend_Geldrop 	WEEKEND   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+weekend_Geldrop 	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+weekend_Geldrop 	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+weekend_Geldrop 	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+;
+monthly_Geldrop 	MONTHLY   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+monthly_Geldrop 	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+;
+daily_RZ        	DAILY     	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+;
+hourly_RZ       	HOURLY    	1.117	0.997	0.807	0.722	0.635	0.595
+hourly_RZ       	          	0.5895	0.639	0.790	0.960	1.079	1.174
+hourly_RZ       	          	1.205	1.232	1.233	1.205	1.168	1.149
+hourly_RZ       	          	1.145	1.176	1.180	1.162	1.133	1.0  
+;
+weekend_RZ      	WEEKEND   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+weekend_RZ      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+weekend_RZ      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+weekend_RZ      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+;
+monthly_RZ      	MONTHLY   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+monthly_RZ      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+
+[REPORT]
+;;Reporting Options
+SUBCATCHMENTS	ALL
+NODES	ALL
+LINKS	ALL
+
+[TAGS]
+Node      	ES_outfall      	ES_outfall      
+
+[MAP]
+DIMENSIONS	155129.507	350000.325	178968.387	405071.825
+Units     	None
+
+[COORDINATES]
+;;Node          	X-Coord           	Y-Coord           
+;;--------------	------------------	------------------
+Nod_100         	166394.000        	382912.000        
+Mierlo_2        	170393.000        	383738.000        
+Nod_890         	165234.800        	383789.900        
+Nod_891         	165340.400        	383959.400        
+Nod_892         	165488.300        	383992.800        
+Nod_A*HLCMRZ1135	165524.600        	384035.300        
+Nod_103         	165775.286        	383803.407        
+Nod_104         	165551.400        	384128.500        
+Nod_105         	165524.700        	384132.900        
+Nod_106         	165212.200        	384402.100        
+Nod_107         	165204.300        	384442.400        
+Nod_108         	164281.200        	385591.000        
+Nod_109         	163750.000        	385744.000        
+Nod_110         	165144.800        	383129.500        
+Nod_111         	165172.000        	383244.900        
+Nod_112         	164992.200        	383693.200        
+Nod_113         	164915.400        	383662.500        
+Nod_114         	164734.000        	384214.300        
+Nod_115         	164800.000        	384297.000        
+Nod_116         	164793.100        	384350.700        
+Nod_117         	164550.700        	384958.000        
+Nod_118         	164331.300        	385508.800        
+Nod_119         	163633.700        	385741.400        
+Nod_120         	163541.000        	385653.800        
+Nod_121         	163390.200        	385575.700        
+Nod_122         	163241.500        	385436.700        
+Nod_123         	163166.800        	385439.100        
+Nod_124         	163064.700        	385538.500        
+Nod_126         	164643.100        	379741.600        
+Nod_127         	163780.300        	379604.600        
+Nod_128         	164643.300        	379605.200        
+Nod_129         	164608.600        	381563.500        
+Nod_130         	164678.134        	381736.928        
+Nod_131         	164564.900        	381778.700        
+Nod_132         	164486.399        	382131.050        
+Nod_133         	164627.800        	382162.800        
+Nod_134         	164677.300        	382459.500        
+Nod_135         	164628.000        	382528.500        
+Nod_136         	164656.400        	382726.300        
+Nod_222         	164271.367        	385540.729        
+Nod_233         	163748.911        	385685.320        
+Nod_244         	163642.878        	385689.176        
+Nod_266         	163567.690        	385613.989        
+Nod_277         	163403.820        	385527.234        
+Nod_139         	162986.893        	385592.537        
+Nod_141         	162986.765        	385607.395        
+Nod_909         	162974.597        	385608.547        
+cso_Geldrop     	166779.576        	382028.259        
+cso_gb_136      	170883.552        	384694.602        
+Nod_A*HLCMRZ1135OUT	165534.620        	384045.274        
+Nod_Ontvangkelder	163000.598        	385607.010        
+E_outfall       	162586.881        	385381.577        
+ES_outfall      	162412.640        	385387.676        
+Aalst_outfall   	163170.484        	380083.282        
+c_24_vr_storage 	161182.285        	385405.505        
+c_23_vr_storage 	160237.009        	383870.760        
+c_22_vr_storage 	159985.357        	383974.382        
+c_21_vr_storage 	160488.661        	383752.336        
+c_12_vr_storage 	159496.856        	384196.427        
+c_20_vr_storage 	159704.099        	384063.200        
+c_19_vr_storage 	159126.780        	384862.565        
+c_10_vr_storage 	159378.432        	384359.261        
+c_16_vr_storage 	159230.402        	385143.823        
+c_15_vr_storage 	159215.599        	384536.898        
+c_14_vr_storage 	160888.343        	383752.336        
+pipe_ES         	162414.915        	385538.597        
+pipe_Geldrop    	165379.405        	381645.252        
+gb_136          	170898.346        	383806.943        
+c_129_vr_storage	167703.929        	380366.213        
+c_128_vr_storage	166508.549        	380739.611        
+c_1285_vr_storage	167718.724        	380691.688        
+c_127_vr_storage	167129.544        	379919.011        
+c_126_vr_storage	167205.447        	379246.125        
+c_125_vr_storage	167235.035        	378432.437        
+c_124_vr_storage	165904.275        	384213.301        
+c_136_vr_storage	171556.693        	383851.326        
+c_135_vr_storage	172461.640        	383678.797        
+c_131_vr_storage	172502.301        	384011.473        
+c_130_vr_storage	173278.544        	384048.437        
+c_134_vr_storage	172435.766        	383482.888        
+c_132_vr_storage	172494.908        	383874.706        
+Aalst_gemaal    	163214.904        	379606.409        
+Mierlo_1        	170381.000        	383747.000        
+pre_ontvangstkelder	162989.297        	385572.470        
+Eindhoven       	162587.804        	385552.334        
+c_150_vr_storage	162387.917        	380613.536        
+c_123_vr_storage	161803.541        	380672.713        
+c_143_vr_storage	160257.535        	379111.913        
+c_147_vr_storage	158600.572        	380879.834        
+c_160_vr_storage	158615.366        	380436.004        
+c_145_vr_storage	158615.366        	379666.700        
+c_144_vr_storage	158533.998        	379178.488        
+c_142_vr_storage	158533.998        	378401.786        
+c_148_vr_storage	158526.601        	377536.319        
+c_149_vr_storage	158630.161        	376596.880        
+c_151_vr_storage	158615.366        	375849.767        
+c_161_vr_storage	158593.175        	381523.387        
+c_138_vr_storage	158741.118        	375198.817        
+c_139_vr_storage	156884.432        	375294.980        
+c_137_vr_storage	156877.034        	374614.441        
+c_122_vr_storage	164687.616        	378047.151        
+c_121_vr_storage	164206.801        	377684.690        
+c_120_vr_storage	165503.497        	376416.823        
+c_119_vr_storage	163543.250        	377496.808        
+c_100_vr_storage	164467.895        	376490.795        
+c_118_vr_storage	164186.803        	376268.880        
+c_116_vr_storage	163018.052        	377437.631        
+c_114_vr_storage	163506.264        	375943.405        
+c_112_vr_storage	162574.222        	377363.659        
+c_107_vr_storage	162033.536        	377364.196        
+c_107_2_vr_storage	162299.990        	375676.649        
+c_106_vr_storage	161915.111        	375765.467        
+c_99_vr_storage 	161248.974        	377393.803        
+c_103_vr_storage	161041.731        	375499.012        
+c_98_vr_storage 	160396.890        	377553.739        
+
+[VERTICES]
+;;Link          	X-Coord           	Y-Coord           
+;;--------------	------------------	------------------
+Con_156         	163168.618        	385189.855        
+RG_AALST.2      	163488.785        	379711.747        
+RG_AALST.3      	163491.552        	379658.244        
+RG_AALST.4      	163498.932        	379579.373        
+RG_AALST.5      	163497.087        	379530.944        
+
+[Polygons]
+;;Subcatchment  	X-Coord           	Y-Coord           
+;;--------------	------------------	------------------
+c_24_catchment  	161146.694        	385771.303        
+c_23_catchment  	158741.901        	382864.153        
+c_22_catchment  	158416.234        	383086.199        
+c_21_catchment  	159037.962        	382597.698        
+c_12_catchment  	158105.370        	383707.927        
+c_20_catchment  	158238.597        	383411.866        
+c_19_catchment  	157868.521        	384640.519        
+c_10_catchment  	158001.749        	384063.200        
+c_16_catchment  	157838.915        	384980.989        
+c_15_catchment  	157898.127        	384344.458        
+c_14_catchment  	159556.069        	382286.834        
+c_129_catchment 	168473.234        	380351.419        
+c_128_catchment 	166552.906        	379889.440        
+c_1285_catchment	168480.631        	380706.483        
+c_127_catchment 	167785.298        	379914.987        
+c_126_catchment 	167922.971        	379231.330        
+c_125_catchment 	167225.931        	377869.297        
+c_124_catchment 	167532.639        	384650.219        
+c_136_catchment 	171607.773        	383275.890        
+c_135_catchment 	173267.455        	383601.173        
+c_131_catchment 	172498.604        	384347.845        
+c_130_catchment 	173596.434        	384000.384        
+c_134_catchment 	173223.098        	383309.158        
+c_132_catchment 	173289.633        	383830.350        
+c_150_catchment 	162396.024        	381189.639        
+c_123_catchment 	161803.902        	381204.442        
+c_143_catchment 	160272.162        	379655.085        
+c_147_catchment 	158199.736        	380839.329        
+c_160_catchment 	158288.554        	380365.631        
+c_145_catchment 	158229.342        	379714.297        
+c_144_catchment 	158273.751        	379151.781        
+c_142_catchment 	158229.342        	378426.432        
+c_148_catchment 	158184.933        	377523.446        
+c_149_catchment 	158258.948        	376590.854        
+c_151_catchment 	158288.554        	375821.096        
+c_161_catchment 	158199.736        	381520.269        
+c_138_catchment 	158717.035        	374727.027        
+c_139_catchment 	156068.097        	375288.186        
+c_137_catchment 	156008.884        	374414.806        
+c_122_catchment 	166463.088        	376286.770        
+c_121_catchment 	164689.810        	376727.504        
+c_120_catchment 	166524.305        	375285.058        
+c_119_catchment 	163632.016        	376276.277        
+c_100_catchment 	166132.255        	375063.143        
+c_118_catchment 	165880.752        	374900.406        
+c_116_catchment 	163084.626        	375862.036        
+c_114_catchment 	164223.789        	374567.534        
+c_112_catchment 	162581.620        	375825.051        
+c_107_catchment 	161604.247        	375957.907        
+c_107_2_catchment	162448.021        	374699.648        
+c_106_catchment 	161885.505        	374729.254        
+c_99_catchment  	160301.579        	375499.012        
+c_103_catchment 	160952.913        	374640.436        
+c_98_catchment  	159479.101        	375570.131        
+
+;;Storage Node  	X-Coord           	Y-Coord           
+;;--------------	------------------	------------------
+c_24_vr_storage 	161182.285        	385405.505        
+c_23_vr_storage 	160237.009        	383870.760        
+c_22_vr_storage 	159985.357        	383974.382        
+c_21_vr_storage 	160488.661        	383752.336        
+c_12_vr_storage 	159496.856        	384196.427        
+c_20_vr_storage 	159704.099        	384063.200        
+c_19_vr_storage 	159126.780        	384862.565        
+c_10_vr_storage 	159378.432        	384359.261        
+c_16_vr_storage 	159230.402        	385143.823        
+c_15_vr_storage 	159215.599        	384536.898        
+c_14_vr_storage 	160888.343        	383752.336        
+pipe_ES         	162414.915        	385538.597        
+pipe_Geldrop    	165379.405        	381645.252        
+gb_136          	170898.346        	383806.943        
+c_129_vr_storage	167703.929        	380366.213        
+c_128_vr_storage	166508.549        	380739.611        
+c_1285_vr_storage	167718.724        	380691.688        
+c_127_vr_storage	167129.544        	379919.011        
+c_126_vr_storage	167205.447        	379246.125        
+c_125_vr_storage	167235.035        	378432.437        
+c_124_vr_storage	165904.275        	384213.301        
+c_136_vr_storage	171556.693        	383851.326        
+c_135_vr_storage	172461.640        	383678.797        
+c_131_vr_storage	172502.301        	384011.473        
+c_130_vr_storage	173278.544        	384048.437        
+c_134_vr_storage	172435.766        	383482.888        
+c_132_vr_storage	172494.908        	383874.706        
+Aalst_gemaal    	163214.904        	379606.409        
+Mierlo_1        	170381.000        	383747.000        
+pre_ontvangstkelder	162989.297        	385572.470        
+Eindhoven       	162587.804        	385552.334        
+c_150_vr_storage	162387.917        	380613.536        
+c_123_vr_storage	161803.541        	380672.713        
+c_143_vr_storage	160257.535        	379111.913        
+c_147_vr_storage	158600.572        	380879.834        
+c_160_vr_storage	158615.366        	380436.004        
+c_145_vr_storage	158615.366        	379666.700        
+c_144_vr_storage	158533.998        	379178.488        
+c_142_vr_storage	158533.998        	378401.786        
+c_148_vr_storage	158526.601        	377536.319        
+c_149_vr_storage	158630.161        	376596.880        
+c_151_vr_storage	158615.366        	375849.767        
+c_161_vr_storage	158593.175        	381523.387        
+c_138_vr_storage	158741.118        	375198.817        
+c_139_vr_storage	156884.432        	375294.980        
+c_137_vr_storage	156877.034        	374614.441        
+c_122_vr_storage	164687.616        	378047.151        
+c_121_vr_storage	164206.801        	377684.690        
+c_120_vr_storage	165503.497        	376416.823        
+c_119_vr_storage	163543.250        	377496.808        
+c_100_vr_storage	164467.895        	376490.795        
+c_118_vr_storage	164186.803        	376268.880        
+c_116_vr_storage	163018.052        	377437.631        
+c_114_vr_storage	163506.264        	375943.405        
+c_112_vr_storage	162574.222        	377363.659        
+c_107_vr_storage	162033.536        	377364.196        
+c_107_2_vr_storage	162299.990        	375676.649        
+c_106_vr_storage	161915.111        	375765.467        
+c_99_vr_storage 	161248.974        	377393.803        
+c_103_vr_storage	161041.731        	375499.012        
+c_98_vr_storage 	160396.890        	377553.739        
+
+[SYMBOLS]
+;;Gage          	X-Coord           	Y-Coord           
+;;--------------	------------------	------------------
+rain_gage_ES_1  	159295.120        	385897.610        
+rain_gage_Geldrop_1	170335.699        	381597.694        
+rain_gage_Zuid_1	157119.048        	378664.746        
+rain_gage_Zuid_2	164165.299        	373912.967        
+

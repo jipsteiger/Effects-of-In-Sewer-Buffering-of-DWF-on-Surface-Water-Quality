@@ -1,4 +1,8 @@
 # Ignore all model data, both for privacy reasons and size limitations.
-data/
+/data/
 
 api_key.txt
+
+!/data/precipitation/
+!/data/precipitation/dat_swmm_rain_data/
+!/data/precipitation/dat_swmm_rain_data/*

@@ -153,8 +153,8 @@ async def main(
 
     if dataset_name == "rad_nl21_rac_mfbs_5min":
         filenames = [file for file in filenames if ("2023" in file and "2024" in file)]
-    elif dataset_name == "harmonie_arome_cy43_p4a":
-        filenames = []
+    elif dataset_name == "QRF-RT-SSh":
+        filenames = [file for file in filenames if ("202409" in file)]
 
     logger.info(f"Number of files to download from selected dates: {len(filenames)}")
 
@@ -194,8 +194,8 @@ async def main(
 
 if __name__ == "__main__":
     # asyncio.run(main(
-    #     dataset_name="harmonie_arome_cy43_p4a",
-    #     dataset_version="1.0",
+    #     dataset_name="QRF-RT-SSh",
+    #     dataset_version="v2021",
     #     data_folder="data/precipitation/harmonie",
     # ))
     asyncio.run(
@@ -209,9 +209,15 @@ if __name__ == "__main__":
 # https://dataplatform.knmi.nl/dataset/access/harmonie-arome-cy43-p4a-1-0
 # dataset_name = "harmonie_arome_cy43_p4a"
 # dataset_version = "1.0"
-# data_folder = "./data/precipitation/harmonie"
+# data_folder = "./data/precipitation/zip_raw_harmonie"
 
 # https://dataplatform.knmi.nl/dataset/rad-nl21-rac-mfbs-5min-2-0
 # dataset_name = "rad_nl21_rac_mfbs_5min"
 # dataset_version = "2.0"
-# data_folder = "data/precipitation/euradclim"
+# data_folder = "data/precipitation/zip_raw_euradclim"
+
+# THIS ONE WORKS
+# https://dataplatform.knmi.nl/dataset/access/qrf-rt-ssh-v2021
+# dataset_name = "QRF-RT-SSh"
+# dataset_version = "v2021"
+# data_folder = "./data/precipitation/zip_raw_harmonie"

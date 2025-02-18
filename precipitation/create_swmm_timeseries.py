@@ -3,7 +3,7 @@ import os
 
 # Read CSV file
 data = pd.read_csv(
-    r"data\precipitation\selected_euradclim\5_min_mean_precipitation_data.csv",
+    r"data\precipitation\csv_selected_area_euradclim\2024_5_min_precipitation_data.csv",
     index_col="timestamp",
     parse_dates=True,
 )
@@ -12,10 +12,10 @@ data = pd.read_csv(
 locations = list(data.keys())
 
 # Directory to save output files
-output_dir = "data/precipitation/swmm_rain_data"
+output_dir = "data/precipitation/dat_swmm_rain_data"
 os.makedirs(output_dir, exist_ok=True)
 
-MONTH = 12
+MONTH = 9
 
 
 # Function to write SWMM rain gauge format

@@ -272,7 +272,7 @@ else:
 print(f"Data saved to {output_file}")
 
 df = pd.read_csv(
-    rf"data\precipitation\selected_euradclim\5_min_mean_precipitation_data.csv",
+    rf"data\precipitation\csv_selected_area_euradclim\2024_5_min_precipitation_data.csv",
     index_col="timestamp",
     parse_dates=True,
 )

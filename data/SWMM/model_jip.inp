@@ -48,10 +48,10 @@ DRY_ONLY        	NO
 [RAINGAGES]
 ;;Name          	Format   	Interval	SCF     	Source    
 ;;--------------	---------	------	------	----------
-rain_gage_ES_1  	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\swmm_rain_data\ES_month_12.dat"	ES        	MM   
-rain_gage_Geldrop_1	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\swmm_rain_data\GE_month_12.dat"	GE        	MM   
-rain_gage_Zuid_1	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\swmm_rain_data\RZ1_month_12.dat"	RZ1       	MM   
-rain_gage_Zuid_2	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\swmm_rain_data\RZ2_month_12.dat"	RZ2       	MM   
+rain_gage_ES_1  	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\ES_month_9.dat"	ES        	MM   
+rain_gage_Geldrop_1	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\GE_month_9.dat"	GE        	MM   
+rain_gage_Zuid_1	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\RZ1_month_9.dat"	RZ1       	MM   
+rain_gage_Zuid_2	VOLUME   	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\RZ2_month_9.dat"	RZ2       	MM   
 
 [SUBCATCHMENTS]
 ;;Name          	Rain Gage       	Outlet          	Area    	%Imperv 	Width   	%Slope  	CurbLen 	SnowPack        
@@ -303,16 +303,16 @@ c_10_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      
 c_16_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_15_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_14_vr_storage 	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
-pipe_ES         	0       	3         	0         	PYRAMIDAL 	100       	1000      	0       	0        	0       
-pipe_Geldrop    	0       	5         	0         	PYRAMIDAL 	100       	100       	0       	0        	0       
-gb_136          	0       	1.5       	0         	PYRAMIDAL 	10        	100       	0       	0        	0       
+pipe_ES         	10      	3         	0         	PYRAMIDAL 	100       	1000      	0       	0        	0       
+pipe_Geldrop    	15.06   	5         	0         	PYRAMIDAL 	100       	100       	0       	0        	0       
+gb_136          	16.45   	1.5       	0         	PYRAMIDAL 	10        	100       	0       	0        	0       
 c_129_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_128_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_1285_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_127_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_126_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_125_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
-c_124_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_124_vr_storage	14.22   	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_136_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_135_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_131_vr_storage	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
@@ -404,6 +404,11 @@ Con_156         	Nod_277         	Nod_123         	203.550215	0.02      	0.00000
 Con_162         	Nod_909         	Nod_141         	400       	0.01      	0         	0         	0         	0         
 Con_147         	Nod_139         	Nod_141         	400       	0.01      	0         	0         	0         	0         
 Con_148         	Nod_141         	Nod_Ontvangkelder	400       	0.01      	0         	0         	0         	0         
+geldrop_out_east	pipe_Geldrop    	Nod_130         	400       	0.01      	0         	0         	0         	0         
+geldrop_out_north	pipe_Geldrop    	Nod_100         	135       	0.025     	0         	0         	0         	0         
+mierlo_out      	gb_136          	Mierlo_2        	164       	0.001     	0         	0         	0         	0         
+eeneind_out     	c_124_vr_storage	Nod_104         	31        	0.01      	0         	0         	0         	0         
+eindhoven_out   	pipe_ES         	Eindhoven       	400       	0.01      	0         	0         	0         	0         
 
 [PUMPS]
 ;;Name          	From Node       	To Node         	Pump Curve      	Status  	Sartup	Shutoff 
@@ -432,8 +437,8 @@ P_c_130_d_8     	c_130_vr_storage	c_131_vr_storage	virtual_pump_curve	ON      	0
 P_c_134_d_8     	c_134_vr_storage	c_136_vr_storage	virtual_pump_curve	ON      	0       	0       
 P_c_132_d_8     	c_132_vr_storage	c_136_vr_storage	virtual_pump_curve	ON      	0       	0       
 Con_1119.1      	Mierlo_1        	Nod_100         	Curve_1119.1    	ON      	0       	0       
-WWTP_Inflow     	pre_ontvangstkelder	Nod_139         	Curve_WWTP_Inlet	ON      	0       	0       
-E_pump          	Eindhoven       	Nod_909         	pumpcurveein    	ON      	0       	0       
+P_riool_zuid_out	pre_ontvangstkelder	Nod_139         	Curve_WWTP_Inlet	ON      	0       	0       
+P_eindhoven_out 	Eindhoven       	Nod_909         	pumpcurveein    	ON      	0       	0       
 c_150_d_57      	c_150_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
 c_123_d_40      	c_123_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
 c_143_d_70      	c_143_vr_storage	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
@@ -464,10 +469,10 @@ c_106_d_13      	c_106_vr_storage	c_107_vr_storage	virtual_pump_curve	ON      	0
 c_99_d_41       	c_99_vr_storage 	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
 c_103_d_8       	c_103_vr_storage	c_99_vr_storage 	virtual_pump_curve	ON      	0       	0       
 c_98_d_20       	c_98_vr_storage 	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
-RG_AALST.2      	Aalst_gemaal    	Nod_127         	38.RG_AALST.2   	ON      	0       	0       
-RG_AALST.3      	Aalst_gemaal    	Nod_127         	38.RG_AALST.3   	ON      	0       	0       
-RG_AALST.4      	Aalst_gemaal    	Nod_127         	38.RG_AALST.4   	ON      	0       	0       
-RG_AALST.5      	Aalst_gemaal    	Nod_127         	38.RG_AALST.5   	ON      	0       	0       
+P_aalst_1       	Aalst_gemaal    	Nod_127         	38.RG_AALST.2   	ON      	0       	0       
+P_aalst_2       	Aalst_gemaal    	Nod_127         	38.RG_AALST.3   	ON      	0       	0       
+P_aalst_3       	Aalst_gemaal    	Nod_127         	38.RG_AALST.4   	ON      	0       	0       
+P_aalst_4       	Aalst_gemaal    	Nod_127         	38.RG_AALST.5   	ON      	0       	0       
 
 [WEIRS]
 ;;Name          	From Node       	To Node         	Type        	CrestHt   	Qcoeff    	Gated   	EndCon  	EndCoeff  	Surcharge 	RoadWidth 	RoadSurf  	Coeff. Curve
@@ -529,12 +534,50 @@ Con_156         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	
 Con_162         	CIRCULAR    	1               	0         	0         	0         	1         	          
 Con_147         	CIRCULAR    	1               	0         	0         	0         	1         	          
 Con_148         	CIRCULAR    	1               	0         	0         	0         	1         	          
+geldrop_out_east	CIRCULAR    	1               	0         	0         	0         	1         	          
+geldrop_out_north	CIRCULAR    	1.25            	0         	0         	0         	1         	          
+mierlo_out      	CIRCULAR    	0.7             	0         	0         	0         	1         	          
+eeneind_out     	CIRCULAR    	0.25            	0         	0         	0         	1         	          
+eindhoven_out   	CIRCULAR    	1               	0         	0         	0         	1         	          
 weir_Geldrop    	RECT_OPEN   	1               	1         	0         	0         
 weir_gb_136     	RECT_OPEN   	1               	1         	0         	0         
 Con_A*HLCMRZ1135.1	RECT_OPEN   	0.500000        	9.000000  	0.000000  	0.000000  
 E_weir          	RECT_OPEN   	10              	10        	0         	0         
 weir_ES         	RECT_OPEN   	1               	1         	0         	0         
 Aalst_weir      	RECT_OPEN   	1               	1         	0         	0         
+
+[LOSSES]
+;;Link          	Kentry    	Kexit     	Kavg      	Flap Gate 	Seepage   
+;;--------------	----------	----------	----------	----------	----------
+geldrop_out_east	0         	0         	0         	YES       	0         
+geldrop_out_north	0         	0         	0         	YES       	0         
+
+[CONTROLS]
+RULE RG_AALST.2_ON
+IF NODE Aalst_gemaal HEAD >= 0.33
+THEN PUMP RG_AALST.2 STATUS = ON
+RULE RG_AALST.2_OFF
+IF NODE Aalst_gemaal HEAD <= 0.117
+THEN PUMP RG_AALST.2 STATUS = OFF
+RULE RG_AALST.3_ON
+IF NODE Aalst_gemaal HEAD >= 0.47
+THEN PUMP RG_AALST.3 STATUS = ON
+RULE RG_AALST.3_OFF
+IF NODE Aalst_gemaal HEAD <= 0.165
+THEN PUMP RG_AALST.3 STATUS = OFF
+RULE RG_AALST.4_ON
+IF NODE Aalst_gemaal HEAD >= 0.611
+THEN PUMP RG_AALST.4 STATUS = ON
+RULE RG_AALST.4_OFF
+IF NODE Aalst_gemaal HEAD <= 0.21
+THEN PUMP RG_AALST.4 STATUS = OFF
+RULE RG_AALST.5_ON
+IF NODE Aalst_gemaal HEAD >= 0.705
+THEN PUMP RG_AALST.5 STATUS = ON
+RULE RG_AALST.5_OFF
+IF NODE Aalst_gemaal HEAD <= 0.259
+THEN PUMP RG_AALST.5 STATUS = OFF
+
 
 [DWF]
 ;;Node          	Constituent     	Baseline  	Patterns  
@@ -740,7 +783,7 @@ Nod_277         	163403.820        	385527.234
 Nod_139         	162986.893        	385592.537        
 Nod_141         	162986.765        	385607.395        
 Nod_909         	162974.597        	385608.547        
-cso_Geldrop     	166779.576        	382028.259        
+cso_Geldrop     	167472.547        	381877.979        
 cso_gb_136      	170883.552        	384694.602        
 Nod_A*HLCMRZ1135OUT	165534.620        	384045.274        
 Nod_Ontvangkelder	163000.598        	385607.010        
@@ -759,7 +802,7 @@ c_16_vr_storage 	159230.402        	385143.823
 c_15_vr_storage 	159215.599        	384536.898        
 c_14_vr_storage 	160888.343        	383752.336        
 pipe_ES         	162414.915        	385538.597        
-pipe_Geldrop    	165379.405        	381645.252        
+pipe_Geldrop    	165844.823        	382008.504        
 gb_136          	170898.346        	383806.943        
 c_129_vr_storage	167703.929        	380366.213        
 c_128_vr_storage	166508.549        	380739.611        
@@ -813,10 +856,10 @@ c_98_vr_storage 	160396.890        	377553.739
 ;;Link          	X-Coord           	Y-Coord           
 ;;--------------	------------------	------------------
 Con_156         	163168.618        	385189.855        
-RG_AALST.2      	163488.785        	379711.747        
-RG_AALST.3      	163491.552        	379658.244        
-RG_AALST.4      	163498.932        	379579.373        
-RG_AALST.5      	163497.087        	379530.944        
+P_aalst_1       	163488.785        	379711.747        
+P_aalst_2       	163491.552        	379658.244        
+P_aalst_3       	163498.932        	379579.373        
+P_aalst_4       	163497.087        	379530.944        
 
 [Polygons]
 ;;Subcatchment  	X-Coord           	Y-Coord           
@@ -890,7 +933,7 @@ c_16_vr_storage 	159230.402        	385143.823
 c_15_vr_storage 	159215.599        	384536.898        
 c_14_vr_storage 	160888.343        	383752.336        
 pipe_ES         	162414.915        	385538.597        
-pipe_Geldrop    	165379.405        	381645.252        
+pipe_Geldrop    	165844.823        	382008.504        
 gb_136          	170898.346        	383806.943        
 c_129_vr_storage	167703.929        	380366.213        
 c_128_vr_storage	166508.549        	380739.611        

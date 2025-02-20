@@ -48,3 +48,55 @@ for location in locations:
         write_swmm_file(month_file, location, month_data)
 
 print("SWMM rain gauge files have been successfully created!")
+
+
+import pandas as pd
+import os
+
+# Read CSV file
+data = pd.read_csv(
+    r"data\precipitation\csv_selected_area_euradclim\2024_5_min_precipitation_data.csv",
+    index_col="timestamp",
+    parse_dates=True,
+)
+
+# Get all locations (columns)
+locations = list(data.keys())
+
+# Directory to save output files
+output_dir = "data/precipitation/dat_swmm_rain_data"
+os.makedirs(output_dir, exist_ok=True)
+
+MONTH = 9
+
+
+# Function to write SWMM rain gauge format
+def write_swmm_file(file_path, location, time_series):
+    with open(file_path, "w") as f:
+        # Rain gauge definition
+        f.write(f"; File: {location}\n")
+
+        for timestamp, value in time_series.items():
+            year = timestamp.year
+            month = timestamp.month
+            day = timestamp.day
+            hour = timestamp.hour
+            minute = timestamp.minute
+            f.write(f"{month}/{day}/{year} {hour}:{minute} {value:.2f}\n")
+
+
+# Loop through each location
+for location in locations:
+    # Extract yearly data
+    year_data = data[location].dropna()  # Remove NaN values
+    year_file = os.path.join(output_dir, f"{location}_yearly_swmm_timeseries.dat")
+    write_swmm_file(year_file, location, year_data)
+
+    month_data = data.loc[data.index.month == MONTH, location].dropna()
+    if not month_data.empty:  # Ensure there's data before saving
+        month_file = os.path.join(
+            output_dir, f"{location}_month_{MONTH}_swmm_timeseries.dat"
+        )
+        write_swmm_file(month_file, location, month_data)
+
+print("SWMM rain gauge files have been successfully created!")

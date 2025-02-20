@@ -1,7 +1,5 @@
 import pyswmm as ps
-import swmm_api as sa
 import datetime as dt
-import pandas as pd
 
 
 class Simulation:
@@ -66,9 +64,7 @@ class Simulation:
                 len(self.virtual_storage_inflow[virtual_storage.nodeid]) - 1
                 == rounded_steps
             ):
-                pump_name = self.virtual_storages[0].nodeid.replace(
-                    "_vr_storage_", "_d_"
-                )
+                pump_name = virtual_storage.nodeid.replace("_vr_storage_", "_d_")
 
                 delay_outflow = self.virtual_storage_inflow[virtual_storage.nodeid].pop(
                     0

@@ -13,3 +13,4 @@ api_key.txt
 !/data/SWMM/model_jip.out
 
 *.pyc
+test.py

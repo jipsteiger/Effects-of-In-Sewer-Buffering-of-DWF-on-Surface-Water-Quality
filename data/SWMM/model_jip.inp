@@ -11,14 +11,14 @@ MIN_SLOPE           	0
 ALLOW_PONDING       	NO
 SKIP_STEADY_STATE   	NO
 
-START_DATE          	09/01/2024
+START_DATE          	08/01/2024
 START_TIME          	00:00:00
-REPORT_START_DATE   	09/01/2020
+REPORT_START_DATE   	08/01/2020
 REPORT_START_TIME   	00:00:00
-END_DATE            	10/01/2024
+END_DATE            	09/01/2024
 END_TIME            	00:00:00
-SWEEP_START         	09/01
-SWEEP_END           	09/30
+SWEEP_START         	08/01
+SWEEP_END           	08/30
 DRY_DAYS            	0
 REPORT_STEP         	00:05:00
 WET_STEP            	00:01:00
@@ -281,7 +281,7 @@ Nod_277         	11.260000 	28.740000 	0.000000  	0.000000  	1000.00000
 cso_Geldrop     	4.6231    	FREE      	                	NO      	                
 cso_gb_136      	1         	FREE      	                	NO      	                
 cso_RZ          	16.070000 	FREE      	                	NO      	                
-cso_ES_2        	8         	FREE      	                	NO      	                
+cso_ES_2        	1.5       	FREE      	                	NO      	                
 cso_ES_1        	1.25      	FREE      	                	NO      	                
 cso_AALST       	0         	FREE      	                	NO      	                
 out_ES          	0         	FREE      	                	NO      	                
@@ -301,7 +301,7 @@ c_10_vr_storage_10	0       	10        	0         	PYRAMIDAL 	1000      	1000    
 c_16_vr_storage_20	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_15_vr_storage_24	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_14_vr_storage_24	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
-pipe_ES         	10      	3         	0         	PYRAMIDAL 	100       	1000      	0       	0        	0       
+pipe_ES         	0       	3         	0         	PYRAMIDAL 	100       	1000      	0       	0        	0       
 pipe_Geldrop    	15.06   	5         	0         	PYRAMIDAL 	100       	100       	0       	0        	0       
 gb_136          	16.45   	1.5       	0         	PYRAMIDAL 	10        	100       	0       	0        	0       
 c_129_vr_storage_2	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
@@ -320,7 +320,7 @@ c_132_vr_storage_8	0       	10        	0         	PYRAMIDAL 	1000      	1000    
 Aalst_gemaal    	0       	2         	0         	PYRAMIDAL 	100       	1000      	0       	0        	0       
 Mierlo_1        	14.8    	4.100000  	0.000000  	TABULAR   	mierlo_kelder               	0        	0       
 pre_ontvangstkelder	8       	29.01     	0         	TABULAR   	ont_keld                    	0        	0       
-Eindhoven       	10      	7         	0         	TABULAR   	Curve_Storein               	0        	0       
+Eindhoven       	0       	7         	0         	TABULAR   	Curve_Storein               	0        	0       
 c_150_vr_storage_57	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_123_vr_storage_40	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_143_vr_storage_70	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
@@ -434,36 +434,36 @@ P_c_132_d_8     	c_132_vr_storage_8	c_136_vr_storage_28	virtual_pump_curve	ON   
 Con_1119.1      	Mierlo_1        	Nod_100         	Curve_1119.1    	ON      	0       	0       
 P_riool_zuid_out	pre_ontvangstkelder	out_RZ          	Curve_WWTP_Inlet	ON      	0       	0       
 P_eindhoven_out 	Eindhoven       	out_ES          	pumpcurveein    	ON      	0       	0       
-c_150_d_57      	c_150_vr_storage_57	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
-c_123_d_40      	c_123_vr_storage_40	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
-c_143_d_70      	c_143_vr_storage_70	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
-c_147_d_4       	c_147_vr_storage_4	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
-c_160_d_8       	c_160_vr_storage_8	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
-c_145_d_4       	c_145_vr_storage_4	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
-c_144_d_19      	c_144_vr_storage_19	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
-c_142_d_35      	c_142_vr_storage_35	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
-c_148_d_12      	c_148_vr_storage_12	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
-c_149_d_17      	c_149_vr_storage_17	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
-c_151_d_22      	c_151_vr_storage_22	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
-c_161_d_32      	c_161_vr_storage_32	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
-c_138_d_22      	c_138_vr_storage_22	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
-c_139_d_8       	c_139_vr_storage_8	c_138_vr_storage_22	virtual_pump_curve	ON      	0       	0       
-c_137_d_4       	c_137_vr_storage_4	c_138_vr_storage_22	virtual_pump_curve	ON      	0       	0       
-c_122_d_29      	c_122_vr_storage_29	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
-c_121_d_12      	c_121_vr_storage_12	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
-c_120_d_8       	c_120_vr_storage_8	c_121_vr_storage_12	virtual_pump_curve	ON      	0       	0       
-c_119_d_80      	c_119_vr_storage_80	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
-c_100_d_10      	c_100_vr_storage_10	c_119_vr_storage_80	virtual_pump_curve	ON      	0       	0       
-c_118_d_13      	c_118_vr_storage_13	c_119_vr_storage_80	virtual_pump_curve	ON      	0       	0       
-c_116_d_15      	c_116_vr_storage_15	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
-c_114_d_10      	c_114_vr_storage_10	c_116_vr_storage_15	virtual_pump_curve	ON      	0       	0       
-c_112_d_21      	c_112_vr_storage_21	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
-c_107_d_36      	c_107_vr_storage_36	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
-c_107_2_d_12    	c_107_2_vr_storage_12	c_107_vr_storage_36	virtual_pump_curve	ON      	0       	0       
-c_106_d_13      	c_106_vr_storage_13	c_107_vr_storage_36	virtual_pump_curve	ON      	0       	0       
-c_99_d_41       	c_99_vr_storage_41	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
-c_103_d_8       	c_103_vr_storage_8	c_99_vr_storage_41	virtual_pump_curve	ON      	0       	0       
-c_98_d_20       	c_98_vr_storage_20	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+P_c_150_d_57    	c_150_vr_storage_57	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+P_c_123_d_40    	c_123_vr_storage_40	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+P_c_143_d_70    	c_143_vr_storage_70	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+P_c_147_d_4     	c_147_vr_storage_4	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
+P_c_160_d_8     	c_160_vr_storage_8	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
+P_c_145_d_4     	c_145_vr_storage_4	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
+P_c_144_d_19    	c_144_vr_storage_19	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
+P_c_142_d_35    	c_142_vr_storage_35	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
+P_c_148_d_12    	c_148_vr_storage_12	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
+P_c_149_d_17    	c_149_vr_storage_17	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
+P_c_151_d_22    	c_151_vr_storage_22	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
+P_c_161_d_32    	c_161_vr_storage_32	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
+P_c_138_d_22    	c_138_vr_storage_22	c_143_vr_storage_70	virtual_pump_curve	ON      	0       	0       
+P_c_139_d_8     	c_139_vr_storage_8	c_138_vr_storage_22	virtual_pump_curve	ON      	0       	0       
+P_c_137_d_4     	c_137_vr_storage_4	c_138_vr_storage_22	virtual_pump_curve	ON      	0       	0       
+P_c_122_d_29    	c_122_vr_storage_29	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+P_c_121_d_12    	c_121_vr_storage_12	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+P_c_120_d_8     	c_120_vr_storage_8	c_121_vr_storage_12	virtual_pump_curve	ON      	0       	0       
+P_c_119_d_80    	c_119_vr_storage_80	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+P_c_100_d_10    	c_100_vr_storage_10	c_119_vr_storage_80	virtual_pump_curve	ON      	0       	0       
+P_c_118_d_13    	c_118_vr_storage_13	c_119_vr_storage_80	virtual_pump_curve	ON      	0       	0       
+P_c_116_d_15    	c_116_vr_storage_15	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+P_c_114_d_10    	c_114_vr_storage_10	c_116_vr_storage_15	virtual_pump_curve	ON      	0       	0       
+P_c_112_d_21    	c_112_vr_storage_21	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+P_c_107_d_36    	c_107_vr_storage_36	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+P_c_107_2_d_12  	c_107_2_vr_storage_12	c_107_vr_storage_36	virtual_pump_curve	ON      	0       	0       
+P_c_106_d_13    	c_106_vr_storage_13	c_107_vr_storage_36	virtual_pump_curve	ON      	0       	0       
+P_c_99_d_41     	c_99_vr_storage_41	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
+P_c_103_d_8     	c_103_vr_storage_8	c_99_vr_storage_41	virtual_pump_curve	ON      	0       	0       
+P_c_98_d_20     	c_98_vr_storage_20	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
 P_aalst_1       	Aalst_gemaal    	Nod_127         	38.RG_AALST.2   	ON      	0       	0       
 P_aalst_2       	Aalst_gemaal    	Nod_127         	38.RG_AALST.3   	ON      	0       	0       
 P_aalst_3       	Aalst_gemaal    	Nod_127         	38.RG_AALST.4   	ON      	0       	0       
@@ -569,6 +569,9 @@ THEN PUMP P_aalst_4 STATUS = ON
 RULE P_aalst_4_OFF
 IF NODE Aalst_gemaal HEAD <= 0.259
 THEN PUMP P_aalst_4 STATUS = OFF
+
+
+
 
 
 

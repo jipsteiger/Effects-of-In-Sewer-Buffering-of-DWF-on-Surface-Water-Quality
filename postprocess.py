@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import plotly.offline as pyo
 import plotly.io as pio
 from plotly.subplots import make_subplots
+import matplotlib.pyplot as plt
 
 
 class PostProcess:
@@ -14,12 +15,14 @@ class PostProcess:
         self.output = sa.SwmmOutput(rf"data\SWMM\{model_name}.out").to_frame()
         self.current_time = datetime.now().strftime("%m-%d_%H-%M")
 
-    def create_outfall_csv(self):
+    def create_outfall_csv(self, suffix=""):
         for outfall in ["out_RZ", "out_ES"]:
             outfall_timeseries = self.output["node"][outfall]["total_inflow"]
-            outfall_timeseries.to_csv(f"swmm_output/{self.current_time}_{outfall}.csv")
+            outfall_timeseries.to_csv(
+                f"swmm_output/{self.current_time}_{outfall}_{suffix}.csv"
+            )
 
-    def plot_outfalls(self, save=False, plot_rain=False):
+    def plot_outfalls(self, save=False, plot_rain=False, suffix=""):
         outfalls = set(
             [
                 node[0]
@@ -37,9 +40,10 @@ class PostProcess:
             "Flow [CMS]",
             save=save,
             plot_rain=plot_rain,
+            suffix=suffix,
         )
 
-    def plot_pumps(self, save=False, plot_rain=False):
+    def plot_pumps(self, save=False, plot_rain=False, suffix=""):
         pumps = [
             "P_riool_zuid_out",
             "P_eindhoven_out",
@@ -58,6 +62,7 @@ class PostProcess:
             "Flow [CMS]",
             save=save,
             plot_rain=plot_rain,
+            suffix=suffix,
         )
 
     def plot(
@@ -71,6 +76,7 @@ class PostProcess:
         yaxis,
         save,
         plot_rain,
+        suffix,
     ):
         fig = make_subplots(specs=[[{"secondary_y": True}]])
         layout_config = dict(
@@ -93,7 +99,7 @@ class PostProcess:
         if save:
             pyo.plot(
                 fig,
-                filename=f"swmm_output/plots/{self.current_time}_{file_name}.html",
+                filename=f"swmm_output/plots/{self.current_time}_{file_name}_{suffix}.html",
                 auto_open=True,
             )
         else:
@@ -141,3 +147,19 @@ class PostProcess:
             )
             fig.data[-1].visible = "legendonly"
         return fig
+
+
+def plot_make_dwf_only():
+
+    aa = sa.SwmmOutput(rf"data\SWMM\model_jip.out").to_frame()
+
+    aa.node[f"out_RZ"]["total_inflow"].plot()
+    aa.node[f"out_ES"]["total_inflow"].plot()
+    plt.legend()
+
+    bb = aa.node[f"out_RZ"]["total_inflow"] + aa.node[f"out_ES"]["total_inflow"]
+    ideal_inflow = bb.sum() / len(bb)
+
+    ideal_inflow_df = pd.DataFrame([ideal_inflow] * len(bb), index=bb.index)
+    ideal_inflow_df.plot()
+    ideal_inflow_df.to_csv("swmm_output/02-20_21_24_out_DWF_only.csv")

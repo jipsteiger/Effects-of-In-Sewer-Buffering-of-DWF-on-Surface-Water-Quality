@@ -9,3 +9,7 @@ api_key.txt
 
 !/data/SWMM/
 !/data/SWMM/model_jip.inp
+!/data/SWMM/model_jip.rpt
+!/data/SWMM/model_jip.out
+
+*.pyc

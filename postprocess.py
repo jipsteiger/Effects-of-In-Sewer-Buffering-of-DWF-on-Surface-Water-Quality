@@ -15,11 +15,28 @@ class PostProcess:
         self.output = sa.SwmmOutput(rf"data\SWMM\{model_name}.out").to_frame()
         self.current_time = datetime.now().strftime("%m-%d_%H-%M")
 
-    def create_outfall_csv(self, suffix=""):
+    def create_outfall_txt(self, suffix=""):
         for outfall in ["out_RZ", "out_ES"]:
-            outfall_timeseries = self.output["node"][outfall]["total_inflow"]
+            outfall_timeseries = pd.DataFrame(
+                self.output["node"][outfall]["total_inflow"]
+            )
+            start_date = outfall_timeseries.index[0]
+            outfall_timeseries[".t"] = (
+                outfall_timeseries.index - start_date
+            ).total_seconds() / (24 * 60 * 60)
+            outfall_timeseries[f".in_{outfall}"] = outfall_timeseries["total_inflow"]
+            output_file = f"#.t\t.in_{outfall}\n#d\tCMS\n"
+            output_file += outfall_timeseries[[".t", f".in_{outfall}"]].to_csv(
+                index=False, sep="\t", header=False
+            )
+            with open(
+                f"swmm_output/{self.current_time}_{outfall}_{suffix}.txt", "w"
+            ) as f:
+                f.write(output_file)
             outfall_timeseries.to_csv(
-                f"swmm_output/{self.current_time}_{outfall}_{suffix}.csv"
+                f"swmm_output/{self.current_time}_{outfall}_{suffix}.csv",
+                sep=";",
+                decimal=",",
             )
 
     def plot_outfalls(self, save=False, plot_rain=False, suffix=""):
@@ -150,16 +167,37 @@ class PostProcess:
 
 
 def plot_make_dwf_only():
-
+    current_time = datetime.now().strftime("%m-%d_%H-%M")
     aa = sa.SwmmOutput(rf"data\SWMM\model_jip.out").to_frame()
 
-    aa.node[f"out_RZ"]["total_inflow"].plot()
-    aa.node[f"out_ES"]["total_inflow"].plot()
-    plt.legend()
+    for outfall in ["out_RZ", "out_ES"]:
+        aa.node[outfall]["total_inflow"].plot()
+        timeseries = aa.node[outfall]["total_inflow"]
+        value = timeseries.sum() / len(timeseries)
+        ideal_dwf = pd.DataFrame([value] * len(timeseries), index=timeseries.index)
+        ideal_dwf.plot()
 
-    bb = aa.node[f"out_RZ"]["total_inflow"] + aa.node[f"out_ES"]["total_inflow"]
-    ideal_inflow = bb.sum() / len(bb)
+        plt.legend()
 
-    ideal_inflow_df = pd.DataFrame([ideal_inflow] * len(bb), index=bb.index)
-    ideal_inflow_df.plot()
-    ideal_inflow_df.to_csv("swmm_output/02-20_21_24_out_DWF_only.csv")
+        bb = aa.node[f"out_RZ"]["total_inflow"] + aa.node[f"out_ES"]["total_inflow"]
+        ideal_inflow = bb.sum() / len(bb)
+
+        ideal_inflow_df = pd.DataFrame([ideal_inflow] * len(bb), index=bb.index)
+        ideal_inflow_df.plot()
+
+        start_date = ideal_inflow_df.index[0]
+        ideal_inflow_df[".t"] = (ideal_inflow_df.index - start_date).total_seconds() / (
+            24 * 60 * 60
+        )
+        ideal_inflow_df[f".in_{outfall}"] = ideal_inflow_df.iloc[:, 0]
+        output_file = f"#.t\t.in_{outfall}\n#d\tCMS\n"
+        output_file += ideal_inflow_df[[".t", f".in_{outfall}"]].to_csv(
+            index=False, sep="\t", header=False
+        )
+        with open(f"swmm_output/{current_time}_{outfall}_ideal_dwf.txt", "w") as f:
+            f.write(output_file)
+        ideal_inflow_df.iloc[:, 0].to_csv(
+            f"swmm_output/{current_time}_{outfall}_ideal_dwf.csv",
+            sep=";",
+            decimal=",",
+        )

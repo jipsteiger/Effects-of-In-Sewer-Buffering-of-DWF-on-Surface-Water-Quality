@@ -11,14 +11,14 @@ MIN_SLOPE           	0
 ALLOW_PONDING       	NO
 SKIP_STEADY_STATE   	NO
 
-START_DATE          	08/01/2024
+START_DATE          	01/01/2024
 START_TIME          	00:00:00
-REPORT_START_DATE   	08/01/2020
+REPORT_START_DATE   	01/01/2024
 REPORT_START_TIME   	00:00:00
-END_DATE            	09/01/2024
+END_DATE            	01/01/2025
 END_TIME            	00:00:00
-SWEEP_START         	08/01
-SWEEP_END           	08/30
+SWEEP_START         	01/01
+SWEEP_END           	12/31
 DRY_DAYS            	0
 REPORT_STEP         	00:05:00
 WET_STEP            	00:01:00
@@ -67,7 +67,7 @@ c_10_catchment  	rain_gage_ES_1  	c_10_vr_storage_10	6.2     	50      	400     	
 c_16_catchment  	rain_gage_ES_1  	c_16_vr_storage_20	26.4    	50      	400     	0.5     	0       	                
 c_15_catchment  	rain_gage_ES_1  	c_15_vr_storage_24	33.9    	50      	400     	0.5     	0       	                
 c_14_catchment  	rain_gage_ES_1  	c_14_vr_storage_24	35.6    	50      	400     	0.5     	0       	                
-c_129_catchment 	rain_gage_Geldrop_1	c_129_vr_storage_2	5       	50      	400     	0.5     	0       	                
+c_129_catchment 	rain_gage_Geldrop_1	c_129_vr_storage_10	5       	50      	400     	0.5     	0       	                
 c_128_catchment 	rain_gage_Geldrop_1	c_128_vr_storage_64	255.1   	50      	400     	0.5     	0       	                
 c_1285_catchment	rain_gage_Geldrop_1	c_1285_vr_storage_10	5.8     	50      	400     	0.5     	0       	                
 c_127_catchment 	rain_gage_Geldrop_1	c_127_vr_storage_46	134.9   	50      	400     	0.5     	0       	                
@@ -106,7 +106,7 @@ c_114_catchment 	rain_gage_Zuid_1	c_114_vr_storage_10	6.1     	50      	400     
 c_112_catchment 	rain_gage_Zuid_1	c_112_vr_storage_21	28.5    	50      	400     	0.5     	0       	                
 c_107_catchment 	rain_gage_Zuid_1	c_107_vr_storage_36	77.2    	50      	400     	0.5     	0       	                
 c_107_2_catchment	rain_gage_Zuid_1	c_107_2_vr_storage_12	9       	50      	400     	0.5     	0       	                
-c_106_catchment 	rain_gage_Zuid_1	c_106_vr_storage_13	11.2    	50      	400     	0.5     	0       	                
+c_106_catchment 	rain_gage_Zuid_1	c_106_vr_storage_13	11.3    	50      	400     	0.5     	0       	                
 c_99_catchment  	rain_gage_Zuid_1	c_99_vr_storage_41	103.7   	50      	400     	0.5     	0       	                
 c_103_catchment 	rain_gage_Zuid_1	c_103_vr_storage_8	3.8     	50      	400     	0.5     	0       	                
 c_98_catchment  	rain_gage_Zuid_1	c_98_vr_storage_20	26.2    	50      	400     	0.5     	0       	                
@@ -304,7 +304,7 @@ c_14_vr_storage_24	0       	10        	0         	PYRAMIDAL 	1000      	1000    
 pipe_ES         	0       	3         	0         	PYRAMIDAL 	100       	1000      	0       	0        	0       
 pipe_Geldrop    	15.06   	5         	0         	PYRAMIDAL 	100       	100       	0       	0        	0       
 gb_136          	16.45   	1.5       	0         	PYRAMIDAL 	10        	100       	0       	0        	0       
-c_129_vr_storage_2	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
+c_129_vr_storage_10	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_128_vr_storage_64	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_1285_vr_storage_10	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
 c_127_vr_storage_46	0       	10        	0         	PYRAMIDAL 	1000      	1000      	0       	0        	0       
@@ -403,7 +403,7 @@ geldrop_out_east	pipe_Geldrop    	Nod_130         	400       	0.01      	0      
 geldrop_out_north	pipe_Geldrop    	Nod_100         	135       	0.025     	0         	0         	0         	0         
 mierlo_out      	gb_136          	Mierlo_2        	164       	0.001     	0         	0         	0         	0         
 eeneind_out     	c_124_storage   	Nod_104         	31        	0.01      	0         	0         	0         	0         
-eindhoven_out   	pipe_ES         	Eindhoven       	400       	0.01      	0         	0         	0         	0         
+eindhoven_out   	pipe_ES         	Eindhoven       	1         	0.01      	0         	0         	0         	0         
 
 [PUMPS]
 ;;Name          	From Node       	To Node         	Pump Curve      	Status  	Sartup	Shutoff 
@@ -419,7 +419,7 @@ P_c_10_d_10     	c_10_vr_storage_10	c_24_vr_storage_175	virtual_pump_curve	ON   
 P_c_16_d_20     	c_16_vr_storage_20	c_24_vr_storage_175	virtual_pump_curve	ON      	0       	0       
 P_c_15_d_24     	c_15_vr_storage_24	c_24_vr_storage_175	virtual_pump_curve	ON      	0       	0       
 P_c_14_d_24     	c_14_vr_storage_24	c_24_vr_storage_175	virtual_pump_curve	ON      	0       	0       
-P_c_129_d_2     	c_129_vr_storage_2	c_128_vr_storage_64	virtual_pump_curve	ON      	0       	0       
+P_c_129_d_2     	c_129_vr_storage_10	c_128_vr_storage_64	virtual_pump_curve	ON      	0       	0       
 P_c_128_d_64    	c_128_vr_storage_64	pipe_Geldrop    	virtual_pump_curve	ON      	0       	0       
 P_c_1285_d_10   	c_1285_vr_storage_10	c_128_vr_storage_64	virtual_pump_curve	ON      	0       	0       
 P_c_127_d_46    	c_127_vr_storage_46	c_128_vr_storage_64	virtual_pump_curve	ON      	0       	0       
@@ -544,6 +544,25 @@ Aalst_weir      	RECT_OPEN   	1               	1         	0         	0
 geldrop_out_east	0         	0         	0         	YES       	0         
 geldrop_out_north	0         	0         	0         	YES       	0         
 
+[LOSSES]
+;;Link          	Kentry    	Kexit     	Kavg      	Flap Gate 	Seepage   
+;;--------------	----------	----------	----------	----------	----------
+geldrop_out_east	0         	0         	0         	YES       	0         
+geldrop_out_north	0         	0         	0         	YES       	0         
+
+[INFLOWS]
+;;Node          	Constituent     	Time Series     	Type    	Mfactor 	Sfactor 	Baseline	Pattern
+;;--------------	----------------	----------------	--------	--------	--------	--------	--------
+c_24_vr_storage_175	FLOW            	""              	FLOW    	1.0     	1.0     	0.11901 
+c_128_vr_storage_64	FLOW            	""              	FLOW    	1.0     	1.0     	0.05848 
+c_126_vr_storage_16	FLOW            	""              	FLOW    	1.0     	1.0     	0.02297 
+c_136_vr_storage_28	FLOW            	""              	FLOW    	1.0     	1.0     	0.016   
+c_150_vr_storage_57	FLOW            	""              	FLOW    	1.0     	1.0     	0.01    
+c_121_vr_storage_12	FLOW            	""              	FLOW    	1.0     	1.0     	0.00678 
+c_107_vr_storage_36	FLOW            	""              	FLOW    	1.0     	1.0     	0.118   
+c_107_2_vr_storage_12	FLOW            	""              	FLOW    	1.0     	1.0     	0.00027 
+c_106_vr_storage_13	FLOW            	""              	FLOW    	1.0     	1.0     	0.0104  
+
 [CONTROLS]
 RULE P_aalst_1_ON
 IF NODE Aalst_gemaal HEAD >= 0.33
@@ -574,69 +593,63 @@ THEN PUMP P_aalst_4 STATUS = OFF
 
 
 
-
-
-
-
-
-
 [DWF]
 ;;Node          	Constituent     	Baseline  	Patterns  
 ;;--------------	----------------	----------	----------
-c_24_vr_storage_175	FLOW            	0.3656    	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
-c_23_vr_storage_7	FLOW            	0.00068   	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
-c_22_vr_storage_5	FLOW            	0.0       	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
-c_21_vr_storage_7	FLOW            	0.00064   	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
-c_12_vr_storage_8	FLOW            	0.00091   	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
-c_20_vr_storage_13	FLOW            	0.0       	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
-c_19_vr_storage_7	FLOW            	0.00051   	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
-c_10_vr_storage_10	FLOW            	0.0       	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
-c_16_vr_storage_20	FLOW            	0.0       	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
-c_15_vr_storage_24	FLOW            	0.00075   	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
-c_14_vr_storage_24	FLOW            	0.0       	"hourly_ES"	"daily_ES"	"weekend_ES"	"monthly_ES"
-c_129_vr_storage_2	FLOW            	0.0       	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_128_vr_storage_64	FLOW            	0.0514    	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_1285_vr_storage_10	FLOW            	0.00113   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_127_vr_storage_46	FLOW            	0.01966   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_126_vr_storage_16	FLOW            	0.00253   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_125_vr_storage_8	FLOW            	0.00077   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_124_storage   	FLOW            	0.0104    	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_136_vr_storage_28	FLOW            	0.01349   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_135_vr_storage_18	FLOW            	0.00761   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_131_vr_storage_18	FLOW            	0.00723   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_130_vr_storage_8	FLOW            	0.0022    	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_134_vr_storage_8	FLOW            	0.00162   	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_132_vr_storage_8	FLOW            	0.0016    	"hourly_Geldrop"	"daily_Geldrop"	"weekend_Geldrop"	"monthly_Geldrop"
-c_150_vr_storage_57	FLOW            	0.01743   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_123_vr_storage_40	FLOW            	0.02319   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_143_vr_storage_70	FLOW            	0.20605   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_147_vr_storage_4	FLOW            	0.0       	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_160_vr_storage_8	FLOW            	0.12571   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_145_vr_storage_4	FLOW            	0.00164   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_144_vr_storage_19	FLOW            	0.00412   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_142_vr_storage_35	FLOW            	0.01999   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_148_vr_storage_12	FLOW            	0.00221   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_149_vr_storage_17	FLOW            	0.0       	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_151_vr_storage_22	FLOW            	0.00168   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_161_vr_storage_32	FLOW            	0.0       	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_138_vr_storage_22	FLOW            	0.00929   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_139_vr_storage_8	FLOW            	0.0       	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_137_vr_storage_4	FLOW            	0.00422   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_122_vr_storage_29	FLOW            	0.01195   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_121_vr_storage_12	FLOW            	0.00302   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_120_vr_storage_8	FLOW            	0.00292   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_119_vr_storage_80	FLOW            	0.07643   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_100_vr_storage_10	FLOW            	0.00162   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_118_vr_storage_13	FLOW            	0.0       	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_116_vr_storage_15	FLOW            	0.00334   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_114_vr_storage_10	FLOW            	0.00176   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_112_vr_storage_21	FLOW            	0.00441   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_107_vr_storage_36	FLOW            	0.01832   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_107_2_vr_storage_12	FLOW            	0.00004   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_106_vr_storage_13	FLOW            	0.00393   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_99_vr_storage_41	FLOW            	0.01769   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_103_vr_storage_8	FLOW            	0.00152   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
-c_98_vr_storage_20	FLOW            	0.00677   	"hourly_RZ"	"daily_RZ"	"weekend_RZ"	"monthly_RZ"
+c_24_vr_storage_175	FLOW            	0.53882   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_23_vr_storage_7	FLOW            	0.00100   	"hourly_pat1"	"daily_pat"	"weekend_pat1"	"monthly_pat"
+c_22_vr_storage_5	FLOW            	0.00000   	"hourly_pat1"	"daily_pat"	"weekend_pat1"	"monthly_pat"
+c_21_vr_storage_7	FLOW            	0.00094   	"hourly_pat1"	"daily_pat"	"weekend_pat1"	"monthly_pat"
+c_12_vr_storage_8	FLOW            	0.00156   	"hourly_pat1"	"daily_pat"	"weekend_pat1"	"monthly_pat"
+c_20_vr_storage_13	FLOW            	0.00000   	"hourly_pat1"	"daily_pat"	"weekend_pat1"	"monthly_pat"
+c_19_vr_storage_7	FLOW            	0.00075   	"hourly_pat1"	"daily_pat"	"weekend_pat1"	"monthly_pat"
+c_10_vr_storage_10	FLOW            	0.00000   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_16_vr_storage_20	FLOW            	0.00000   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_15_vr_storage_24	FLOW            	0.00110   	"hourly_pat1"	"daily_pat"	"weekend_pat1"	"monthly_pat"
+c_14_vr_storage_24	FLOW            	0.00000   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_129_vr_storage_10	FLOW            	0.00000   	"hourly_pat1"	"daily_pat"	"weekend_pat1"	"monthly_pat"
+c_128_vr_storage_64	FLOW            	0.02060   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_1285_vr_storage_10	FLOW            	0.00046   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_127_vr_storage_46	FLOW            	0.00797   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_126_vr_storage_16	FLOW            	0.00093   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_125_vr_storage_8	FLOW            	0.00031   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_124_storage   	FLOW            	0.00421   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_136_vr_storage_28	FLOW            	0.00540   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_135_vr_storage_18	FLOW            	0.00308   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_131_vr_storage_18	FLOW            	0.00293   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_130_vr_storage_8	FLOW            	0.00089   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_134_vr_storage_8	FLOW            	0.00066   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_132_vr_storage_8	FLOW            	0.00065   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_150_vr_storage_57	FLOW            	0.00702   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_123_vr_storage_40	FLOW            	0.00940   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_143_vr_storage_70	FLOW            	0.08351   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_147_vr_storage_4	FLOW            	0.00000   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_160_vr_storage_8	FLOW            	0.05095   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_145_vr_storage_4	FLOW            	0.00067   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_144_vr_storage_19	FLOW            	0.00167   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_142_vr_storage_35	FLOW            	0.00810   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_148_vr_storage_12	FLOW            	0.00090   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_149_vr_storage_17	FLOW            	0.00000   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_151_vr_storage_22	FLOW            	0.00068   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_161_vr_storage_32	FLOW            	0.00000   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_138_vr_storage_22	FLOW            	0.00377   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_139_vr_storage_8	FLOW            	0.00000   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_137_vr_storage_4	FLOW            	0.00171   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_122_vr_storage_29	FLOW            	0.00484   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_121_vr_storage_12	FLOW            	0.00120   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_120_vr_storage_8	FLOW            	0.00119   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_119_vr_storage_80	FLOW            	0.03098   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_100_vr_storage_10	FLOW            	0.00066   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_118_vr_storage_13	FLOW            	0.00000   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_116_vr_storage_15	FLOW            	0.00135   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_114_vr_storage_10	FLOW            	0.00071   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_112_vr_storage_21	FLOW            	0.00179   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_107_vr_storage_36	FLOW            	0.00695   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_107_2_vr_storage_12	FLOW            	0.00001   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_106_vr_storage_13	FLOW            	0.00155   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_99_vr_storage_41	FLOW            	0.00717   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_103_vr_storage_8	FLOW            	0.00062   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
+c_98_vr_storage_20	FLOW            	0.00274   	"hourly_pat3"	"daily_pat"	"weekend_pat3"	"monthly_pat"
 
 [CURVES]
 ;;Name          	Type      	X-Value   	Y-Value   
@@ -676,50 +689,30 @@ Curve_Storein   	          	5         	33000
 [PATTERNS]
 ;;Name          	Type      	Multipliers
 ;;--------------	----------	-----------
-daily_ES        	DAILY     	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+daily_pat       	DAILY     	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
 ;
-hourly_ES       	HOURLY    	1.117	0.997	0.807	0.722	0.635	0.595
-hourly_ES       	          	0.5895	0.639	0.790	0.960	1.079	1.174
-hourly_ES       	          	1.205	1.232	1.233	1.205	1.168	1.149
-hourly_ES       	          	1.145	1.176	1.180	1.162	1.133	1.0  
+hourly_pat3     	HOURLY    	0.2  	0.2  	0.2  	0.3  	0.6  	0.9  
+hourly_pat3     	          	1.1  	1.3  	1.3  	1.4  	1.6  	1.8  
+hourly_pat3     	          	2    	1.8  	1.4  	1.2  	1.1  	1.1  
+hourly_pat3     	          	1.1  	1.2  	1    	0.7  	0.3  	0.2  
 ;
-weekend_ES      	WEEKEND   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-weekend_ES      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-weekend_ES      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-weekend_ES      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+weekend_pat3    	WEEKEND   	0.2  	0.2  	0.2  	0.3  	0.6  	0.9  
+weekend_pat3    	          	1.1  	1.3  	1.3  	1.4  	1.6  	1.8  
+weekend_pat3    	          	2    	1.8  	1.4  	1.2  	1.1  	1.1  
+weekend_pat3    	          	1.1  	1.2  	1    	0.7  	0.3  	0.2  
 ;
-monthly_ES      	MONTHLY   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-monthly_ES      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+monthly_pat     	MONTHLY   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+monthly_pat     	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
 ;
-daily_Geldrop   	DAILY     	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+hourly_pat1     	HOURLY    	0.1  	0.1  	0.1  	0.1  	0.6  	1.6  
+hourly_pat1     	          	1.9  	1.3  	1.1  	0.8  	1    	1.9  
+hourly_pat1     	          	3    	2.5  	1.6  	0.8  	0.7  	1.3  
+hourly_pat1     	          	1.8  	1.5  	0.4  	0.1  	0.1  	0.1  
 ;
-hourly_Geldrop  	HOURLY    	1.117	0.997	0.807	0.722	0.635	0.595
-hourly_Geldrop  	          	0.5895	0.639	0.790	0.960	1.079	1.174
-hourly_Geldrop  	          	1.205	1.232	1.233	1.205	1.168	1.149
-hourly_Geldrop  	          	1.145	1.176	1.180	1.162	1.133	1.0  
-;
-weekend_Geldrop 	WEEKEND   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-weekend_Geldrop 	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-weekend_Geldrop 	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-weekend_Geldrop 	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-;
-monthly_Geldrop 	MONTHLY   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-monthly_Geldrop 	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-;
-daily_RZ        	DAILY     	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-;
-hourly_RZ       	HOURLY    	1.117	0.997	0.807	0.722	0.635	0.595
-hourly_RZ       	          	0.5895	0.639	0.790	0.960	1.079	1.174
-hourly_RZ       	          	1.205	1.232	1.233	1.205	1.168	1.149
-hourly_RZ       	          	1.145	1.176	1.180	1.162	1.133	1.0  
-;
-weekend_RZ      	WEEKEND   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-weekend_RZ      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-weekend_RZ      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-weekend_RZ      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-;
-monthly_RZ      	MONTHLY   	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
-monthly_RZ      	          	1.0  	1.0  	1.0  	1.0  	1.0  	1.0  
+weekend_pat1    	WEEKEND   	0.1  	0.1  	0.1  	0.1  	0.6  	1.6  
+weekend_pat1    	          	1.9  	1.3  	1.1  	0.8  	1    	1.9  
+weekend_pat1    	          	3    	2.5  	1.6  	0.8  	0.7  	1.3  
+weekend_pat1    	          	1.8  	1.5  	0.4  	0.1  	0.1  	0.1  
 
 [REPORT]
 ;;Reporting Options
@@ -803,7 +796,7 @@ c_14_vr_storage_24	160888.343        	383752.336
 pipe_ES         	162414.915        	385538.597        
 pipe_Geldrop    	165844.823        	382008.504        
 gb_136          	170898.346        	383806.943        
-c_129_vr_storage_2	167703.929        	380366.213        
+c_129_vr_storage_10	167703.929        	380366.213        
 c_128_vr_storage_64	166508.549        	380739.611        
 c_1285_vr_storage_10	167718.724        	380691.688        
 c_127_vr_storage_46	167129.544        	379919.011        
@@ -934,7 +927,7 @@ c_14_vr_storage_24	160888.343        	383752.336
 pipe_ES         	162414.915        	385538.597        
 pipe_Geldrop    	165844.823        	382008.504        
 gb_136          	170898.346        	383806.943        
-c_129_vr_storage_2	167703.929        	380366.213        
+c_129_vr_storage_10	167703.929        	380366.213        
 c_128_vr_storage_64	166508.549        	380739.611        
 c_1285_vr_storage_10	167718.724        	380691.688        
 c_127_vr_storage_46	167129.544        	379919.011        

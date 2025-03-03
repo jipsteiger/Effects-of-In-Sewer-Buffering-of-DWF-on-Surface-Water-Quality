@@ -61,7 +61,7 @@ class Simulation:
             catchment_delay = int(virtual_storage.nodeid.split("_")[-1])
             rounded_steps = round(catchment_delay / 5)
             if (
-                len(self.virtual_storage_inflow[virtual_storage.nodeid]) - 1
+                len(self.virtual_storage_inflow[virtual_storage.nodeid])
                 == rounded_steps
             ):
                 pump_name = virtual_storage.nodeid.replace("_vr_storage_", "_d_")

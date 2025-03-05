@@ -154,7 +154,7 @@ async def main(
     if dataset_name == "rad_nl21_rac_mfbs_5min":
         filenames = [file for file in filenames if ("2023" in file and "2024" in file)]
     elif dataset_name == "QRF-RT-SSh":
-        filenames = [file for file in filenames if ("202409" in file)]
+        filenames = [file for file in filenames if ("2024" in file)]
 
     logger.info(f"Number of files to download from selected dates: {len(filenames)}")
 
@@ -200,9 +200,9 @@ if __name__ == "__main__":
     # ))
     asyncio.run(
         main(
-            dataset_name="rad_nl21_rac_mfbs_5min",
-            dataset_version="2.0",
-            data_folder="data/precipitation/raw_euradclim",
+            dataset_name="QRF-RT-SSh",
+            dataset_version="v2021",
+            data_folder="./data/precipitation/zip_raw_harmonie",
         )
     )
 
@@ -216,7 +216,7 @@ if __name__ == "__main__":
 # dataset_version = "2.0"
 # data_folder = "data/precipitation/zip_raw_euradclim"
 
-# THIS ONE WORKS
+# # THIS ONE WORKS
 # https://dataplatform.knmi.nl/dataset/access/qrf-rt-ssh-v2021
 # dataset_name = "QRF-RT-SSh"
 # dataset_version = "v2021"

@@ -1,5 +1,5 @@
 from simulation import Simulation
-from postprocess import PostProcess
+from postprocess import PostProcess, read_WEST_output
 import datetime as dt
 
 
@@ -13,10 +13,11 @@ def main():
         step_size=300,
         report_start=dt.datetime(year=2024, month=4, day=1),
         start_time=dt.datetime(year=2024, month=4, day=1),
-        end_time=dt.datetime(year=2024, month=4, day=12),
+        end_time=dt.datetime(year=2024, month=4, day=15),
         virtual_pump_max=50,
     )
     simulation.start_simulation()
+    read_WEST_output()
 
     postprocess = PostProcess(model_name=MODEL_NAME)
     postprocess.create_outfall_txt(suffix=SUFFIX)

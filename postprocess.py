@@ -212,6 +212,8 @@ import plotly.io as pio
 from plotly.subplots import make_subplots
 import matplotlib.pyplot as plt
 
+# marker
+
 
 def read_WEST_output():
     df_west = pd.read_csv(
@@ -219,6 +221,7 @@ def read_WEST_output():
         delimiter="\t",
         header=0,
         index_col=0,
+        low_memory=False,
     ).iloc[1:, :]
     start_date = pd.Timestamp("2024-01-01")
     df_west["timestamp"] = start_date + pd.to_timedelta(
@@ -231,13 +234,12 @@ def read_WEST_output():
     # Index(['.ES_out.Q_in', '.RZ_out.Q_in', '.ST_106.FillingDegreeIn',
     #    '.ST_106.Q_Out', '.ST_106.Q_out', '.c_106.Rainfall',
     #    '.c_106.comb.Out_1(Rain)', '.c_106.comb2.Q_i', '.c_106.dwf.Q_out',
-    #    '.c_106.runoff.In_1(Evaporation)'],
+    #    '.c_106.evaporation.Evaporation'],
     units = [
         3600,
         3600,
         1,
         3600,
-        3600 * 24,
         1,
         24,
         3600 * 24,
@@ -246,13 +248,22 @@ def read_WEST_output():
         24,
         10,
         3600 * 24,
+        1,
+        1,
+        3600,
         3600 * 24,
+        3600 * 24,
+        1,
+        1,
+        1,
+        3600,
+        3600 * 24,
+        3600 * 24,
+        1,
     ]
     # 3600,3600,1,3600,3600*24,1,24,3600*24,3600*24,1,24,1,3600*24,3600*24
 
     for key, unit in zip(df_west.keys(), units):
-        if key == ".c_106.runoff.In_1(Evaporation)":
-            continue
         fig.add_trace(
             go.Scatter(
                 x=df_west.index,
@@ -363,13 +374,30 @@ def read_WEST_output():
         )
     )
 
+    fig.add_trace(
+        go.Scatter(
+            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
+            y=output.node["pipe_ES"].depth / 3,
+            mode="lines",
+            name=f"SWMM ES Filling degree",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
+            y=output.node["pre_ontvangstkelder"].depth / 29.01,
+            mode="lines",
+            name=f"SWMM RZ Filling degree",
+        )
+    )
+
     pio.show(fig, renderer="browser")
 
-    pyo.plot(
-        fig,
-        filename=f"testing.html",
-        auto_open=True,
-    )
+    # pyo.plot(
+    #     fig,
+    #     filename=f"testing.html",
+    #     auto_open=True,
+    # )
 
 
 # print('Small rain event during a single night')

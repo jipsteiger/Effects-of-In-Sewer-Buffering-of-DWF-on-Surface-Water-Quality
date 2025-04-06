@@ -102,6 +102,12 @@ def get_api_key(file_name="precipitation/api_key.txt"):
     return api_key
 
 
+def get_bulk_api_key(file_name="precipitation/api_key_bulk.txt"):
+    with open(file_name, "r") as file:
+        api_key = file.read()
+    return api_key
+
+
 async def main(
     dataset_name="harmonie_arome_cy43_p4a",
     dataset_version="1.0",

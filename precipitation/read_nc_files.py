@@ -6,12 +6,12 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 
-path = rf"data\precipitation\zip_raw_harmonie"
+path = rf"data\precipitation\raw_harmonie"
 output_file = "forecast_data.csv"
 output_path = rf"data\precipitation\csv_forecasts"
 
 forecast_horizon = [
-    "6",
+    "3" "6",
     "12",
     "18",
     "24",
@@ -30,7 +30,7 @@ files = [
     if (
         os.path.isfile(os.path.join(path, f))
         and f.endswith(".nc")
-        and any(f"_0{horizon}.nc" in f for horizon in forecast_horizon)
+        # and any(f"_0{horizon}.nc" in f for horizon in forecast_horizon)
     )
 ]
 
@@ -117,3 +117,26 @@ else:
     # Otherwise, create the file and save the data
     df.to_csv(os.path.join(output_path, output_file))
 print(f"Data saved to {output_file}")
+
+
+from collections import defaultdict
+import re
+
+# Dictionary to store counts
+counts = defaultdict(int)
+
+# Extract date part and count
+for file in files:
+    match = re.search(r"_(\d{10})_", file)
+    if match:
+        datetime_str = match.group(1)
+        date_str = datetime_str[:8]  # Extract yyyymmdd
+        counts[date_str] += 1
+
+# Print counts per day
+for date, count in sorted(counts.items()):
+    if count < 188:
+        print(f"{date}: {count} files")
+
+filtered_counts = {date: count for date, count in counts.items() if count < 188}
+keys = list(filtered_counts.keys())

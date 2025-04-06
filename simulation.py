@@ -10,7 +10,7 @@ class Simulation:
         report_start: dt.datetime,
         start_time: dt.datetime,
         end_time: dt.datetime,
-        virtual_pump_max: int = 50,
+        virtual_pump_max: int = 10,
     ):
         self.model_path = model_path
         self.step_size = step_size
@@ -30,10 +30,6 @@ class Simulation:
 
             self.simulation_steps()
 
-    def simulation_steps(self):
-        for step in self.sim:
-            self.handle_virtual_storage()
-
     def set_simulation_settings(self):
         self.sim.step_advance(self.step_size)
         self.sim.report_start = self.report_start
@@ -51,6 +47,11 @@ class Simulation:
         self.virtual_storage_inflow = {}
         for virtual_storage in self.virtual_storages:
             self.virtual_storage_inflow[virtual_storage.nodeid] = []
+
+    def simulation_steps(self):
+        for step in self.sim:
+            self.handle_virtual_storage()
+            self.handle_c_119_flows()
 
     def handle_virtual_storage(self):
         for virtual_storage in self.virtual_storages:
@@ -72,3 +73,16 @@ class Simulation:
                 self.links["P_" + pump_name].target_setting = (
                     delay_outflow / self.virtual_pump_max
                 )
+
+    def handle_c_119_flows(self):
+        J119_inflow = self.nodes["J119"].total_inflow
+
+        bucket_inflows = ["P_c_119_fr_040", "P_c_119_fr_028", "P_c_119_fr_032"]
+
+        for pump in bucket_inflows:
+            fraction = (
+                float(pump.split("_")[-1]) / 100
+            )  # Get the inflow fraction from the pump name
+            self.links[pump].target_setting = (
+                fraction * J119_inflow
+            ) / self.virtual_pump_max

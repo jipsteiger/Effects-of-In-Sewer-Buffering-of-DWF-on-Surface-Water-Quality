@@ -1,16 +1,19 @@
 # Ignore all model data, both for privacy reasons and size limitations.
-/data/
+/data/precipitation/raw_data/
 
+# Ignore all west models
+/data/west/*
+
+# Ignore SWMM specific data
+Geldrop_model*
+Export_Kallisto_model*
+Eindhoven_stad_model*
+Riool_zuid_model*
+*.out
+
+# Ignore KNMI data portal api keys
 api_key.txt
+api_key_bulk.txt
 
-!/data/precipitation/
-!/data/precipitation/dat_swmm_rain_data/
-!/data/precipitation/dat_swmm_rain_data/*
-
-!/data/SWMM/
-!/data/SWMM/model_jip.inp
-!/data/SWMM/model_jip.rpt
-!/data/SWMM/model_jip.out
 
 *.pyc
-test.py

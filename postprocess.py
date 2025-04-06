@@ -20,21 +20,44 @@ class PostProcess:
             outfall_timeseries = pd.DataFrame(
                 self.output["node"][outfall]["total_inflow"]
             )
-            start_date = outfall_timeseries.index[0]
-            outfall_timeseries[".t"] = (
-                outfall_timeseries.index - start_date
+            dec_index = (
+                outfall_timeseries.index - pd.Timestamp("2024-01-01")
             ).total_seconds() / (24 * 60 * 60)
-            outfall_timeseries[f".in_{outfall}"] = outfall_timeseries["total_inflow"]
-            output_file = f"#.t\t.in_{outfall}\n#d\tCMS\n"
-            output_file += outfall_timeseries[[".t", f".in_{outfall}"]].to_csv(
-                index=False, sep="\t", header=False
-            )
+            H2O_sew = (
+                outfall_timeseries["total_inflow"] * (24 * 3600)  # to m3/d
+            ).values  # From CMS to g/d
+            NH4_sew = [0] * len(H2O_sew)
+            PO4_sew = [0] * len(H2O_sew)
+            COD_sol = [0] * len(H2O_sew)
+            X_TSS_sew = [0] * len(H2O_sew)
+            COD_part = [0] * len(H2O_sew)
+            west_values = {
+                "H2O_sew": H2O_sew,
+                "NH4_sew": NH4_sew,
+                "PO4_sew": PO4_sew,
+                "COD_sol": COD_sol,
+                "X_TSS_sew": X_TSS_sew,
+                "COD_part": COD_part,
+            }
+            df = pd.DataFrame(west_values, index=dec_index)
+            df_csv = pd.DataFrame(west_values, index=outfall_timeseries.index)
+
+            output_file = f"#.t\tH2O_sew\tNH4_sew\tPO4_sew\tCOD_sol\tX_TSS_sew\tCOD_part\n#d\tm3/d\tm3/d\tm3/d\tm3/d\tm3/d\tm3/d\n"
+            output_file += df[:].to_csv(sep="\t", header=False)
             with open(
                 f"swmm_output/{self.current_time}_{outfall}_{suffix}.txt", "w"
             ) as f:
                 f.write(output_file)
-            outfall_timeseries["total_inflow"].to_csv(
+            df.to_csv(
                 f"swmm_output/{self.current_time}_{outfall}_{suffix}.csv",
+                sep=";",
+                decimal=",",
+            )
+            static_name = "latest"  # Change this as needed
+            with open(f"swmm_output/{static_name}_{outfall}_out.txt", "w") as f:
+                f.write(output_file)
+            df_csv.to_csv(
+                f"swmm_output/{static_name}_{outfall}_out.csv",
                 sep=";",
                 decimal=",",
             )
@@ -164,252 +187,3 @@ class PostProcess:
             )
             fig.data[-1].visible = "legendonly"
         return fig
-
-
-def plot_make_dwf_only():
-    current_time = datetime.now().strftime("%m-%d_%H-%M")
-    aa = sa.SwmmOutput(rf"data\SWMM\model_jip.out").to_frame()
-
-    for outfall in ["out_RZ", "out_ES"]:
-        aa.node[outfall]["total_inflow"].plot()
-        timeseries = aa.node[outfall]["total_inflow"]
-        value = timeseries.sum() / len(timeseries)
-        ideal_dwf = pd.DataFrame([value] * len(timeseries), index=timeseries.index)
-        ideal_dwf.plot()
-
-        plt.legend()
-
-        bb = aa.node[f"out_RZ"]["total_inflow"] + aa.node[f"out_ES"]["total_inflow"]
-        ideal_inflow = bb.sum() / len(bb)
-
-        ideal_inflow_df = pd.DataFrame([ideal_inflow] * len(bb), index=bb.index)
-        ideal_inflow_df.plot()
-
-        start_date = ideal_inflow_df.index[0]
-        ideal_inflow_df[".t"] = (ideal_inflow_df.index - start_date).total_seconds() / (
-            24 * 60 * 60
-        )
-        ideal_inflow_df[f".in_{outfall}"] = ideal_inflow_df.iloc[:, 0]
-        output_file = f"#.t\t.in_{outfall}\n#d\tCMS\n"
-        output_file += ideal_inflow_df[[".t", f".in_{outfall}"]].to_csv(
-            index=False, sep="\t", header=False
-        )
-        with open(f"swmm_output/{current_time}_{outfall}_ideal_dwf.txt", "w") as f:
-            f.write(output_file)
-        ideal_inflow_df.iloc[:, 0].to_csv(
-            f"swmm_output/{current_time}_{outfall}_ideal_dwf.csv",
-            sep=";",
-            decimal=",",
-        )
-
-
-import swmm_api as sa
-import pandas as pd
-from datetime import datetime
-import plotly.graph_objects as go
-import plotly.offline as pyo
-import plotly.io as pio
-from plotly.subplots import make_subplots
-import matplotlib.pyplot as plt
-
-# marker
-
-
-def read_WEST_output():
-    df_west = pd.read_csv(
-        f"data\WEST\Model_Dommel_Full\westcompare.out.txt",
-        delimiter="\t",
-        header=0,
-        index_col=0,
-        low_memory=False,
-    ).iloc[1:, :]
-    start_date = pd.Timestamp("2024-01-01")
-    df_west["timestamp"] = start_date + pd.to_timedelta(
-        df_west.index.astype(float), unit="D"
-    )
-    df_west.set_index("timestamp", inplace=True)
-    fig = go.Figure()
-
-    # Turn variables to m3/s if applicable
-    # Index(['.ES_out.Q_in', '.RZ_out.Q_in', '.ST_106.FillingDegreeIn',
-    #    '.ST_106.Q_Out', '.ST_106.Q_out', '.c_106.Rainfall',
-    #    '.c_106.comb.Out_1(Rain)', '.c_106.comb2.Q_i', '.c_106.dwf.Q_out',
-    #    '.c_106.evaporation.Evaporation'],
-    units = [
-        3600,
-        3600,
-        1,
-        3600,
-        1,
-        24,
-        3600 * 24,
-        3600 * 24,
-        1,
-        24,
-        10,
-        3600 * 24,
-        1,
-        1,
-        3600,
-        3600 * 24,
-        3600 * 24,
-        1,
-        1,
-        1,
-        3600,
-        3600 * 24,
-        3600 * 24,
-        1,
-    ]
-    # 3600,3600,1,3600,3600*24,1,24,3600*24,3600*24,1,24,1,3600*24,3600*24
-
-    for key, unit in zip(df_west.keys(), units):
-        fig.add_trace(
-            go.Scatter(
-                x=df_west.index,
-                y=df_west[key].astype(float) / unit,
-                mode="lines",
-                name=f"WEST {key}",
-            )
-        )
-
-    output = sa.SwmmOutput(rf"data\SWMM\model_jip_WEST_data_replicated.out").to_frame()
-    fig.add_trace(
-        go.Scatter(
-            x=output.node["out_ES"]["total_inflow"].index,
-            y=output.node["out_ES"]["total_inflow"],
-            mode="lines",
-            name=f"SWMM ES out",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.node["out_RZ"]["total_inflow"].index,
-            y=output.node["out_RZ"]["total_inflow"],
-            mode="lines",
-            name=f"SWMM RZ out",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
-            y=output.node.c_106_vr_storage_13.lateral_inflow,
-            mode="lines",
-            name=f"SWMM c_106 lateral inflow",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
-            y=output.link["P_c_106_d_13"]["flow"],
-            mode="lines",
-            name=f"SWMM pump c 106 flow",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
-            y=output.subcatchment["c_106_catchment"]["evaporation"],
-            mode="lines",
-            name=f"SWMM c 106 evaporation",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
-            y=output.subcatchment["c_106_catchment"]["rainfall"],
-            mode="lines",
-            name=f"SWMM c 106 rainfall",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
-            y=output.subcatchment["c_106_catchment"]["runoff"],
-            mode="lines",
-            name=f"SWMM c 106 runoff",
-        )
-    )
-
-    AREA = 11.3 * (100**2)  # m2
-    evap_mm_hr = output.subcatchment["c_106_catchment"]["evaporation"] / (24 * 12)
-    rain_mm_hr = output.subcatchment["c_106_catchment"]["rainfall"] / 12
-    runoff_mm_hr = (
-        output.subcatchment["c_106_catchment"]["runoff"] / AREA * 3600 * 1000 / 12
-    )
-
-    storage = (rain_mm_hr).cumsum() - (evap_mm_hr + runoff_mm_hr).cumsum()
-    storage = storage / 20
-
-    fig.add_trace(
-        go.Scatter(
-            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
-            y=storage,
-            mode="lines",
-            name=f"SWMM c 106 calculated storage fraction of max",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
-            y=evap_mm_hr,
-            mode="lines",
-            name=f"SWMM c 106 evap mm",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
-            y=rain_mm_hr,
-            mode="lines",
-            name=f"SWMM c 106 rain mm",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
-            y=runoff_mm_hr,
-            mode="lines",
-            name=f"SWMM c 106 runoff mm",
-        )
-    )
-
-    fig.add_trace(
-        go.Scatter(
-            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
-            y=output.node["pipe_ES"].depth / 3,
-            mode="lines",
-            name=f"SWMM ES Filling degree",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.subcatchment["c_106_catchment"]["rainfall"].index,
-            y=output.node["pre_ontvangstkelder"].depth / 29.01,
-            mode="lines",
-            name=f"SWMM RZ Filling degree",
-        )
-    )
-
-    pio.show(fig, renderer="browser")
-
-    # pyo.plot(
-    #     fig,
-    #     filename=f"testing.html",
-    #     auto_open=True,
-    # )
-
-
-# print('Small rain event during a single night')
-# print(output.node["c_106_vr_storage_13"].loc['2024-03-04':'2024-03-06',"total_inflow"].sum())
-# print((df_west.loc['2024-03-04':'2024-03-06','.c_106.comb2.Q_i'].astype(float) / 3600 /24).sum() *3)
-# print((df_west.loc['2024-03-04':'2024-03-06','.ST_106.Q_Out'].astype(float) / 3600 ).sum() *3)
-
-# print('Dry day:')
-# print(output.node["c_106_vr_storage_13"].loc['2024-06-26',"total_inflow"].sum())
-# print((df_west.loc['2024-06-26','.ST_106.Q_Out'].astype(float) / 3600).sum() *3)
-
-# print('Medium event over multiple days')
-# print(output.node["c_106_vr_storage_13"].loc['2024-04-08':'2024-04-14',"total_inflow"].sum())
-# print((df_west.loc['2024-04-08':'2024-04-14','.c_106.comb2.Q_i'].astype(float) / 3600 /24).sum() *3)
-# print((df_west.loc['2024-04-08':'2024-04-14','.ST_106.Q_Out'].astype(float) / 3600 ).sum() *3)

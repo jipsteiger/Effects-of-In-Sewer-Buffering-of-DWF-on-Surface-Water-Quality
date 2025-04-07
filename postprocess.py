@@ -83,14 +83,14 @@ class PostProcess:
             suffix=suffix,
         )
 
-    def plot_pumps(self, save=False, plot_rain=False, suffix=""):
+    def plot_pumps(self, save=False, plot_rain=False, suffix="", target_setting=False):
         pumps = [
             "P_riool_zuid_out",
             "P_eindhoven_out",
-            "P_aalst_1",
-            "P_aalst_2",
-            "P_aalst_3",
-            "P_aalst_4",
+            # "P_aalst_1",
+            # "P_aalst_2",
+            # "P_aalst_3",
+            # "P_aalst_4",
         ]
         self.plot(
             pumps,
@@ -103,6 +103,7 @@ class PostProcess:
             save=save,
             plot_rain=plot_rain,
             suffix=suffix,
+            target_setting=target_setting,
         )
 
     def plot(
@@ -117,6 +118,7 @@ class PostProcess:
         save,
         plot_rain,
         suffix,
+        target_setting=False,
     ):
         fig = make_subplots(specs=[[{"secondary_y": True}]])
         layout_config = dict(
@@ -134,6 +136,8 @@ class PostProcess:
                 title="Rainfall (mm)",
                 side="right",
             )
+        if target_setting:
+            fig = self.add_target_settings(fig)
 
         fig.update_layout(**layout_config)
         if save:
@@ -186,4 +190,21 @@ class PostProcess:
                 marker=dict(symbol="x"),
             )
             fig.data[-1].visible = "legendonly"
+        return fig
+
+    def add_target_settings(self, fig):
+        df = pd.read_csv(
+            "swmm_output/target_setting.csv", index_col=0, parse_dates=True
+        )
+        for key in df:
+            fig.add_trace(
+                go.Scatter(
+                    x=df.index,
+                    y=df.loc[:, key].values,
+                    mode="lines",
+                    name=key,
+                    marker=None,
+                ),
+                secondary_y=False,
+            )
         return fig

@@ -92,8 +92,8 @@ class PostProcess:
         storage=False,
     ):
         pumps = [
-            "P_riool_zuid_out",
             "P_eindhoven_out",
+            "P_riool_zuid_out",
             # "P_aalst_1",
             # "P_aalst_2",
             # "P_aalst_3",

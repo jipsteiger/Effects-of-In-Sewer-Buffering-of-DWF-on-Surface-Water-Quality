@@ -232,4 +232,16 @@ class PostProcess:
                 ),
                 secondary_y=False,
             )
+            fig.add_trace(
+                go.Scatter(
+                    x=self.output.index,
+                    y=self.output.node[storage].total_inflow.values,
+                    mode="lines",
+                    name=storage + " total_inflow",
+                    marker=None,
+                ),
+                secondary_y=False,
+            )
+            fig.data[-1].visible = "legendonly"
+
         return fig

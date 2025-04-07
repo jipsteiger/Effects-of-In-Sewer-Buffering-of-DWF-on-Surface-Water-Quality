@@ -23,7 +23,7 @@ DRY_DAYS            	0
 REPORT_STEP         	00:05:00
 WET_STEP            	00:01:00
 DRY_STEP            	00:10:00
-ROUTING_STEP        	0:00:05 
+ROUTING_STEP        	0:00:02 
 RULE_STEP           	00:05:00
 
 INERTIAL_DAMPING    	PARTIAL
@@ -56,60 +56,60 @@ RZ2             	CUMULATIVE	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\M
 [SUBCATCHMENTS]
 ;;Name          	Rain Gage       	Outlet          	Area    	%Imperv 	Width   	%Slope  	CurbLen 	SnowPack        
 ;;--------------	----------------	----------------	--------	--------	--------	--------	--------	----------------
-c_24_catchment  	ES               	c_24_vr_storage_5	1918.8  	100     	2250    	2       	0       	                
-c_23_catchment  	ES               	c_23_vr_storage_7	3       	100     	3       	2       	0       	                
-c_22_catchment  	ES               	c_22_vr_storage_5	1.6     	100     	1.6     	2       	0       	                
-c_21_catchment  	ES               	c_21_vr_storage_7	3.2     	100     	3.2     	2       	0       	                
-c_12_catchment  	ES               	c_12_vr_storage_8	3.7     	100     	3.7     	2       	0       	                
-c_20_catchment  	ES               	c_20_vr_storage_13	10      	100     	10      	2       	0       	                
-c_19_catchment  	ES               	c_19_vr_storage_7	3.4     	100     	3.4     	2       	0       	                
-c_10_catchment  	ES               	c_10_vr_storage_10	6.2     	100     	3.2     	2       	0       	                
+c_24_catchment  	ES              	c_24_vr_storage_5	1918.8  	100     	2250    	2       	0       	                
+c_23_catchment  	ES              	c_23_vr_storage_7	3       	100     	3       	2       	0       	                
+c_22_catchment  	ES              	c_22_vr_storage_5	1.6     	100     	1.6     	2       	0       	                
+c_21_catchment  	ES              	c_21_vr_storage_7	3.2     	100     	3.2     	2       	0       	                
+c_12_catchment  	ES              	c_12_vr_storage_8	3.7     	100     	3.7     	2       	0       	                
+c_20_catchment  	ES              	c_20_vr_storage_13	10      	100     	10      	2       	0       	                
+c_19_catchment  	ES              	c_19_vr_storage_7	3.4     	100     	3.4     	2       	0       	                
+c_10_catchment  	ES              	c_10_vr_storage_10	6.2     	100     	3.2     	2       	0       	                
 c_16_catchment  	ES              	c_16_vr_storage_20	26.4    	100     	26.40   	2       	0       	                
-c_15_catchment  	ES               	c_15_vr_storage_24	33.9    	100     	33.90   	2       	0       	                
-c_14_catchment  	ES               	c_14_vr_storage_24	35.6    	100     	35.60   	2       	0       	                
-c_129_catchment 	GE               	c_129_vr_storage_5	5       	100     	30      	2       	0       	                
-c_128_catchment 	GE               	c_128_vr_storage_5	255.1   	100     	1000    	2       	0       	                
-c_1285_catchment	GE               	c_1285_vr_storage_5	5.8     	100     	30      	2       	0       	                
-c_127_catchment 	GE               	c_127_vr_storage_5	134.9   	100     	1000    	2       	0       	                
-c_126_catchment 	GE               	c_126_vr_storage_5	15.8    	100     	100     	2       	0       	                
-c_125_catchment 	GE               	c_125_vr_storage_5	5.3     	100     	100     	2       	0       	                
-c_124_catchment 	GE               	c_124_storage   	1       	100     	100     	2       	0       	                
-c_136_catchment 	GE               	c_136_vr_storage_5	50.5    	100     	75      	2       	0       	                
-c_135_catchment 	GE               	c_135_vr_storage_5	22      	100     	40      	2       	0       	                
-c_131_catchment 	GE               	c_131_vr_storage_5	21.5    	100     	30      	2       	0       	                
-c_130_catchment 	GE               	c_130_vr_storage_5	3.9     	100     	10      	2       	0       	                
-c_134_catchment 	GE               	c_134_vr_storage_5	5.3     	100     	10      	2       	0       	                
-c_132_catchment 	GE               	c_132_vr_storage_5	3.9     	100     	10      	2       	0       	                
-c_150_catchment 	RZ1               	c_150_vr_storage_57	205     	100     	800     	2       	0       	                
-c_123_catchment 	RZ1               	c_123_vr_storage_40	101.5   	100     	300     	2       	0       	                
-c_143_catchment 	RZ1               	c_143_vr_storage_70	308     	100     	320     	2       	0       	                
-c_147_catchment 	RZ1               	c_147_vr_storage_4	4.3     	100     	20      	2       	0       	                
-c_160_catchment 	RZ1               	c_160_vr_storage_8	5       	100     	20      	2       	0       	                
-c_145_catchment 	RZ1               	c_145_vr_storage_4	1       	100     	10      	2       	0       	                
-c_144_catchment 	RZ1               	c_144_vr_storage_19	22.8    	100     	60      	2       	0       	                
-c_142_catchment 	RZ1               	c_142_vr_storage_35	76.8    	100     	190     	2       	0       	                
-c_148_catchment 	RZ1               	c_148_vr_storage_12	11.2    	100     	45      	2       	0       	                
-c_149_catchment 	RZ1               	c_149_vr_storage_17	18.3    	100     	45      	2       	0       	                
-c_151_catchment 	RZ1               	c_151_vr_storage_22	29.4    	100     	90      	2       	0       	                
-c_161_catchment 	RZ1               	c_161_vr_storage_32	68      	100     	150     	2       	0       	                
-c_138_catchment 	RZ1               	c_138_vr_storage_22	28.9    	100     	80      	2       	0       	                
-c_139_catchment 	RZ1               	c_139_vr_storage_8	4.6     	100     	20      	2       	0       	                
-c_137_catchment 	RZ1               	c_137_vr_storage_4	1       	100     	10      	2       	0       	                
-c_122_catchment 	RZ2               	c_122_vr_storage_29	52.2    	100     	500     	2       	0       	                
-c_121_catchment 	RZ2               	c_121_vr_storage_12	10.3    	100     	15      	2       	0       	                
-c_120_catchment 	RZ2               	c_120_vr_storage_8	4.9     	100     	20      	2       	0       	                
-c_119_catchment 	RZ2               	c_119_vr_storage_80	393     	100     	1200    	2       	0       	                
-c_100_catchment 	RZ2               	c_100_vr_storage_10	6.7     	100     	50      	2       	0       	                
-c_118_catchment 	RZ2               	c_118_vr_storage_13	11.3    	100     	80      	2       	0       	                
-c_116_catchment 	RZ2               	c_116_vr_storage_15	12.9    	100     	60      	2       	0       	                
-c_114_catchment 	RZ2               	c_114_vr_storage_10	6.1     	100     	40      	2       	0       	                
-c_112_catchment 	RZ2               	c_112_vr_storage_21	28.5    	100     	500     	2       	0       	                
-c_107_catchment 	RZ2               	c_107_vr_storage_36	77.2    	100     	200     	2       	0       	                
-c_107_2_catchment	RZ2               	c_107_2_vr_storage_12	9       	100     	35      	2       	0       	                
-c_106_catchment 	RZ2               	c_106_vr_storage_13	11.3    	100     	45      	2       	0       	                
-c_99_catchment  	RZ2               	c_99_vr_storage_41	103.7   	100     	300     	2       	0       	                
-c_103_catchment 	RZ2               	c_103_vr_storage_8	3.8     	100     	30      	2       	0       	                
-c_98_catchment  	RZ2               	c_98_vr_storage_20	26.2    	100     	99      	2       	0       	                
+c_15_catchment  	ES              	c_15_vr_storage_24	33.9    	100     	33.90   	2       	0       	                
+c_14_catchment  	ES              	c_14_vr_storage_24	35.6    	100     	35.60   	2       	0       	                
+c_129_catchment 	GE              	c_129_vr_storage_5	5       	100     	30      	2       	0       	                
+c_128_catchment 	GE              	c_128_vr_storage_5	255.1   	100     	1000    	2       	0       	                
+c_1285_catchment	GE              	c_1285_vr_storage_5	5.8     	100     	30      	2       	0       	                
+c_127_catchment 	GE              	c_127_vr_storage_5	134.9   	100     	1000    	2       	0       	                
+c_126_catchment 	GE              	c_126_vr_storage_5	15.8    	100     	100     	2       	0       	                
+c_125_catchment 	GE              	c_125_vr_storage_5	5.3     	100     	100     	2       	0       	                
+c_124_catchment 	GE              	c_124_storage   	1       	100     	100     	2       	0       	                
+c_136_catchment 	GE              	c_136_vr_storage_5	50.5    	100     	75      	2       	0       	                
+c_135_catchment 	GE              	c_135_vr_storage_5	22      	100     	40      	2       	0       	                
+c_131_catchment 	GE              	c_131_vr_storage_5	21.5    	100     	30      	2       	0       	                
+c_130_catchment 	GE              	c_130_vr_storage_5	3.9     	100     	10      	2       	0       	                
+c_134_catchment 	GE              	c_134_vr_storage_5	5.3     	100     	10      	2       	0       	                
+c_132_catchment 	GE              	c_132_vr_storage_5	3.9     	100     	10      	2       	0       	                
+c_150_catchment 	RZ1             	c_150_vr_storage_57	205     	100     	800     	2       	0       	                
+c_123_catchment 	RZ1             	c_123_vr_storage_40	101.5   	100     	300     	2       	0       	                
+c_143_catchment 	RZ1             	c_143_vr_storage_70	308     	100     	320     	2       	0       	                
+c_147_catchment 	RZ1             	c_147_vr_storage_4	4.3     	100     	20      	2       	0       	                
+c_160_catchment 	RZ1             	c_160_vr_storage_8	5       	100     	20      	2       	0       	                
+c_145_catchment 	RZ1             	c_145_vr_storage_4	1       	100     	10      	2       	0       	                
+c_144_catchment 	RZ1             	c_144_vr_storage_19	22.8    	100     	60      	2       	0       	                
+c_142_catchment 	RZ1             	c_142_vr_storage_35	76.8    	100     	190     	2       	0       	                
+c_148_catchment 	RZ1             	c_148_vr_storage_12	11.2    	100     	45      	2       	0       	                
+c_149_catchment 	RZ1             	c_149_vr_storage_17	18.3    	100     	45      	2       	0       	                
+c_151_catchment 	RZ1             	c_151_vr_storage_22	29.4    	100     	90      	2       	0       	                
+c_161_catchment 	RZ1             	c_161_vr_storage_32	68      	100     	150     	2       	0       	                
+c_138_catchment 	RZ1             	c_138_vr_storage_22	28.9    	100     	80      	2       	0       	                
+c_139_catchment 	RZ1             	c_139_vr_storage_8	4.6     	100     	20      	2       	0       	                
+c_137_catchment 	RZ1             	c_137_vr_storage_4	1       	100     	10      	2       	0       	                
+c_122_catchment 	RZ2             	c_122_vr_storage_29	52.2    	100     	500     	2       	0       	                
+c_121_catchment 	RZ2             	c_121_vr_storage_12	10.3    	100     	15      	2       	0       	                
+c_120_catchment 	RZ2             	c_120_vr_storage_8	4.9     	100     	20      	2       	0       	                
+c_119_catchment 	RZ2             	c_119_vr_storage_80	393     	100     	1200    	2       	0       	                
+c_100_catchment 	RZ2             	c_100_vr_storage_10	6.7     	100     	50      	2       	0       	                
+c_118_catchment 	RZ2             	c_118_vr_storage_13	11.3    	100     	80      	2       	0       	                
+c_116_catchment 	RZ2             	c_116_vr_storage_15	12.9    	100     	60      	2       	0       	                
+c_114_catchment 	RZ2             	c_114_vr_storage_10	6.1     	100     	40      	2       	0       	                
+c_112_catchment 	RZ2             	c_112_vr_storage_21	28.5    	100     	500     	2       	0       	                
+c_107_catchment 	RZ2             	c_107_vr_storage_36	77.2    	100     	200     	2       	0       	                
+c_107_2_catchment	RZ2             	c_107_2_vr_storage_12	9       	100     	35      	2       	0       	                
+c_106_catchment 	RZ2             	c_106_vr_storage_13	11.3    	100     	45      	2       	0       	                
+c_99_catchment  	RZ2             	c_99_vr_storage_41	103.7   	100     	300     	2       	0       	                
+c_103_catchment 	RZ2             	c_103_vr_storage_8	3.8     	100     	30      	2       	0       	                
+c_98_catchment  	RZ2             	c_98_vr_storage_20	26.2    	100     	99      	2       	0       	                
 
 [SUBAREAS]
 ;;Subcatchment  	N-Imperv  	N-Perv    	S-Imperv  	S-Perv    	PctZero   	RouteTo   	PctRouted 
@@ -443,7 +443,7 @@ P_c_130_d_5     	c_130_vr_storage_5	c_131_vr_storage_5	virtual_pump_curve	ON    
 P_c_134_d_5     	c_134_vr_storage_5	c_136_vr_storage_5	virtual_pump_curve	ON      	0       	0       
 P_c_132_d_5     	c_132_vr_storage_5	c_136_vr_storage_5	virtual_pump_curve	ON      	0       	0       
 Con_1119.1      	gb_136          	Nod_100         	Curve_1119.1    	ON      	0       	0       
-P_riool_zuid_out	pre_ontvangstkelder	out_RZ          	rz_rwzi         	ON      	0       	0       
+P_riool_zuid_out	pre_ontvangstkelder	out_RZ          	rz_rwzi_simp    	ON      	0       	0       
 P_eindhoven_out 	pipe_ES         	out_ES          	es_rwzi         	ON      	0.2     	0.001   
 P_c_150_d_57    	c_150_vr_storage_57	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
 P_c_123_d_40    	c_123_vr_storage_40	c_123           	virtual_pump_curve	ON      	0       	0       
@@ -728,6 +728,8 @@ IF NODE Aalst_gemaal HEAD <= 0.259
 
 
 
+
+
 [INFLOWS]
 ;;Node          	Constituent     	Time Series     	Type    	Mfactor 	Sfactor 	Baseline	Pattern
 ;;--------------	----------------	----------------	--------	--------	--------	--------	--------
@@ -858,6 +860,10 @@ P_curve_c_143   	Pump4     	0         	1.11111
 P_curve_c_119_2 	Pump4     	0         	0.34      
 ;
 P_curve_c_119_3 	Pump4     	0         	0.38888888
+;
+es_rwzi_simp    	Pump4     	0         	3.888     
+;
+rz_rwzi_simp    	Pump4     	0         	4.7222    
 ;
 mierlo_kelder   	Storage   	0         	25        
 mierlo_kelder   	          	2         	25        

@@ -5,7 +5,7 @@ import datetime as dt
 # MODEL_NAME = "model_jip_geen_regen"
 # MODEL_NAME = "model_jip_WEST_regen"
 MODEL_NAME = "model_jip"
-SUFFIX = "RTC_result_1"
+SUFFIX = "RTC_result_with_pump_curve"
 
 
 def main():

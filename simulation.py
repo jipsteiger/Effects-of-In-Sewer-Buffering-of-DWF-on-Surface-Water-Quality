@@ -3,6 +3,7 @@ import datetime as dt
 import pandas as pd
 import numpy as np
 import logging
+from pump_curves import EsPumpCurve, RzPumpCurve
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -39,6 +40,8 @@ class Simulation:
         self.ES_out_ideal = ES_out_ideal
         self.RZ_out_max = RZ_out_max
         self.RZ_out_ideal = RZ_out_ideal
+
+        self.ES_rain_conditions = False
 
         self.setting_time = []
         self.ES_setting = []
@@ -116,28 +119,47 @@ class Simulation:
             ) / self.virtual_pump_max
 
     def track_control_settings(self):
-        self.ES_setting.append(self.links["P_eindhoven_out"].target_setting)
-        self.RZ_setting.append(self.links["P_riool_zuid_out"].target_setting)
+        self.ES_setting.append(
+            self.links["P_eindhoven_out"].target_setting
+            # * RzPumpCurve.interpolated_curve(self.nodes["pipe_ES"].depth)
+        )
+        self.RZ_setting.append(
+            self.links["P_riool_zuid_out"].target_setting
+            # * RzPumpCurve.interpolated_curve(self.nodes["pre_ontvangstkelder"].depth)
+        )
         self.setting_time.append(self.sim.current_time)
 
     def real_time_control(self):
         self.get_forecast()
 
-        ES_rain_forecast, RZ_rain_forecast = self.rain_predicted()
+        ES_rain_forecast, RZ_rain_forecast = self.rain_predicted(2, 0, 14)
 
-        if not ES_rain_forecast:
+        if ES_rain_forecast or self.ES_rain_conditions:
+            self.ES_rain_conditions = ES_rain_forecast or (
+                self.nodes["pipe_ES"].total_inflow > self.ES_out_ideal
+            )
+        else:
+            self.ES_rain_conditions = False
+
+        if not self.ES_rain_conditions:
             self.links["P_eindhoven_out"].target_setting = (
                 self.ES_out_ideal / self.ES_out_max
             )
         else:
-            self.links["P_eindhoven_out"].target_setting = 1
+            self.links["P_eindhoven_out"].target_setting = (
+                EsPumpCurve.interpolated_curve(self.nodes["pipe_ES"].depth)
+                / self.ES_out_max
+            )
 
         if not RZ_rain_forecast:
             self.links["P_riool_zuid_out"].target_setting = (
                 self.RZ_out_ideal / self.RZ_out_max
             )
         else:
-            self.links["P_riool_zuid_out"].target_setting = 1
+            self.links["P_riool_zuid_out"].target_setting = (
+                EsPumpCurve.interpolated_curve(self.nodes["pre_ontvangstkelder"].depth)
+                / self.RZ_out_max
+            )
 
     def get_forecast(self):
         time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
@@ -149,21 +171,21 @@ class Simulation:
             )
             self.last_forecast_time = time
 
-    def rain_predicted(self):
+    def rain_predicted(self, horizon, es_threshold, rz_threshold):
         time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
-        end_time = time + dt.timedelta(hours=2)
+        end_time = time + dt.timedelta(hours=horizon)
 
         ES_forecast = self.current_forecast.loc[time:end_time, "ES"].sum()
         RZ_forecast = (
             self.current_forecast.loc[time:end_time, ["GE", "RZ1", "RZ2"]].sum().sum()
         )
-        return ES_forecast > 0, RZ_forecast > 0
+        return ES_forecast > es_threshold, RZ_forecast > rz_threshold
 
     def save_settings(self):
         df = pd.DataFrame(
             {
-                "ES_setting CMS": np.array(self.ES_setting) * self.ES_out_max,
-                "RZ_setting CMS": np.array(self.RZ_setting) * self.RZ_out_max,
+                "ES_setting CMS": np.array(self.ES_setting),
+                "RZ_setting CMS": np.array(self.RZ_setting),
             },
             index=self.setting_time,
         )
@@ -197,7 +219,7 @@ if __name__ == "__main__":
         step_size=300,
         report_start=dt.datetime(year=2024, month=7, day=1),
         start_time=dt.datetime(year=2024, month=7, day=1),
-        end_time=dt.datetime(year=2024, month=7, day=10),
+        end_time=dt.datetime(year=2024, month=8, day=1),
         virtual_pump_max=10,
     )
     simulation.start_simulation()

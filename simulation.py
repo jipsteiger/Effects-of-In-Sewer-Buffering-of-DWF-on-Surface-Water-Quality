@@ -205,4 +205,6 @@ if __name__ == "__main__":
     from postprocess import PostProcess
 
     postprocess = PostProcess(model_name=MODEL_NAME)
-    postprocess.plot_pumps(save=False, plot_rain=True, target_setting=True)
+    postprocess.plot_pumps(
+        save=False, plot_rain=True, target_setting=True, storage=True
+    )

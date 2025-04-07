@@ -83,7 +83,14 @@ class PostProcess:
             suffix=suffix,
         )
 
-    def plot_pumps(self, save=False, plot_rain=False, suffix="", target_setting=False):
+    def plot_pumps(
+        self,
+        save=False,
+        plot_rain=False,
+        suffix="",
+        target_setting=False,
+        storage=False,
+    ):
         pumps = [
             "P_riool_zuid_out",
             "P_eindhoven_out",
@@ -104,6 +111,7 @@ class PostProcess:
             plot_rain=plot_rain,
             suffix=suffix,
             target_setting=target_setting,
+            storage=storage,
         )
 
     def plot(
@@ -119,6 +127,7 @@ class PostProcess:
         plot_rain,
         suffix,
         target_setting=False,
+        storage=False,
     ):
         fig = make_subplots(specs=[[{"secondary_y": True}]])
         layout_config = dict(
@@ -138,6 +147,8 @@ class PostProcess:
             )
         if target_setting:
             fig = self.add_target_settings(fig)
+        if storage:
+            fig = self.add_storage_depth(fig)
 
         fig.update_layout(**layout_config)
         if save:
@@ -203,6 +214,20 @@ class PostProcess:
                     y=df.loc[:, key].values,
                     mode="lines",
                     name=key,
+                    marker=None,
+                ),
+                secondary_y=False,
+            )
+        return fig
+
+    def add_storage_depth(self, fig):
+        for storage in ["pipe_ES", "pre_ontvangstkelder"]:
+            fig.add_trace(
+                go.Scatter(
+                    x=self.output.index,
+                    y=self.output.node[storage].depth.values,
+                    mode="lines",
+                    name=storage + " depth",
                     marker=None,
                 ),
                 secondary_y=False,

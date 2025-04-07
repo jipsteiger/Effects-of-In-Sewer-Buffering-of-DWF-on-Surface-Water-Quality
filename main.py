@@ -24,11 +24,11 @@ def main():
     simulation.start_simulation()
 
     postprocess = PostProcess(model_name=MODEL_NAME)
-    # postprocess.create_outfall_txt(suffix=SUFFIX)
+    postprocess.create_outfall_txt(suffix=SUFFIX)
 
     # postprocess.plot_outfalls(save=False, plot_rain=True, suffix=SUFFIX)
     postprocess.plot_pumps(
-        save=True, plot_rain=True, suffix=SUFFIX, target_setting=True
+        save=True, plot_rain=True, suffix=SUFFIX, target_setting=True, storage=True
     )
     # TODO postprocess.plot_storages()
 

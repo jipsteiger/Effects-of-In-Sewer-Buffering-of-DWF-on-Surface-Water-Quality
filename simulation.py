@@ -47,6 +47,12 @@ class Simulation:
         self.ES_setting = []
         self.RZ_setting = []
 
+        self.ES_ramp_counter = 0
+        self.ES_ramp_active = False
+        self.ES_ramp_start_value = 0.0
+        self.ES_ramp_end_value = 0.0
+        self.ES_ramp_steps = 36  # or make this configurable
+
     def start_simulation(self):
         with ps.Simulation(
             self.model_path,
@@ -132,7 +138,7 @@ class Simulation:
     def real_time_control(self):
         self.get_forecast()
 
-        ES_rain_forecast, RZ_rain_forecast = self.rain_predicted(2, 0, 14)
+        ES_rain_forecast, RZ_rain_forecast = self.rain_predicted(4, 0.5, 2)
 
         if ES_rain_forecast or self.ES_rain_conditions:
             self.ES_rain_conditions = ES_rain_forecast or (
@@ -141,15 +147,34 @@ class Simulation:
         else:
             self.ES_rain_conditions = False
 
+        # Smooth transition logic
         if not self.ES_rain_conditions:
+            self.ES_ramp_active = False
+            self.ES_ramp_counter = 0
             self.links["P_eindhoven_out"].target_setting = (
                 self.ES_out_ideal / self.ES_out_max
             )
         else:
-            self.links["P_eindhoven_out"].target_setting = (
-                EsPumpCurve.interpolated_curve(self.nodes["pipe_ES"].depth)
-                / self.ES_out_max
-            )
+            # Start ramp if it's the first step with new condition
+            if not self.ES_ramp_active:
+                self.ES_ramp_active = True
+                self.ES_ramp_counter = 0
+                self.ES_ramp_start_value = self.links["P_eindhoven_out"].target_setting
+                self.ES_ramp_end_value = (
+                    EsPumpCurve.interpolated_curve(self.nodes["pipe_ES"].depth)
+                    / self.ES_out_max
+                )
+
+            if self.ES_ramp_counter < self.ES_ramp_steps:
+                increment = (
+                    self.ES_ramp_end_value - self.ES_ramp_start_value
+                ) / self.ES_ramp_steps
+                self.links["P_eindhoven_out"].target_setting = (
+                    self.ES_ramp_start_value + increment * self.ES_ramp_counter
+                )
+                self.ES_ramp_counter += 1
+            else:
+                self.links["P_eindhoven_out"].target_setting = self.ES_ramp_end_value
 
         if not RZ_rain_forecast:
             self.links["P_riool_zuid_out"].target_setting = (

@@ -11,7 +11,8 @@ output_file = "forecast_data.csv"
 output_path = rf"data\precipitation\csv_forecasts"
 
 forecast_horizon = [
-    "3" "6",
+    "3",
+    "6",
     "12",
     "18",
     "24",

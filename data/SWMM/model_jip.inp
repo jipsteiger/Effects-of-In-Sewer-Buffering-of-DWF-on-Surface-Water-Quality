@@ -48,10 +48,10 @@ DRY_ONLY        	YES
 [RAINGAGES]
 ;;Name          	Format   	Interval	SCF     	Source    
 ;;--------------	---------	------	------	----------
-ES              	CUMULATIVE	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\ES_year_24.dat"	ES        	MM   
-GE              	CUMULATIVE	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\GE_year_24.dat"	GE        	MM   
-RZ1             	CUMULATIVE	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\RZ1_year_24.dat"	RZ1       	MM   
-RZ2             	CUMULATIVE	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\RZ2_year_24.dat"	RZ2       	MM   
+ES              	CUMULATIVE	0:05    	1.0     	FILE      	"C:\Users\Jip\Documents\Universiteit\EE\Thesis\data\precipitation\dat_swmm_rain_data\ES_year_24.dat"	ES        	MM   
+GE              	CUMULATIVE	0:05    	1.0     	FILE      	"C:\Users\Jip\Documents\Universiteit\EE\Thesis\data\precipitation\dat_swmm_rain_data\GE_year_24.dat"	GE        	MM   
+RZ1             	CUMULATIVE	0:05    	1.0     	FILE      	"C:\Users\Jip\Documents\Universiteit\EE\Thesis\data\precipitation\dat_swmm_rain_data\RZ1_year_24.dat"	RZ1       	MM   
+RZ2             	CUMULATIVE	0:05    	1.0     	FILE      	"C:\Users\Jip\Documents\Universiteit\EE\Thesis\data\precipitation\dat_swmm_rain_data\RZ2_year_24.dat"	RZ2       	MM   
 
 [SUBCATCHMENTS]
 ;;Name          	Rain Gage       	Outlet          	Area    	%Imperv 	Width   	%Slope  	CurbLen 	SnowPack        
@@ -919,7 +919,7 @@ aalst_gemaal2   	          	4         	99700
 [TIMESERIES]
 ;;Name          	Date      	Time      	Value     
 ;;--------------	----------	----------	----------
-evaporation_from_west	FILE	"D:\Jip\Documents\Uni\Master\Thesis\data\evaporation\evaporation_from_west.dat"
+evaporation_from_west	FILE	"C:\Users\Jip\Documents\Universiteit\EE\Thesis\data\evaporation\evaporation_from_west.dat"
 
 [PATTERNS]
 ;;Name          	Type      	Multipliers

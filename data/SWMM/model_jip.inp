@@ -274,7 +274,7 @@ Nod_244         	11.440000 	28.560000 	0.000000  	0.000000  	1000.00000
 Nod_266         	11.370000 	28.630000 	0.000000  	0.000000  	1000.00000
 Nod_277         	11.260000 	28.740000 	0.000000  	0.000000  	1000.00000
 J1              	15.06     	4         	0         	0         	0         
-J119            	0         	99999999  	0         	0         	0          
+J119            	0         	99999999  	0         	0         	0         
 
 [OUTFALLS]
 ;;Name          	Elevation 	Type      	Stage Data      	Gated   	Route To        
@@ -441,8 +441,8 @@ P_c_130_d_5     	c_130_vr_storage_5	c_131_vr_storage_5	virtual_pump_curve	ON    
 P_c_134_d_5     	c_134_vr_storage_5	c_136_vr_storage_5	virtual_pump_curve	ON      	0       	0       
 P_c_132_d_5     	c_132_vr_storage_5	c_136_vr_storage_5	virtual_pump_curve	ON      	0       	0       
 Con_1119.1      	gb_136          	Nod_100         	Curve_1119.1    	ON      	0       	0       
-P_riool_zuid_out	pre_ontvangstkelder	out_RZ          	rz_rwzi         	ON      	0       	0       
-P_eindhoven_out 	pipe_ES         	out_ES          	es_rwzi         	ON      	0.2     	0.001   
+P_riool_zuid_out	pre_ontvangstkelder	out_RZ          	rz_rwzi_simp    	ON      	0       	0       
+P_eindhoven_out 	pipe_ES         	out_ES          	es_rwzi_simp    	ON      	0.2     	0.001   
 P_c_150_d_57    	c_150_vr_storage_57	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
 P_c_123_d_40    	c_123_vr_storage_40	c_123           	virtual_pump_curve	ON      	0       	0       
 P_c_143_d_70    	c_143_vr_storage_70	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
@@ -570,7 +570,6 @@ weir_c_122      	RECT_OPEN   	1               	1         	0         	0
 weir_c_119_2    	RECT_OPEN   	1               	1         	0         	0         
 weir_c_119_3    	RECT_OPEN   	1               	1         	0         	0         
 
-
 [CONTROLS]
 RULE P_aalst_1_ON
 IF NODE Aalst_gemaal HEAD >= 0.33
@@ -595,6 +594,7 @@ IF NODE Aalst_gemaal HEAD >= 0.705
 THEN PUMP P_aalst_4 STATUS = ON
 RULE P_aalst_4_OFF
 IF NODE Aalst_gemaal HEAD <= 0.259
+
 
 
 

@@ -144,16 +144,16 @@ class PostProcess:
         for id in ids:
             fig = self.add_trace(fig, object_type, id, variable)
 
+        if target_setting:
+            fig = self.add_target_settings(fig)
+        if storage:
+            fig = self.add_storage_depth(fig)
         if plot_rain:
             fig = self.add_rain(fig)
             layout_config["yaxis2"] = dict(
                 title="Rainfall (mm)",
                 side="right",
             )
-        if target_setting:
-            fig = self.add_target_settings(fig)
-        if storage:
-            fig = self.add_storage_depth(fig)
 
         fig.update_layout(**layout_config)
         if save:
@@ -226,27 +226,55 @@ class PostProcess:
         return fig
 
     def add_storage_depth(self, fig):
+        from storage import RZ_storage
+
+        rz_storage = RZ_storage()
+        pipe_volumes = [self.output.link[pipe].volume for pipe in rz_storage.pipes]
+        total_volume_per_timestep = pd.concat(pipe_volumes, axis=1).sum(axis=1)
         for storage in ["pipe_ES", "pre_ontvangstkelder"]:
-            fig.add_trace(
-                go.Scatter(
-                    x=self.output.index,
-                    y=self.output.node[storage].depth.values,
-                    mode="lines",
-                    name=storage + " depth",
-                    marker=None,
-                ),
-                secondary_y=False,
-            )
-            fig.add_trace(
-                go.Scatter(
-                    x=self.output.index,
-                    y=self.output.node[storage].total_inflow.values,
-                    mode="lines",
-                    name=storage + " total_inflow",
-                    marker=None,
-                ),
-                secondary_y=False,
-            )
+            if storage == "pipe_ES":
+                fig.add_trace(
+                    go.Scatter(
+                        x=self.output.index,
+                        y=self.output.node[storage].volume.values / 7000,
+                        mode="lines",
+                        name=storage + " volume",
+                        marker=None,
+                    ),
+                    secondary_y=False,
+                )
+                fig.add_trace(
+                    go.Scatter(
+                        x=self.output.index,
+                        y=self.output.node[storage].depth.values,
+                        mode="lines",
+                        name=storage + " depth",
+                        marker=None,
+                    ),
+                    secondary_y=False,
+                )
+                fig.add_trace(
+                    go.Scatter(
+                        x=self.output.index,
+                        y=self.output.node[storage].total_inflow.values,
+                        mode="lines",
+                        name=storage + " total_inflow",
+                        marker=None,
+                    ),
+                    secondary_y=False,
+                )
+            elif storage == "pre_ontvangstkelder":
+                fig.add_trace(
+                    go.Scatter(
+                        x=self.output.index,
+                        y=total_volume_per_timestep.values / 5000,
+                        mode="lines",
+                        name="RZ volume stored",
+                        marker=None,
+                    ),
+                    secondary_y=False,
+                )
+
             fig.data[-1].visible = "legendonly"
 
         return fig

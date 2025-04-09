@@ -5,6 +5,7 @@ import numpy as np
 import logging
 from pump_curves import EsPumpCurve, RzPumpCurve
 from simulation import Simulation
+from storage import Storage, RZ_storage
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -37,6 +38,9 @@ class RealTimeControl(Simulation):
         self.current_forecast = None
         self.last_forecast_time = None
 
+        self.ES_storage = Storage(165000)
+        self.RZ_storage = RZ_storage()
+
         self.ES_out_max = ES_out_max
         self.ES_out_ideal = ES_out_ideal
         self.RZ_out_max = RZ_out_max
@@ -47,7 +51,10 @@ class RealTimeControl(Simulation):
         self.ES_ramp_active = False
         self.ES_ramp_start_value = 0.0
         self.ES_ramp_end_value = 0.0
+
         self.ES_rain_conditions = False
+        self.RZ_rain_conditions = False
+
         self.ES_setting = []
         self.RZ_setting = []
         self.setting_time = []
@@ -74,25 +81,42 @@ class RealTimeControl(Simulation):
 
     def real_time_control(self):
         self.get_forecast()
+        self.set_storage()
+        self.get_and_set_state()
+        self.dwf_logic()
+        self.wwf_logic()
 
-        ES_rain_forecast, RZ_rain_forecast = self.rain_predicted(4, 0.5, 2)
+    def get_and_set_state(self):
+        ES_rain_forecast, RZ_rain_forecast = self.rain_predicted(4, 0.5, 0.5)
 
         if ES_rain_forecast or self.ES_rain_conditions:
             self.ES_rain_conditions = ES_rain_forecast or (
-                self.nodes["pipe_ES"].total_inflow > self.ES_out_ideal
+                self.ES_storage.stored_volume > 10_000  # Daily diff max + 3k margin
             )
         else:
             self.ES_rain_conditions = False
 
-        # Smooth transition logic
+        if RZ_rain_forecast or self.RZ_rain_conditions:
+            self.RZ_rain_conditions = ES_rain_forecast or (
+                self.RZ_storage.stored_volume > 8_000  # Daily diff max + 3k margin
+            )
+        else:
+            self.RZ_rain_conditions = False
+
+    def dwf_logic(self):
         if not self.ES_rain_conditions:
             self.ES_ramp_active = False
             self.ES_ramp_counter = 0
             self.links["P_eindhoven_out"].target_setting = (
                 self.ES_out_ideal / self.ES_out_max
             )
-        else:
-            # Start ramp if it's the first step with new condition
+        if not self.RZ_rain_conditions:
+            self.links["P_riool_zuid_out"].target_setting = (
+                self.RZ_out_ideal / self.RZ_out_max
+            )
+
+    def wwf_logic(self):
+        if self.ES_rain_conditions:
             if not self.ES_ramp_active:
                 self.ES_ramp_active = True
                 self.ES_ramp_counter = 0
@@ -112,16 +136,15 @@ class RealTimeControl(Simulation):
                 self.ES_ramp_counter += 1
             else:
                 self.links["P_eindhoven_out"].target_setting = self.ES_ramp_end_value
-
-        if not RZ_rain_forecast:
-            self.links["P_riool_zuid_out"].target_setting = (
-                self.RZ_out_ideal / self.RZ_out_max
-            )
-        else:
+        if self.RZ_rain_conditions:
             self.links["P_riool_zuid_out"].target_setting = (
                 EsPumpCurve.interpolated_curve(self.nodes["pre_ontvangstkelder"].depth)
                 / self.RZ_out_max
             )
+
+    def set_storage(self):
+        self.ES_storage.update_stored_volume(self.nodes["pipe_ES"].volume)
+        self.RZ_storage.update_stored_volume(self.RZ_storage.get_volume(self.links))
 
     def get_forecast(self):
         time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)

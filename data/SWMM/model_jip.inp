@@ -48,10 +48,10 @@ DRY_ONLY        	YES
 [RAINGAGES]
 ;;Name          	Format   	Interval	SCF     	Source    
 ;;--------------	---------	------	------	----------
-ES              	CUMULATIVE	0:05    	1.0     	FILE      	"C:\Users\Jip\Documents\Universiteit\EE\Thesis\data\precipitation\dat_swmm_rain_data\ES_year_24.dat"	ES        	MM   
-GE              	CUMULATIVE	0:05    	1.0     	FILE      	"C:\Users\Jip\Documents\Universiteit\EE\Thesis\data\precipitation\dat_swmm_rain_data\GE_year_24.dat"	GE        	MM   
-RZ1             	CUMULATIVE	0:05    	1.0     	FILE      	"C:\Users\Jip\Documents\Universiteit\EE\Thesis\data\precipitation\dat_swmm_rain_data\RZ1_year_24.dat"	RZ1       	MM   
-RZ2             	CUMULATIVE	0:05    	1.0     	FILE      	"C:\Users\Jip\Documents\Universiteit\EE\Thesis\data\precipitation\dat_swmm_rain_data\RZ2_year_24.dat"	RZ2       	MM   
+ES              	CUMULATIVE	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\ES_year_24.dat"	ES        	MM   
+GE              	CUMULATIVE	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\GE_year_24.dat"	GE        	MM   
+RZ1             	CUMULATIVE	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\RZ1_year_24.dat"	RZ1       	MM   
+RZ2             	CUMULATIVE	0:05    	1.0     	FILE      	"D:\Jip\Documents\Uni\Master\Thesis\data\precipitation\dat_swmm_rain_data\RZ2_year_24.dat"	RZ2       	MM   
 
 [SUBCATCHMENTS]
 ;;Name          	Rain Gage       	Outlet          	Area    	%Imperv 	Width   	%Slope  	CurbLen 	SnowPack        
@@ -274,7 +274,7 @@ Nod_244         	11.440000 	28.560000 	0.000000  	0.000000  	1000.00000
 Nod_266         	11.370000 	28.630000 	0.000000  	0.000000  	1000.00000
 Nod_277         	11.260000 	28.740000 	0.000000  	0.000000  	1000.00000
 J1              	15.06     	4         	0         	0         	0         
-J119            	0         	99999999  	0         	0         	0         
+J119            	0         	99999999  	0         	0         	0          
 
 [OUTFALLS]
 ;;Name          	Elevation 	Type      	Stage Data      	Gated   	Route To        
@@ -412,8 +412,6 @@ Con_153         	Nod_233         	Nod_244         	116.329059	0.02      	0.00000
 Con_154         	Nod_244         	Nod_266         	127.542346	0.02      	0.000000  	0.000000  	0.2       	0         
 Con_155         	Nod_266         	Nod_277         	169.824174	0.02      	0.000000  	0.000000  	0.2       	0         
 Con_156         	Nod_277         	Nod_123         	203.550215	0.02      	0.000000  	0.000000  	0.2       	0         
-geldrop_out_east	J1              	Nod_130         	400       	0.01      	0         	0         	0         	0         
-geldrop_out_north	J1              	Nod_100         	135       	0.025     	0         	0         	0         	0         
 eeneind_out     	c_124_storage   	Nod_104         	31        	0.01      	0         	0         	0         	0         
 
 [PUMPS]
@@ -443,7 +441,7 @@ P_c_130_d_5     	c_130_vr_storage_5	c_131_vr_storage_5	virtual_pump_curve	ON    
 P_c_134_d_5     	c_134_vr_storage_5	c_136_vr_storage_5	virtual_pump_curve	ON      	0       	0       
 P_c_132_d_5     	c_132_vr_storage_5	c_136_vr_storage_5	virtual_pump_curve	ON      	0       	0       
 Con_1119.1      	gb_136          	Nod_100         	Curve_1119.1    	ON      	0       	0       
-P_riool_zuid_out	pre_ontvangstkelder	out_RZ          	rz_rwzi_simp    	ON      	0       	0       
+P_riool_zuid_out	pre_ontvangstkelder	out_RZ          	rz_rwzi         	ON      	0       	0       
 P_eindhoven_out 	pipe_ES         	out_ES          	es_rwzi         	ON      	0.2     	0.001   
 P_c_150_d_57    	c_150_vr_storage_57	Aalst_gemaal    	virtual_pump_curve	ON      	0       	0       
 P_c_123_d_40    	c_123_vr_storage_40	c_123           	virtual_pump_curve	ON      	0       	0       
@@ -491,6 +489,8 @@ P_c_119_3       	c_119_3         	Aalst_gemaal    	P_curve_c_119_3 	ON      	0  
 P_c_119_fr_040  	J119            	c_119_1         	virtual_pump_curve	ON      	0       	0       
 P_c_119_fr_028  	J119            	c_119_2         	virtual_pump_curve	ON      	0       	0       
 P_c_119_fr_032  	J119            	c_119_3         	virtual_pump_curve	ON      	0       	0       
+P_geldrop_split_1	J1              	Nod_130         	virtual_pump_curve	ON      	0       	0       
+P_geldrop_split_2	J1              	Nod_100         	virtual_pump_curve	ON      	0       	0       
 
 [WEIRS]
 ;;Name          	From Node       	To Node         	Type        	CrestHt   	Qcoeff    	Gated   	EndCon  	EndCoeff  	Surcharge 	RoadWidth 	RoadSurf  	Coeff. Curve
@@ -555,8 +555,6 @@ Con_153         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	
 Con_154         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
 Con_155         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	1         	          
 Con_156         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	1         	          
-geldrop_out_east	CIRCULAR    	1               	0         	0         	0         	1         	          
-geldrop_out_north	CIRCULAR    	1.25            	0         	0         	0         	1         	          
 eeneind_out     	CIRCULAR    	0.25            	0         	0         	0         	1         	          
 weir_gb_136     	RECT_OPEN   	1               	1         	0         	0         
 Con_A*HLCMRZ1135.1	RECT_OPEN   	0.500000        	9.000000  	0.000000  	0.000000  
@@ -572,11 +570,6 @@ weir_c_122      	RECT_OPEN   	1               	1         	0         	0
 weir_c_119_2    	RECT_OPEN   	1               	1         	0         	0         
 weir_c_119_3    	RECT_OPEN   	1               	1         	0         	0         
 
-[LOSSES]
-;;Link          	Kentry    	Kexit     	Kavg      	Flap Gate 	Seepage   
-;;--------------	----------	----------	----------	----------	----------
-geldrop_out_east	0         	0         	0         	YES       	0         
-geldrop_out_north	0         	0         	0         	YES       	0         
 
 [CONTROLS]
 RULE P_aalst_1_ON
@@ -919,7 +912,7 @@ aalst_gemaal2   	          	4         	99700
 [TIMESERIES]
 ;;Name          	Date      	Time      	Value     
 ;;--------------	----------	----------	----------
-evaporation_from_west	FILE	"C:\Users\Jip\Documents\Universiteit\EE\Thesis\data\evaporation\evaporation_from_west.dat"
+evaporation_from_west	FILE	"D:\Jip\Documents\Uni\Master\Thesis\data\evaporation\evaporation_from_west.dat"
 
 [PATTERNS]
 ;;Name          	Type      	Multipliers

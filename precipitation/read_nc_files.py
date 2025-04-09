@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 
-path = rf"data\precipitation\raw_harmonie"
+path = rf"data\precipitation\raw_data\zip_raw_harmonie"
 output_file = "forecast_data.csv"
 output_path = rf"data\precipitation\csv_forecasts"
 

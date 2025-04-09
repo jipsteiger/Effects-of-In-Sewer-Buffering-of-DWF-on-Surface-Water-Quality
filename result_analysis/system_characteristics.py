@@ -55,6 +55,7 @@ def make_dwf_only():
 
 
 def make_dwf_only_constant():
+    model_name = "model_jip_geen_regen"
     aa = sa.SwmmOutput(rf"data\SWMM\{model_name}.out").to_frame()
 
     for outfall in ["out_RZ", "out_ES"]:
@@ -90,56 +91,42 @@ def make_dwf_only_constant():
 
 def timeseries_snippet():
     es_dwf = pd.read_csv(
-        rf"swmm_output\latest_out_ES_DWF_only_out.csv",
+        rf"swmm_output\swmm_base_outflow(BACKUP)\latest_out_ES_DWF_only_out.csv",
         index_col=0,
         parse_dates=True,
         delimiter=";",
         decimal=",",
     )
     es_dwf_const = pd.read_csv(
-        rf"swmm_output\latest_out_ES_only_constant_DWF.csv",
-        index_col=0,
-        parse_dates=True,
-        delimiter=";",
-        decimal=",",
-    )
-    es = pd.read_csv(
-        rf"swmm_output\latest_out_ES_out_WEST_precipitation.csv",
+        rf"swmm_output\swmm_base_outflow(BACKUP)\latest_out_ES_only_constant_DWF.csv",
         index_col=0,
         parse_dates=True,
         delimiter=";",
         decimal=",",
     )
     es_base = pd.read_csv(
-        rf"swmm_output\latest_out_ES_out_base.csv",
+        rf"swmm_output\swmm_base_outflow(BACKUP)\latest_out_ES_out_base.csv",
         index_col=0,
         parse_dates=True,
         delimiter=";",
         decimal=",",
     )
     rz_dwf = pd.read_csv(
-        "swmm_output\latest_out_RZ_DWF_only_out.csv",
+        "swmm_output\swmm_base_outflow(BACKUP)\latest_out_RZ_DWF_only_out.csv",
         index_col=0,
         parse_dates=True,
         delimiter=";",
         decimal=",",
     )
     rz_dwf_const = pd.read_csv(
-        "swmm_output\latest_out_RZ_only_constant_DWF.csv",
-        index_col=0,
-        parse_dates=True,
-        delimiter=";",
-        decimal=",",
-    )
-    rz = pd.read_csv(
-        "swmm_output\latest_out_RZ_out_WEST_precipitation.csv",
+        "swmm_output\swmm_base_outflow(BACKUP)\latest_out_RZ_only_constant_DWF.csv",
         index_col=0,
         parse_dates=True,
         delimiter=";",
         decimal=",",
     )
     rz_base = pd.read_csv(
-        "swmm_output\latest_out_RZ_out_base.csv",
+        "swmm_output\swmm_base_outflow(BACKUP)\latest_out_RZ_out_base.csv",
         index_col=0,
         parse_dates=True,
         delimiter=";",
@@ -188,7 +175,7 @@ def timeseries_snippet():
 
 
 def compare_wwtp_out():
-    # all keys g/d
+    # all keys g/d --- hehe no longer
     constant = pd.read_csv(
         f"data\WEST\SWMM_input_constant_DWF\WWTP_output.out.txt",
         delimiter="\t",
@@ -272,7 +259,7 @@ def compare_wwtp_out():
     pio.show(fig, renderer="browser")
 
 
-def create_plots():
+def create_plotsof_wwtp_out():
     # all keys g/d
     constant = pd.read_csv(
         f"data\WEST\SWMM_input_constant_DWF\WWTP_output.out.txt",
@@ -358,6 +345,268 @@ def create_plots():
             i += 1
 
 
-# Emptying in other file
+def create_diff_table():
+    constant = pd.read_csv(
+        f"data\WEST\SWMM_input_constant_DWF\WWTP_output.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    constant["timestamp"] = start_date + pd.to_timedelta(
+        constant.index.astype(float), unit="D"
+    )
+    constant.set_index("timestamp", inplace=True)
 
-# Storage in other file
+    dwf_only = pd.read_csv(
+        f"data\WEST\SWMM_inputs_dwf_only\WWTP_output.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    dwf_only["timestamp"] = start_date + pd.to_timedelta(
+        dwf_only.index.astype(float), unit="D"
+    )
+    dwf_only.set_index("timestamp", inplace=True)
+
+    dwf_rain = pd.read_csv(
+        f"data\WEST\SWMM_inputs_dwf_and_precipitation\WWTP_output.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    dwf_rain["timestamp"] = start_date + pd.to_timedelta(
+        dwf_rain.index.astype(float), unit="D"
+    )
+    dwf_rain.set_index("timestamp", inplace=True)
+
+    constant_jul = constant.loc["2024-07-01":"2024-08-01"]
+    dwf_only_jul = dwf_only.loc["2024-07-01":"2024-08-01"]
+    dwf_rain_jul = dwf_rain.loc["2024-07-01":"2024-08-01"]
+
+    constant_ext = constant.loc["2024-04-15":"2024-10-16"]
+    dwf_only_ext = dwf_only.loc["2024-04-15":"2024-10-16"]
+    dwf_rain_ext = dwf_rain.loc["2024-04-15":"2024-10-16"]
+
+    # Use a proper variable name
+    results = {
+        "dwf_only_jul": [],
+        "constant_jul": [],
+        "dwf_rain_jul": [],
+        "dwf_only_ext": [],
+        "constant_ext": [],
+        "dwf_rain_ext": [],
+    }
+
+    # Group DataFrames with labels
+    dfs = {
+        "dwf_only_jul": dwf_only_jul.astype(float).resample("D").mean(),
+        "constant_jul": constant_jul.astype(float).resample("D").mean(),
+        "dwf_rain_jul": dwf_rain_jul.astype(float).resample("D").mean(),
+        "dwf_only_ext": dwf_only_ext.astype(float).resample("D").mean(),
+        "constant_ext": constant_ext.astype(float).resample("D").mean(),
+        "dwf_rain_ext": dwf_rain_ext.astype(float).resample("D").mean(),
+    }
+
+    keys = list(constant_jul.columns)
+    index = []
+
+    for key in keys:
+        for name, df in dfs.items():
+            if (".effluent.y" in key) and not ("y_Q" in key):
+                value = (
+                    df[key].astype(float) * df[".effluent.y_Q"].astype(float) * 24
+                ).sum()
+            elif (".effluent.y" in key) and ("y_Q" in key):
+                value = (df[key].astype(float) * 24 * 1e6).sum()
+            else:
+                value = df[key].astype(float).sum()
+            results[name].append(value)
+        index.append(key)
+
+    sums = pd.DataFrame(results, index=index).abs() / 1000
+    sums["dif_jul"] = ((sums["constant_jul"] / sums["dwf_only_jul"]) - 1) * 100
+    sums["dif_ext"] = ((sums["constant_ext"] / sums["dwf_only_ext"]) - 1) * 100
+
+
+def debug_wwpt_flow():
+    # all keys g/d --- hehe no longer
+    constant_out = pd.read_csv(
+        f"data\WEST\SWMM_input_constant_DWF\WWTP_output.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    constant_out["timestamp"] = start_date + pd.to_timedelta(
+        constant_out.index.astype(float), unit="D"
+    )
+    constant_out.set_index("timestamp", inplace=True)
+
+    dwf_rain_out = pd.read_csv(
+        f"data\WEST\SWMM_inputs_dwf_and_precipitation\WWTP_output.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    dwf_rain_out["timestamp"] = start_date + pd.to_timedelta(
+        dwf_rain_out.index.astype(float), unit="D"
+    )
+    dwf_rain_out.set_index("timestamp", inplace=True)
+
+    constant_in = pd.read_csv(
+        f"data\WEST\SWMM_input_constant_DWF\inputs_sanity_check.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    constant_in["timestamp"] = start_date + pd.to_timedelta(
+        constant_in.index.astype(float), unit="D"
+    )
+    constant_in.set_index("timestamp", inplace=True)
+
+    dwf_rain_in = pd.read_csv(
+        f"data\WEST\SWMM_inputs_dwf_and_precipitation\inputs_sanity_check.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    dwf_rain_in["timestamp"] = start_date + pd.to_timedelta(
+        dwf_rain_in.index.astype(float), unit="D"
+    )
+    dwf_rain_in.set_index("timestamp", inplace=True)
+
+    constant_out = constant_out.loc["2024-07-01":"2024-08-01"]
+    dwf_rain_out = dwf_rain_out.loc["2024-07-01":"2024-08-01"]
+    constant_in = constant_in.loc["2024-07-01":"2024-08-01"]
+    dwf_rain_in = dwf_rain_in.loc["2024-07-01":"2024-08-01"]
+
+    keys_in = [
+        ".fractionation.Inflow(H2O_sew)",
+        ".fractionation.Inflow(NH4_sew)",
+        ".WWTP_in.Outflow(H2O)",
+    ]
+    keys_out = [".WWTP2river.Outflow(rNH4)", ".WWTP2river.Outflow(rH2O)"]
+
+    fig = go.Figure()
+    for key in keys_out:
+        fig.add_trace(
+            go.Scatter(
+                x=constant_out.index,
+                y=constant_out[key].astype(float) * -1,
+                mode="lines",
+                name=f"Constant out: {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=dwf_rain_out.index,
+                y=dwf_rain_out[key].astype(float) * -1,
+                mode="lines",
+                name=f"DWF & Rain out: {key}",
+            )
+        )
+
+    for key in keys_in:
+        fig.add_trace(
+            go.Scatter(
+                x=constant_in.index,
+                y=constant_in[key].astype(float) * -1,
+                mode="lines",
+                name=f"Constantin: {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=dwf_rain_in.index,
+                y=dwf_rain_in[key].astype(float) * -1,
+                mode="lines",
+                name=f"DWF & Rain in: {key}",
+            )
+        )
+    pio.show(fig, renderer="browser")
+
+    #####################################################################
+
+    dwf_only = pd.read_csv(
+        f"data\WEST\SWMM_inputs_dwf_only\WWTP_output.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    dwf_only["timestamp"] = start_date + pd.to_timedelta(
+        dwf_only.index.astype(float), unit="D"
+    )
+    dwf_only.set_index("timestamp", inplace=True)
+
+    constant = pd.read_csv(
+        f"data\WEST\SWMM_input_constant_DWF\WWTP_output.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    constant["timestamp"] = start_date + pd.to_timedelta(
+        constant.index.astype(float), unit="D"
+    )
+    constant.set_index("timestamp", inplace=True)
+
+    dwf_rain = pd.read_csv(
+        f"data\WEST\SWMM_inputs_dwf_and_precipitation\WWTP_output.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    dwf_rain["timestamp"] = start_date + pd.to_timedelta(
+        dwf_rain.index.astype(float), unit="D"
+    )
+    dwf_rain.set_index("timestamp", inplace=True)
+
+    constant = constant.loc["2024-07-01":"2024-08-01"]
+    dwf_rain = dwf_rain.loc["2024-07-01":"2024-08-01"]
+    dwf_only = dwf_only.loc["2024-07-01":"2024-08-01"]
+
+    fig = go.Figure()
+    for key in dwf_only.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=dwf_only.index,
+                y=dwf_only[key].astype(float) * -1,
+                mode="lines",
+                name=f"DWF only: {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=dwf_rain.index,
+                y=dwf_rain[key].astype(float) * -1,
+                mode="lines",
+                name=f"DWF & Rain in: {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=constant.index,
+                y=constant[key].astype(float) * -1,
+                mode="lines",
+                name=f"Constant in: {key}",
+            )
+        )
+    pio.show(fig, renderer="browser")

@@ -2,10 +2,10 @@ from simulation import Simulation
 from postprocess import PostProcess
 import datetime as dt
 
-# MODEL_NAME = "model_jip_geen_regen"
+MODEL_NAME = "model_jip_geen_regen"
 # MODEL_NAME = "model_jip_WEST_regen"
-MODEL_NAME = "model_jip"
-SUFFIX = "RTC_result_pump_ramp_up"
+# MODEL_NAME = "model_jip"
+SUFFIX = "geldrop_out_fix"
 
 
 def main():
@@ -27,9 +27,9 @@ def main():
     postprocess.create_outfall_txt(suffix=SUFFIX)
 
     # postprocess.plot_outfalls(save=False, plot_rain=True, suffix=SUFFIX)
-    postprocess.plot_pumps(
-        save=True, plot_rain=True, suffix=SUFFIX, target_setting=True, storage=True
-    )
+    # postprocess.plot_pumps(
+    #     save=True, plot_rain=True, suffix=SUFFIX, target_setting=True, storage=True
+    # )
     # TODO postprocess.plot_storages()
 
 

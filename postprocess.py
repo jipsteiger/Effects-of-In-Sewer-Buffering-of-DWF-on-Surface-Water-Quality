@@ -20,9 +20,14 @@ class PostProcess:
             outfall_timeseries = pd.DataFrame(
                 self.output["node"][outfall]["total_inflow"]
             )
-            dec_index = (
-                outfall_timeseries.index - pd.Timestamp("2024-01-01")
-            ).total_seconds() / (24 * 60 * 60)
+            if self.model_name == "model_jip_geen_regen":
+                dec_index = (
+                    outfall_timeseries.index - pd.Timestamp("2023-01-01")
+                ).total_seconds() / (24 * 60 * 60)
+            else:
+                dec_index = (
+                    outfall_timeseries.index - pd.Timestamp("2024-01-01")
+                ).total_seconds() / (24 * 60 * 60)
             H2O_sew = (
                 outfall_timeseries["total_inflow"] * (24 * 3600)  # to m3/d
             ).values  # From CMS to g/d

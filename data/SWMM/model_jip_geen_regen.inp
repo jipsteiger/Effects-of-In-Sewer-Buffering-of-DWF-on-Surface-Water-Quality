@@ -437,8 +437,6 @@ Con_153         	Nod_233         	Nod_244         	116.329059	0.02      	0.00000
 Con_154         	Nod_244         	Nod_266         	127.542346	0.02      	0.000000  	0.000000  	0.2       	0         
 Con_155         	Nod_266         	Nod_277         	169.824174	0.02      	0.000000  	0.000000  	0.2       	0         
 Con_156         	Nod_277         	Nod_123         	203.550215	0.02      	0.000000  	0.000000  	0.2       	0         
-geldrop_out_east	J1              	Nod_130         	400       	0.01      	0         	0         	0         	0         
-geldrop_out_north	J1              	Nod_100         	135       	0.025     	0         	0         	0         	0         
 eeneind_out     	c_124_storage   	Nod_104         	31        	0.01      	0         	0         	0         	0         
 
 [PUMPS]
@@ -516,6 +514,8 @@ P_c_119_3       	c_119_3         	Aalst_gemaal    	P_curve_c_119_3 	ON      	0  
 P_c_119_fr_040  	J119            	c_119_1         	virtual_pump_curve	ON      	0       	0       
 P_c_119_fr_028  	J119            	c_119_2         	virtual_pump_curve	ON      	0       	0       
 P_c_119_fr_032  	J119            	c_119_3         	virtual_pump_curve	ON      	0       	0       
+P_geldrop_split_1	J1              	Nod_130         	virtual_pump_curve	ON      	0       	0       
+P_geldrop_split_2	J1              	Nod_100         	virtual_pump_curve	ON      	0       	0       
 
 [WEIRS]
 ;;Name          	From Node       	To Node         	Type        	CrestHt   	Qcoeff    	Gated   	EndCon  	EndCoeff  	Surcharge 	RoadWidth 	RoadSurf  	Coeff. Curve
@@ -580,8 +580,6 @@ Con_153         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	
 Con_154         	RECT_CLOSED 	1.800000        	2.000000  	0.000000  	0.000000  	1         	          
 Con_155         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	1         	          
 Con_156         	RECT_CLOSED 	1.800000        	2.250000  	0.000000  	0.000000  	1         	          
-geldrop_out_east	CIRCULAR    	1               	0         	0         	0         	1         	          
-geldrop_out_north	CIRCULAR    	1.25            	0         	0         	0         	1         	          
 eeneind_out     	CIRCULAR    	0.25            	0         	0         	0         	1         	          
 weir_gb_136     	RECT_OPEN   	1               	1         	0         	0         
 Con_A*HLCMRZ1135.1	RECT_OPEN   	0.500000        	9.000000  	0.000000  	0.000000  
@@ -596,12 +594,6 @@ weir_c_119_1    	RECT_OPEN   	1               	1         	0         	0
 weir_c_122      	RECT_OPEN   	1               	1         	0         	0         
 weir_c_119_2    	RECT_OPEN   	1               	1         	0         	0         
 weir_c_119_3    	RECT_OPEN   	1               	1         	0         	0         
-
-[LOSSES]
-;;Link          	Kentry    	Kexit     	Kavg      	Flap Gate 	Seepage   
-;;--------------	----------	----------	----------	----------	----------
-geldrop_out_east	0         	0         	0         	YES       	0         
-geldrop_out_north	0         	0         	0         	YES       	0         
 
 [CONTROLS]
 RULE P_aalst_1_ON
@@ -627,6 +619,8 @@ IF NODE Aalst_gemaal HEAD >= 0.705
 THEN PUMP P_aalst_4 STATUS = ON
 RULE P_aalst_4_OFF
 IF NODE Aalst_gemaal HEAD <= 0.259
+
+
 
 
 
@@ -1026,7 +1020,7 @@ Nod_233         	163748.911        	385685.320
 Nod_244         	163642.878        	385689.176        
 Nod_266         	163567.690        	385613.989        
 Nod_277         	163403.820        	385527.234        
-J1              	165797.229        	382092.341        
+J1              	165741.353        	382108.553        
 J119            	163455.574        	377840.078        
 cso_Geldrop     	165497.928        	380388.794        
 cso_gb_136      	170883.552        	384694.602        

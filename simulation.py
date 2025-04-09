@@ -61,6 +61,7 @@ class Simulation:
         for step in self.sim:
             self.handle_virtual_storage()
             self.handle_c_119_flows()
+            self.handle_geldrop_out_flows()
 
     def handle_virtual_storage(self):
         for virtual_storage in self.virtual_storages:
@@ -94,6 +95,17 @@ class Simulation:
             )  # Get the inflow fraction from the pump name
             self.links[pump].target_setting = (
                 fraction * J119_inflow
+            ) / self.virtual_pump_max
+
+    def handle_geldrop_out_flows(self):
+        J1_inflow = self.nodes["J1"].total_inflow
+
+        pumps = ["P_geldrop_split_1", "P_geldrop_split_2"]
+
+        for pump in pumps:
+            fraction = 0.5
+            self.links[pump].target_setting = (
+                fraction * J1_inflow
             ) / self.virtual_pump_max
 
 

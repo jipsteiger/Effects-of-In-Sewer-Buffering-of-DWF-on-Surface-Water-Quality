@@ -228,7 +228,7 @@ class PostProcess:
     def add_storage_depth(self, fig):
         from storage import RZ_storage
 
-        rz_storage = RZ_storage()
+        rz_storage = RZ_storage(10000)
         pipe_volumes = [self.output.link[pipe].volume for pipe in rz_storage.pipes]
         total_volume_per_timestep = pd.concat(pipe_volumes, axis=1).sum(axis=1)
         for storage in ["pipe_ES", "pre_ontvangstkelder"]:
@@ -236,7 +236,7 @@ class PostProcess:
                 fig.add_trace(
                     go.Scatter(
                         x=self.output.index,
-                        y=self.output.node[storage].volume.values / 7000,
+                        y=self.output.node[storage].volume.values / 11000,
                         mode="lines",
                         name=storage + " volume",
                         marker=None,

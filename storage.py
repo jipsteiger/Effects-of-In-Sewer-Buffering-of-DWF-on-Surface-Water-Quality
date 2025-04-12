@@ -14,8 +14,8 @@ class Storage:
 
 
 class RZ_storage(Storage):
-    def __init__(self):
-        super().__init__(21407.57)  # Initialize the parent class with V_max
+    def __init__(self, volume):
+        super().__init__(volume)  # Initialize the parent class with V_max
         self.pipes = [
             "Con_103",
             "Con_104",

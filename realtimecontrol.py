@@ -44,7 +44,7 @@ class RealTimeControl(Simulation):
         self.last_forecast_time = None
 
         self.ES_storage = Storage(11000)
-        self.RZ_storage = RZ_storage(7000)
+        self.RZ_storage = RZ_storage(7500)
 
         self.ES_out_max = ES_out_max
         self.ES_out_ideal = ES_out_ideal
@@ -64,15 +64,23 @@ class RealTimeControl(Simulation):
         self.ES_ramp_end_value = 0.0
         self.ES_ramp_steps = 108  # or make this configurable
         self.ES_wwf_linger = False
+        self.ES_ramp_active_back = False
+        self.ES_ramp_counter_back = 0
+        self.ES_transition_finished_back = False
+        self.ES_ramp_start_value_back = 0
+        self.ES_ramp_end_value_back = 0
 
         self.RZ_ramp_counter = 0
         self.RZ_ramp_active = False
         self.RZ_ramp_start_value = 0.0
         self.RZ_ramp_end_value = 0.0
-        self.RZ_ramp_steps = 72  # or make this configurable
-        self.ES_ramp_active_back = False
-        self.ES_ramp_counter_back = 0
-        self.ES_transition_finished_back = False
+        self.RZ_ramp_active_back = False
+        self.RZ_ramp_counter_back = 0
+        self.RZ_transition_finished_back = False
+        self.RZ_ramp_start_value_back = 0.0
+        self.RZ_ramp_end_value_back = 0.0
+        self.RZ_ramp_steps = 108  # or make this configurable
+        self.RZ_wwf_linger = False
 
         self.ES_predicted = False
         self.RZ_predicted = False
@@ -139,7 +147,6 @@ class RealTimeControl(Simulation):
 
         ES_wwf = ES_raining or self.ES_predicted
         RZ_wwf = RZ_raining or self.RZ_predicted
-
         if ES_dwf and not self.ES_wwf_linger:
             self.ES_dwf_logic()
             self.ES_transition_finished = False
@@ -155,12 +162,20 @@ class RealTimeControl(Simulation):
         ):
             self.ES_wwf_linger = False
 
-        if RZ_dwf:
+        if RZ_dwf and not self.RZ_wwf_linger:
             self.RZ_dwf_logic()
-        elif RZ_transition_to_wwf:
-            self.RZ_transition_finished = self.RZ_transition_to_wwf_logic()
-        elif RZ_wwf and self.RZ_transition_finished:
+            self.RZ_transition_finished = False
+            self.RZ_transition_finished_back = False
+        elif RZ_transition_to_wwf and not self.RZ_transition_finished:
+            self.RZ_transition_to_wwf_logic()
+        elif RZ_wwf or self.RZ_transition_finished or self.RZ_wwf_linger:
+            self.RZ_wwf_linger = True
             self.RZ_wwf_logic()
+
+        if (
+            (self.RZ_storage.stored_volume / self.RZ_storage.V_max) < 1.25
+        ) and not RZ_wwf:
+            self.RZ_wwf_linger = False
 
     def ES_dwf_logic(self):
 
@@ -174,6 +189,11 @@ class RealTimeControl(Simulation):
         )
 
     def RZ_dwf_logic(self):
+        self.RZ_ramp_active_back = False
+        self.RZ_ramp_counter_back = 0
+        self.RZ_ramp_active = False
+        self.RZ_ramp_counter = 0
+
         multiplier = max(self.RZ_storage.stored_volume / self.RZ_storage.V_max, 1)
         self.links["P_riool_zuid_out"].target_setting = (
             self.RZ_out_ideal / self.RZ_out_max * multiplier**2
@@ -219,14 +239,16 @@ class RealTimeControl(Simulation):
             increment = (
                 self.RZ_ramp_end_value - self.RZ_ramp_start_value
             ) / self.RZ_ramp_steps
-            self.links["P_riool_zuid_out"].target_setting = (
-                self.RZ_ramp_start_value + increment * self.RZ_ramp_counter
-            )
+            ramp_value = self.RZ_ramp_start_value + increment * self.RZ_ramp_counter
+            self.links["P_riool_zuid_out"].target_setting = ramp_value
+
             self.RZ_ramp_counter += 1
-            return False
+            self.RZ_ramp_start_value_back = ramp_value  # Save for backward ramping
+            self.RZ_transition_finished = False
         else:
             self.links["P_riool_zuid_out"].target_setting = self.RZ_ramp_end_value
-            return True
+            self.RZ_transition_finished = True
+            self.RZ_wwf_logic()
 
     def ES_wwf_logic(self):
         self.ES_ramp_active = False
@@ -279,16 +301,49 @@ class RealTimeControl(Simulation):
     def RZ_wwf_logic(self):
         self.RZ_ramp_active = False
         self.RZ_ramp_counter = 0
-        self.links["P_riool_zuid_out"].target_setting = (
+
+        current_ratio = (
             RzPumpCurve.interpolated_curve(self.nodes["pre_ontvangstkelder"].depth)
             / self.RZ_out_max
         )
 
-    def ES_transition_from_wwf_logic(self):
-        pass
+        if (
+            current_ratio < self.RZ_ramp_end_value
+        ) and not self.RZ_transition_finished_back:
+            if not self.RZ_ramp_active_back:
+                self.RZ_ramp_active_back = True
+                self.RZ_ramp_counter_back = 0
 
-    def RZ_transition_from_wwf_logic(self):
-        pass
+            self.RZ_ramp_end_value_back = current_ratio
+
+            if self.RZ_ramp_counter_back < self.RZ_ramp_steps:
+                increment = (
+                    self.RZ_ramp_end_value_back - self.RZ_ramp_start_value_back
+                ) / self.RZ_ramp_steps
+                ramp_value = (
+                    self.RZ_ramp_start_value_back
+                    + increment * self.RZ_ramp_counter_back
+                )
+
+                if current_ratio < ramp_value:
+                    self.links["P_riool_zuid_out"].target_setting = ramp_value
+                else:
+                    self.links["P_riool_zuid_out"].target_setting = current_ratio
+
+                self.RZ_ramp_counter_back += 1
+                if self.RZ_storage.FD() < 0.1:
+                    self.RZ_transition_finished_back = True
+                    self.RZ_wwf_logic()
+                else:
+                    self.RZ_transition_finished_back = False
+            else:
+                self.links["P_riool_zuid_out"].target_setting = current_ratio
+                self.RZ_transition_finished_back = True
+        else:
+            self.RZ_transition_finished_back = True
+            self.RZ_ramp_active_back = False
+            self.RZ_ramp_counter_back = 0
+            self.links["P_riool_zuid_out"].target_setting = current_ratio
 
     def set_storage(self):
         self.ES_storage.update_stored_volume(self.nodes["pipe_ES"].volume)
@@ -343,9 +398,9 @@ if __name__ == "__main__":
     simulation = RealTimeControl(
         model_path=rf"data\SWMM\{MODEL_NAME}.inp",
         step_size=300,
-        report_start=dt.datetime(year=2024, month=6, day=1),
-        start_time=dt.datetime(year=2024, month=6, day=1),
-        end_time=dt.datetime(year=2024, month=8, day=1),
+        report_start=dt.datetime(year=2024, month=1, day=1),
+        start_time=dt.datetime(year=2024, month=1, day=1),
+        end_time=dt.datetime(year=2024, month=12, day=31),
         virtual_pump_max=10,
     )
     simulation.start_simulation()

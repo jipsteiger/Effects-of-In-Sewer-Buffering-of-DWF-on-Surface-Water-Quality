@@ -1,12 +1,6 @@
 import pyswmm as ps
 import datetime as dt
 import pandas as pd
-import numpy as np
-import logging
-
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s"
-)
 
 
 class Simulation:
@@ -115,17 +109,6 @@ def get_precipitation():
         index_col=0,
         parse_dates=True,
     )
-
-
-def get_forecasts():
-    df = pd.read_csv(
-        rf"data\precipitation\csv_forecasts\forecast_data.csv",
-        usecols=[1, 2, 3, 4],
-        index_col=1,
-        parse_dates=True,
-    )
-    df.date_of_forecast = pd.to_datetime(df.date_of_forecast)
-    return df
 
 
 ##################################################################################################

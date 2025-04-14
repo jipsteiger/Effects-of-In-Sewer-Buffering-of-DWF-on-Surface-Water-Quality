@@ -4,9 +4,9 @@ import datetime as dt
 
 # MODEL_NAME = "model_jip_geen_regen"
 # MODEL_NAME = "model_jip_WEST_regen"
-# MODEL_NAME = "model_jip"
-MODEL_NAME = "model_jip_no_rtc"
-SUFFIX = "geldrop_out_fix"
+MODEL_NAME = "model_jip"
+# MODEL_NAME = "model_jip_no_rtc"
+SUFFIX = "RTC"
 
 
 def main():
@@ -24,8 +24,8 @@ def main():
     )
     simulation.start_simulation()
 
-    # postprocess = PostProcess(model_name=MODEL_NAME)
-    # postprocess.create_outfall_txt(suffix=SUFFIX)
+    postprocess = PostProcess(model_name=MODEL_NAME)
+    postprocess.create_outfall_txt(suffix=SUFFIX)
 
     # postprocess.plot_outfalls(save=False, plot_rain=True, suffix=SUFFIX)
     # postprocess.plot_pumps(

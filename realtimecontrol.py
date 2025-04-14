@@ -222,8 +222,8 @@ class RealTimeControl(Simulation):
             else:
                 self.ES_transition_finished = False
         else:
-            self.ES_wwf_logic()
             self.ES_transition_finished = True
+            self.ES_wwf_logic()
 
     def RZ_transition_to_wwf_logic(self):
         if not self.RZ_ramp_active:
@@ -293,7 +293,6 @@ class RealTimeControl(Simulation):
                 self.links["P_eindhoven_out"].target_setting = current_ratio
                 self.ES_transition_finished_back = True
         else:
-            logging.debug("wwf")
             self.ES_ramp_active_back = False
             self.ES_ramp_counter_back = 0
             self.links["P_eindhoven_out"].target_setting = current_ratio
@@ -379,7 +378,7 @@ class RealTimeControl(Simulation):
         RZ_raining = (
             self.current_forecast.loc[time:end_time, ["GE", "RZ1", "RZ2"]].sum().mean()
         )
-        return ES_raining > es_threshold, RZ_raining > es_threshold
+        return ES_raining > es_threshold, RZ_raining > rz_threshold
 
     def save_settings(self):
         df = pd.DataFrame(

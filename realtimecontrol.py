@@ -137,6 +137,8 @@ class RealTimeControl(Simulation):
             self.ES_predicted = st_ES_predicted
             self.RZ_predicted = st_RZ_predicted
 
+        logging.debug("------------------")
+        logging.debug(self.sim.current_time)
         ES_raining, RZ_raining = self.is_raining(1, 3 * 1)
 
         ES_dwf = not self.ES_predicted and not ES_raining
@@ -147,15 +149,21 @@ class RealTimeControl(Simulation):
 
         ES_wwf = ES_raining or self.ES_predicted
         RZ_wwf = RZ_raining or self.RZ_predicted
+        logging.debug(
+            f"{ES_dwf=}, {ES_transition_to_wwf=}, {ES_wwf=}, {self.ES_wwf_linger=}, {self.ES_transition_finished=}, {self.ES_transition_finished_back}"
+        )
         if ES_dwf and not self.ES_wwf_linger:
             self.ES_dwf_logic()
             self.ES_transition_finished = False
             self.ES_transition_finished_back = False
+            logging.debug("DWF")
         elif ES_transition_to_wwf and not self.ES_transition_finished:
             self.ES_transition_to_wwf_logic()
+            logging.debug("TRANSITION")
         elif ES_wwf or self.ES_transition_finished or self.ES_wwf_linger:
             self.ES_wwf_linger = True
             self.ES_wwf_logic()
+            logging.debug("WWF")
 
         if ((self.ES_storage.stored_volume / self.ES_storage.V_max) < 1.25) and not (
             ES_wwf
@@ -176,6 +184,7 @@ class RealTimeControl(Simulation):
             (self.RZ_storage.stored_volume / self.RZ_storage.V_max) < 1.25
         ) and not RZ_wwf:
             self.RZ_wwf_linger = False
+        logging.debug(f'Setting = {self.links["P_eindhoven_out"].target_setting}')
 
     def ES_dwf_logic(self):
 
@@ -217,11 +226,15 @@ class RealTimeControl(Simulation):
                 self.ES_ramp_start_value + increment * self.ES_ramp_counter
             )
 
-            if self.ES_storage.FD() < 0.1:
+            if self.ES_storage.FD() < 0.3:
+                logging.debug(self.ES_storage.stored_volume)
+                logging.debug(self.ES_storage.FD())
+                logging.debug("Transition finsihed FD < 0.3")
                 self.ES_transition_finished = True
             else:
                 self.ES_transition_finished = False
         else:
+            logging.debug("Transition finished, ramp finished")
             self.ES_transition_finished = True
             self.ES_wwf_logic()
 
@@ -260,7 +273,7 @@ class RealTimeControl(Simulation):
         )
 
         if (
-            current_ratio < self.ES_ramp_end_value
+            current_ratio < self.ES_ramp_start_value_back
         ) and not self.ES_transition_finished_back:
             if not self.ES_ramp_active_back:
                 self.ES_ramp_active_back = True
@@ -284,15 +297,18 @@ class RealTimeControl(Simulation):
 
                 self.ES_ramp_counter_back += 1
                 if self.ES_storage.FD() < 0.1:
+                    logging.debug("Transition back finished FD < 0.1")
                     self.ES_transition_finished_back = True
                     self.ES_wwf_logic()
                 else:
                     self.ES_transition_finished_back = False
             else:
+                logging.debug("transition back finished")
                 # If ramp is done, just use the current ratio
                 self.links["P_eindhoven_out"].target_setting = current_ratio
                 self.ES_transition_finished_back = True
         else:
+            logging.debug("Transition not neededcurrent ratio < ramp end value")
             self.ES_ramp_active_back = False
             self.ES_ramp_counter_back = 0
             self.links["P_eindhoven_out"].target_setting = current_ratio
@@ -397,9 +413,9 @@ if __name__ == "__main__":
     simulation = RealTimeControl(
         model_path=rf"data\SWMM\{MODEL_NAME}.inp",
         step_size=300,
-        report_start=dt.datetime(year=2024, month=1, day=1),
-        start_time=dt.datetime(year=2024, month=1, day=1),
-        end_time=dt.datetime(year=2024, month=12, day=31),
+        report_start=dt.datetime(year=2024, month=7, day=1),
+        start_time=dt.datetime(year=2024, month=7, day=1),
+        end_time=dt.datetime(year=2024, month=7, day=31),
         virtual_pump_max=10,
     )
     simulation.start_simulation()

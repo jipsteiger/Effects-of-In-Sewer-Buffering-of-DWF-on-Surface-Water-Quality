@@ -117,7 +117,7 @@ class RealTimeControl(Simulation):
     def orchestrate_rtc(self):
         st_ES_predicted, st_RZ_predicted = self.rain_predicted(0, 6, 1, 3 * 1)
 
-        if 10 <= self.sim.current_time.hour <= 23:
+        if 12 <= self.sim.current_time.hour <= 0:
             lt_start = 6
 
             future_hour = (self.sim.current_time + dt.timedelta(hours=12)).hour
@@ -219,14 +219,16 @@ class RealTimeControl(Simulation):
                 self.ES_ramp_end_value - self.ES_ramp_start_value
             ) / self.ES_ramp_steps
             self.links["P_eindhoven_out"].target_setting = (
-                self.ES_ramp_start_value + increment * self.ES_ramp_counter
+                self.ES_ramp_start_value
+                + increment * self.ES_ramp_counter * self.ES_storage.FD()
             )
             self.ES_ramp_counter += 1
             self.ES_ramp_start_value_back = (
-                self.ES_ramp_start_value + increment * self.ES_ramp_counter
+                self.ES_ramp_start_value
+                + increment * self.ES_ramp_counter * self.ES_storage.FD()
             )
 
-            if self.ES_storage.FD() < 0.3:
+            if self.ES_storage.FD() < 0.5:
                 logging.debug(self.ES_storage.stored_volume)
                 logging.debug(self.ES_storage.FD())
                 logging.debug("Transition finsihed FD < 0.3")
@@ -281,10 +283,10 @@ class RealTimeControl(Simulation):
 
             self.ES_ramp_end_value_back = current_ratio
 
-            if self.ES_ramp_counter_back < self.ES_ramp_steps:
+            if self.ES_ramp_counter_back < (self.ES_ramp_steps / 2):
                 increment = (
                     self.ES_ramp_end_value_back - self.ES_ramp_start_value_back
-                ) / self.ES_ramp_steps
+                ) / (self.ES_ramp_steps / 2)
                 ramp_value = (
                     self.ES_ramp_start_value_back
                     + increment * self.ES_ramp_counter_back
@@ -296,7 +298,7 @@ class RealTimeControl(Simulation):
                     self.links["P_eindhoven_out"].target_setting = current_ratio
 
                 self.ES_ramp_counter_back += 1
-                if self.ES_storage.FD() < 0.1:
+                if self.ES_storage.FD() < 0.05:
                     logging.debug("Transition back finished FD < 0.1")
                     self.ES_transition_finished_back = True
                     self.ES_wwf_logic()

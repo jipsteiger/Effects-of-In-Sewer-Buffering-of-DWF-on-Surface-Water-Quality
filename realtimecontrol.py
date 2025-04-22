@@ -58,28 +58,10 @@ class RealTimeControl(Simulation):
         self.RZ_setting = []
         self.setting_time = []
 
-        self.ES_ramp_counter = 0
-        self.ES_ramp_active = False
-        self.ES_ramp_start_value = 0.0
-        self.ES_ramp_end_value = 0.0
-        self.ES_ramp_steps = 108  # or make this configurable
+        self.ES_last_setting = 0
         self.ES_wwf_linger = False
-        self.ES_ramp_active_back = False
-        self.ES_ramp_counter_back = 0
-        self.ES_transition_finished_back = False
-        self.ES_ramp_start_value_back = 0
-        self.ES_ramp_end_value_back = 0
 
-        self.RZ_ramp_counter = 0
-        self.RZ_ramp_active = False
-        self.RZ_ramp_start_value = 0.0
-        self.RZ_ramp_end_value = 0.0
-        self.RZ_ramp_active_back = False
-        self.RZ_ramp_counter_back = 0
-        self.RZ_transition_finished_back = False
-        self.RZ_ramp_start_value_back = 0.0
-        self.RZ_ramp_end_value_back = 0.0
-        self.RZ_ramp_steps = 108  # or make this configurable
+        self.RZ_last_setting = 0
         self.RZ_wwf_linger = False
 
         self.ES_predicted = False
@@ -113,6 +95,8 @@ class RealTimeControl(Simulation):
         self.get_forecast()
         self.set_storage()
         self.orchestrate_rtc()
+        self.ES_last_setting = self.links["P_eindhoven_out"].target_setting
+        self.RZ_last_setting = self.links["P_riool_zuid_out"].target_setting
 
     def orchestrate_rtc(self):
         st_ES_predicted, st_RZ_predicted = self.rain_predicted(0, 6, 1, 3 * 1)
@@ -139,7 +123,7 @@ class RealTimeControl(Simulation):
 
         logging.debug("------------------")
         logging.debug(self.sim.current_time)
-        ES_raining, RZ_raining = self.is_raining(1, 3 * 1)
+        ES_raining, RZ_raining = self.is_raining(2, 3 * 1)
 
         ES_dwf = not self.ES_predicted and not ES_raining
         RZ_dwf = not self.RZ_predicted and not RZ_raining
@@ -149,22 +133,16 @@ class RealTimeControl(Simulation):
 
         ES_wwf = ES_raining or self.ES_predicted
         RZ_wwf = RZ_raining or self.RZ_predicted
-        logging.debug(
-            f"{ES_dwf=}, {ES_transition_to_wwf=}, {ES_wwf=}, {self.ES_wwf_linger=}, {self.ES_transition_finished=}, {self.ES_transition_finished_back}"
-        )
+
         if ES_dwf and not self.ES_wwf_linger:
             self.ES_dwf_logic()
-            self.ES_transition_finished = False
-            self.ES_transition_finished_back = False
-            logging.debug("DWF")
-        elif ES_transition_to_wwf and not self.ES_transition_finished:
+        elif ES_transition_to_wwf and not (
+            self.nodes["pipe_ES"].total_inflow > self.ES_out_ideal * 2
+        ):
             self.ES_transition_to_wwf_logic()
-            logging.debug("TRANSITION")
-        elif ES_wwf or self.ES_transition_finished or self.ES_wwf_linger:
+        elif ES_wwf or self.ES_wwf_linger:
             self.ES_wwf_linger = True
             self.ES_wwf_logic()
-            logging.debug("WWF")
-
         if ((self.ES_storage.stored_volume / self.ES_storage.V_max) < 1.25) and not (
             ES_wwf
         ):
@@ -172,11 +150,15 @@ class RealTimeControl(Simulation):
 
         if RZ_dwf and not self.RZ_wwf_linger:
             self.RZ_dwf_logic()
-            self.RZ_transition_finished = False
-            self.RZ_transition_finished_back = False
-        elif RZ_transition_to_wwf and not self.RZ_transition_finished:
+        elif (
+            RZ_transition_to_wwf
+            and not (
+                self.nodes["Nod_112"].total_inflow + self.nodes["Nod_104"].total_inflow
+            )
+            > self.RZ_out_ideal * 2
+        ):
             self.RZ_transition_to_wwf_logic()
-        elif RZ_wwf or self.RZ_transition_finished or self.RZ_wwf_linger:
+        elif RZ_wwf or self.RZ_wwf_linger:
             self.RZ_wwf_linger = True
             self.RZ_wwf_logic()
 
@@ -184,182 +166,59 @@ class RealTimeControl(Simulation):
             (self.RZ_storage.stored_volume / self.RZ_storage.V_max) < 1.25
         ) and not RZ_wwf:
             self.RZ_wwf_linger = False
-        logging.debug(f'Setting = {self.links["P_eindhoven_out"].target_setting}')
 
     def ES_dwf_logic(self):
-
-        self.ES_ramp_active_back = False
-        self.ES_ramp_counter_back = 0
-        self.ES_ramp_active = False
-        self.ES_ramp_counter = 0
         multiplier = max(self.ES_storage.stored_volume / self.ES_storage.V_max, 1)
         self.links["P_eindhoven_out"].target_setting = (
             self.ES_out_ideal / self.ES_out_max * multiplier
         )
 
     def RZ_dwf_logic(self):
-        self.RZ_ramp_active_back = False
-        self.RZ_ramp_counter_back = 0
-        self.RZ_ramp_active = False
-        self.RZ_ramp_counter = 0
-
         multiplier = max(self.RZ_storage.stored_volume / self.RZ_storage.V_max, 1)
         self.links["P_riool_zuid_out"].target_setting = (
-            self.RZ_out_ideal / self.RZ_out_max * multiplier**2
+            self.RZ_out_ideal / self.RZ_out_max * multiplier
         )
 
     def ES_transition_to_wwf_logic(self):
-        if not self.ES_ramp_active:
-            self.ES_ramp_active = True
-            self.ES_ramp_counter = 0
-            self.ES_ramp_start_value = self.ES_out_ideal / self.ES_out_max
-            self.ES_ramp_end_value = (self.ES_out_ideal / self.ES_out_max) * 2
-        if self.ES_ramp_counter < self.ES_ramp_steps:
-            increment = (
-                self.ES_ramp_end_value - self.ES_ramp_start_value
-            ) / self.ES_ramp_steps
-            self.links["P_eindhoven_out"].target_setting = (
-                self.ES_ramp_start_value
-                + increment * self.ES_ramp_counter * self.ES_storage.FD()
-            )
-            self.ES_ramp_counter += 1
-            self.ES_ramp_start_value_back = (
-                self.ES_ramp_start_value
-                + increment * self.ES_ramp_counter * self.ES_storage.FD()
-            )
-
-            if self.ES_storage.FD() < 0.5:
-                logging.debug(self.ES_storage.stored_volume)
-                logging.debug(self.ES_storage.FD())
-                logging.debug("Transition finsihed FD < 0.3")
-                self.ES_transition_finished = True
-            else:
-                self.ES_transition_finished = False
+        inflow = self.nodes["pipe_ES"].total_inflow
+        setting = max(self.ES_out_ideal, inflow)
+        if (setting / self.ES_out_max) / self.ES_last_setting > 1.05:
+            self.links["P_eindhoven_out"].target_setting = self.ES_last_setting * 1.025
         else:
-            logging.debug("Transition finished, ramp finished")
-            self.ES_transition_finished = True
-            self.ES_wwf_logic()
+            self.links["P_eindhoven_out"].target_setting = setting / self.ES_out_max
 
     def RZ_transition_to_wwf_logic(self):
-        if not self.RZ_ramp_active:
-            self.RZ_ramp_active = True
-            self.RZ_ramp_counter = 0
-            self.RZ_ramp_start_value = self.RZ_out_ideal / self.RZ_out_max
-            self.RZ_ramp_end_value = (
-                RzPumpCurve.interpolated_curve(self.nodes["pre_ontvangstkelder"].depth)
-                / self.RZ_out_max
-            )
-
-        if self.RZ_ramp_counter < self.RZ_ramp_steps:
-            increment = (
-                self.RZ_ramp_end_value - self.RZ_ramp_start_value
-            ) / self.RZ_ramp_steps
-            ramp_value = self.RZ_ramp_start_value + increment * self.RZ_ramp_counter
-            self.links["P_riool_zuid_out"].target_setting = ramp_value
-
-            self.RZ_ramp_counter += 1
-            self.RZ_ramp_start_value_back = ramp_value  # Save for backward ramping
-            self.RZ_transition_finished = False
+        inflow = self.nodes["Nod_112"].total_inflow + self.nodes["Nod_104"].total_inflow
+        setting = max(self.RZ_out_ideal, inflow)
+        if (setting / self.RZ_out_max) / self.RZ_last_setting > 1.05:
+            self.links["P_riool_zuid_out"].target_setting = self.RZ_last_setting * 1.025
         else:
-            self.links["P_riool_zuid_out"].target_setting = self.RZ_ramp_end_value
-            self.RZ_transition_finished = True
-            self.RZ_wwf_logic()
+            self.links["P_riool_zuid_out"].target_setting = setting / self.RZ_out_max
 
     def ES_wwf_logic(self):
-        self.ES_ramp_active = False
-        self.ES_ramp_counter = 0
-
         current_ratio = (
             EsPumpCurve.interpolated_curve(self.nodes["pipe_ES"].depth)
             / self.ES_out_max
         )
 
-        if (
-            current_ratio < self.ES_ramp_start_value_back
-        ) and not self.ES_transition_finished_back:
-            if not self.ES_ramp_active_back:
-                self.ES_ramp_active_back = True
-                self.ES_ramp_counter_back = 0
-
-            self.ES_ramp_end_value_back = current_ratio
-
-            if self.ES_ramp_counter_back < (self.ES_ramp_steps / 2):
-                increment = (
-                    self.ES_ramp_end_value_back - self.ES_ramp_start_value_back
-                ) / (self.ES_ramp_steps / 2)
-                ramp_value = (
-                    self.ES_ramp_start_value_back
-                    + increment * self.ES_ramp_counter_back
-                )
-
-                if current_ratio < ramp_value:
-                    self.links["P_eindhoven_out"].target_setting = ramp_value
-                else:
-                    self.links["P_eindhoven_out"].target_setting = current_ratio
-
-                self.ES_ramp_counter_back += 1
-                if self.ES_storage.FD() < 0.05:
-                    logging.debug("Transition back finished FD < 0.1")
-                    self.ES_transition_finished_back = True
-                    self.ES_wwf_logic()
-                else:
-                    self.ES_transition_finished_back = False
-            else:
-                logging.debug("transition back finished")
-                # If ramp is done, just use the current ratio
-                self.links["P_eindhoven_out"].target_setting = current_ratio
-                self.ES_transition_finished_back = True
+        if current_ratio < self.ES_out_ideal / self.ES_out_max:
+            self.links["P_eindhoven_out"].target_setting = (
+                self.ES_out_ideal / self.ES_out_max
+            )
         else:
-            logging.debug("Transition not neededcurrent ratio < ramp end value")
-            self.ES_ramp_active_back = False
-            self.ES_ramp_counter_back = 0
             self.links["P_eindhoven_out"].target_setting = current_ratio
 
     def RZ_wwf_logic(self):
-        self.RZ_ramp_active = False
-        self.RZ_ramp_counter = 0
-
         current_ratio = (
             RzPumpCurve.interpolated_curve(self.nodes["pre_ontvangstkelder"].depth)
             / self.RZ_out_max
         )
 
-        if (
-            current_ratio < self.RZ_ramp_end_value
-        ) and not self.RZ_transition_finished_back:
-            if not self.RZ_ramp_active_back:
-                self.RZ_ramp_active_back = True
-                self.RZ_ramp_counter_back = 0
-
-            self.RZ_ramp_end_value_back = current_ratio
-
-            if self.RZ_ramp_counter_back < self.RZ_ramp_steps:
-                increment = (
-                    self.RZ_ramp_end_value_back - self.RZ_ramp_start_value_back
-                ) / self.RZ_ramp_steps
-                ramp_value = (
-                    self.RZ_ramp_start_value_back
-                    + increment * self.RZ_ramp_counter_back
-                )
-
-                if current_ratio < ramp_value:
-                    self.links["P_riool_zuid_out"].target_setting = ramp_value
-                else:
-                    self.links["P_riool_zuid_out"].target_setting = current_ratio
-
-                self.RZ_ramp_counter_back += 1
-                if self.RZ_storage.FD() < 0.1:
-                    self.RZ_transition_finished_back = True
-                    self.RZ_wwf_logic()
-                else:
-                    self.RZ_transition_finished_back = False
-            else:
-                self.links["P_riool_zuid_out"].target_setting = current_ratio
-                self.RZ_transition_finished_back = True
+        if current_ratio < self.RZ_out_ideal / self.RZ_out_max:
+            self.links["P_riool_zuid_out"].target_setting = (
+                self.RZ_out_ideal / self.RZ_out_max
+            )
         else:
-            self.RZ_transition_finished_back = True
-            self.RZ_ramp_active_back = False
-            self.RZ_ramp_counter_back = 0
             self.links["P_riool_zuid_out"].target_setting = current_ratio
 
     def set_storage(self):

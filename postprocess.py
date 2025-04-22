@@ -67,6 +67,58 @@ class PostProcess:
                 decimal=",",
             )
 
+    def create_outfall_txt_concentrate(self, suffix="concentrate"):
+        for outfall in ["out_RZ", "out_ES"]:
+            outfall_timeseries = pd.DataFrame(
+                self.output["node"][outfall]["total_inflow"]
+            )
+            if self.model_name == "model_jip_geen_regen":
+                dec_index = (
+                    outfall_timeseries.index - pd.Timestamp("2023-01-01")
+                ).total_seconds() / (24 * 60 * 60)
+            else:
+                dec_index = (
+                    outfall_timeseries.index - pd.Timestamp("2024-01-01")
+                ).total_seconds() / (24 * 60 * 60)
+            H2O_sew = (
+                outfall_timeseries["total_inflow"] * (24 * 3600 * 1e6)  # to g/d
+            ).values  # From CMS to g/d
+            NH4_sew = [44] * H2O_sew
+            PO4_sew = [7.1] * H2O_sew
+            COD_sol = [158] * H2O_sew
+            X_TSS_sew = [255] * H2O_sew
+            COD_part = [546] * H2O_sew
+            west_values = {
+                "H2O_sew": H2O_sew,
+                "NH4_sew": NH4_sew,
+                "PO4_sew": PO4_sew,
+                "COD_sol": COD_sol,
+                "X_TSS_sew": X_TSS_sew,
+                "COD_part": COD_part,
+            }
+            df = pd.DataFrame(west_values, index=dec_index)
+            df_csv = pd.DataFrame(west_values, index=outfall_timeseries.index)
+
+            output_file = f"#.t\tH2O_sew\tNH4_sew\tPO4_sew\tCOD_sol\tX_TSS_sew\tCOD_part\n#d\tm3/d\tm3/d\tm3/d\tm3/d\tm3/d\tm3/d\n"
+            output_file += df[:].to_csv(sep="\t", header=False)
+            with open(
+                f"swmm_output/{self.current_time}_{outfall}_{suffix}.txt", "w"
+            ) as f:
+                f.write(output_file)
+            df.to_csv(
+                f"swmm_output/{self.current_time}_{outfall}_{suffix}.csv",
+                sep=";",
+                decimal=",",
+            )
+            static_name = "latest"  # Change this as needed
+            with open(f"swmm_output/{static_name}_{outfall}_out.txt", "w") as f:
+                f.write(output_file)
+            df_csv.to_csv(
+                f"swmm_output/{static_name}_{outfall}_out.csv",
+                sep=";",
+                decimal=",",
+            )
+
     def plot_outfalls(self, save=False, plot_rain=False, suffix=""):
         outfalls = set(
             [

@@ -849,3 +849,32 @@ def plot_wwtp_input_vs_output():
             filename=f"wwtp_comparison_{project}.html",
             auto_open=True,
         )
+
+
+def compare_inflow():
+    project = "SWMM_input_constant_DWF"
+    df_west = pd.read_csv(
+        rf"data\WEST\SWMM_inputs_dwf_only\NHcheck.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west["timestamp"] = start_date + pd.to_timedelta(
+        df_west.index.astype(float), unit="D"
+    )
+    df_west.set_index("timestamp", inplace=True)
+    fig = go.Figure()
+
+    for key in df_west.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=df_west.index,
+                y=df_west[key].astype(float),
+                mode="lines",
+                name=f"WEST {key}",
+            )
+        )
+
+    pio.show(fig, renderer="browser")

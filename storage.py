@@ -1,3 +1,6 @@
+from concentration_curves import concentration_dict
+
+
 class Storage:
     def __init__(self, max_volume):
         self.V_max = max_volume  # m3
@@ -46,3 +49,32 @@ class RZ_storage(Storage):
     def get_volume(self, links):
         pipe_volumes = [links[pipe].volume for pipe in self.pipes]
         return sum(pipe_volumes)
+
+
+class ConcentrationStorage:
+    def __init__(self):
+        self.V = 0
+        self.storage_concentrations = {
+            "COD": 0,
+            "CODs": 0,
+            "TSS": 0,
+            "NH4": 0,
+            "PO4": 0,
+        }
+
+    def update_in(self, Q, h, timestep):
+        V_in = Q * timestep
+
+        for k, i in self.storage_concentrations.items():
+            hour_key = f"H_{int(h)}"  # ensure h is int or convert it
+            conc_in = getattr(concentration_dict[k], hour_key)
+            self.storage_concentrations[k] = (self.V * i + V_in * conc_in) / (
+                self.V + V_in
+            )
+        self.V += V_in
+
+    def update_out(self, Q, timestep):
+        V_out = Q * timestep
+        conc_out = self.storage_concentrations
+        self.V -= V_out
+        return conc_out

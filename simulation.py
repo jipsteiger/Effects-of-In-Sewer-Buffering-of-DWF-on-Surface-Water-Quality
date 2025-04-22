@@ -1,6 +1,7 @@
 import pyswmm as ps
 import datetime as dt
 import pandas as pd
+from storage import ConcentrationStorage
 
 
 class Simulation:
@@ -20,6 +21,15 @@ class Simulation:
         self.end_time = end_time
 
         self.virtual_pump_max = virtual_pump_max
+
+        self.ESConcentrationStorage = ConcentrationStorage()
+        self.RZConcentrationStorage = ConcentrationStorage()
+        self.ESconcentration_df = pd.DataFrame(
+            columns=["COD", "CODs", "TSS", "NH4", "PO4"]
+        )
+        self.RZconcentration_df = pd.DataFrame(
+            columns=["COD", "CODs", "TSS", "NH4", "PO4"]
+        )
 
         self.precipitation_forecast = get_precipitation()
 
@@ -56,6 +66,31 @@ class Simulation:
             self.handle_virtual_storage()
             self.handle_c_119_flows()
             self.handle_geldrop_out_flows()
+
+    #         self.concentrations()
+    #     self.save_concentrations()
+
+    # def concentrations(self):
+    #     self.ESConcentrationStorage.update_in(
+    #         self.nodes["pipe_ES"].total_inflow, self.sim.current_time.hour, 300
+    #     )
+    #     ESconcentration_out = self.ESConcentrationStorage.update_out(
+    #         self.links["P_eindhoven_out"].flow, 300
+    #     )
+    #     ESrow_df = pd.DataFrame([ESconcentration_out], index=[self.sim.current_time])
+    #     self.ESconcentration_df = pd.concat([self.ESconcentration_df, ESrow_df])
+
+    #     RZ_in = self.nodes["Nod_112"].total_inflow + self.nodes["Nod_104"].total_inflow
+    #     self.RZConcentrationStorage.update_in(RZ_in, self.sim.current_time.hour, 300)
+    #     RZconcentration_out = self.RZConcentrationStorage.update_out(
+    #         self.links["P_riool_zuid_out"].flow, 300
+    #     )
+    #     RZrow_df = pd.DataFrame([RZconcentration_out], index=[self.sim.current_time])
+    #     self.RZconcentration_df = pd.concat([self.RZconcentration_df, RZrow_df])
+
+    # def save_concentrations(self):
+    #     self.ESconcentration_df.to_csv("ES_concentrations.csv")
+    #     self.RZconcentration_df.to_csv("RZ_concentrations.csv")
 
     def handle_virtual_storage(self):
         for virtual_storage in self.virtual_storages:

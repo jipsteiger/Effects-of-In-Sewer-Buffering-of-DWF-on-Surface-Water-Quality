@@ -58,10 +58,10 @@ class RealTimeControl(Simulation):
         self.RZ_setting = []
         self.setting_time = []
 
-        self.ES_last_setting = 0
+        self.ES_last_setting = ES_out_ideal
         self.ES_wwf_linger = False
 
-        self.RZ_last_setting = 0
+        self.RZ_last_setting = RZ_out_ideal
         self.RZ_wwf_linger = False
 
         self.ES_predicted = False
@@ -101,7 +101,7 @@ class RealTimeControl(Simulation):
     def orchestrate_rtc(self):
         st_ES_predicted, st_RZ_predicted = self.rain_predicted(0, 6, 1, 3 * 1)
 
-        if 12 <= self.sim.current_time.hour <= 0:
+        if 11 <= self.sim.current_time.hour <= 23:
             lt_start = 6
 
             future_hour = (self.sim.current_time + dt.timedelta(hours=12)).hour
@@ -121,8 +121,6 @@ class RealTimeControl(Simulation):
             self.ES_predicted = st_ES_predicted
             self.RZ_predicted = st_RZ_predicted
 
-        logging.debug("------------------")
-        logging.debug(self.sim.current_time)
         ES_raining, RZ_raining = self.is_raining(2, 3 * 1)
 
         ES_dwf = not self.ES_predicted and not ES_raining
@@ -182,16 +180,18 @@ class RealTimeControl(Simulation):
     def ES_transition_to_wwf_logic(self):
         inflow = self.nodes["pipe_ES"].total_inflow
         setting = max(self.ES_out_ideal, inflow)
-        if (setting / self.ES_out_max) / self.ES_last_setting > 1.05:
-            self.links["P_eindhoven_out"].target_setting = self.ES_last_setting * 1.025
+        if (setting / self.ES_out_max) / self.ES_last_setting > 1.025:
+            self.links["P_eindhoven_out"].target_setting = self.ES_last_setting * 1.0125
         else:
             self.links["P_eindhoven_out"].target_setting = setting / self.ES_out_max
 
     def RZ_transition_to_wwf_logic(self):
         inflow = self.nodes["Nod_112"].total_inflow + self.nodes["Nod_104"].total_inflow
         setting = max(self.RZ_out_ideal, inflow)
-        if (setting / self.RZ_out_max) / self.RZ_last_setting > 1.05:
-            self.links["P_riool_zuid_out"].target_setting = self.RZ_last_setting * 1.025
+        if (setting / self.RZ_out_max) / self.RZ_last_setting > 1.025:
+            self.links["P_riool_zuid_out"].target_setting = (
+                self.RZ_last_setting * 1.0125
+            )
         else:
             self.links["P_riool_zuid_out"].target_setting = setting / self.RZ_out_max
 

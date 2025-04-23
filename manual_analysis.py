@@ -851,8 +851,7 @@ def plot_wwtp_input_vs_output():
         )
 
 
-def compare_inflow():
-    project = "SWMM_input_constant_DWF"
+def compare_NHflow():
     df_west = pd.read_csv(
         rf"data\WEST\SWMM_inputs_dwf_only\NHcheck.out.txt",
         delimiter="\t",
@@ -865,15 +864,38 @@ def compare_inflow():
         df_west.index.astype(float), unit="D"
     )
     df_west.set_index("timestamp", inplace=True)
+
+    df_west2 = pd.read_csv(
+        rf"data\WEST\SWMM_input_constant_DWF\NHcheck.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west2["timestamp"] = start_date + pd.to_timedelta(
+        df_west2.index.astype(float), unit="D"
+    )
+    df_west2.set_index("timestamp", inplace=True)
+    df_west = df_west.loc["2024-07-01":"2024-07-31"]
+    df_west2 = df_west2.loc["2024-07-01":"2024-07-31"]
     fig = go.Figure()
 
-    for key in df_west.keys():
+    for key in df_west2.keys():
         fig.add_trace(
             go.Scatter(
                 x=df_west.index,
                 y=df_west[key].astype(float),
                 mode="lines",
-                name=f"WEST {key}",
+                name=f"Normal {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=df_west2.index,
+                y=df_west2[key].astype(float),
+                mode="lines",
+                name=f"Constant {key}",
             )
         )
 

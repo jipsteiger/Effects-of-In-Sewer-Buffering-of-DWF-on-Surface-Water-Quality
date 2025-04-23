@@ -1,4 +1,5 @@
 from simulation import Simulation
+from realtimecontrol import RealTimeControl
 from postprocess import PostProcess
 import datetime as dt
 
@@ -6,11 +7,11 @@ import datetime as dt
 # MODEL_NAME = "model_jip_WEST_regen"
 MODEL_NAME = "model_jip"
 # MODEL_NAME = "model_jip_no_rtc"
-SUFFIX = "RTC"
+SUFFIX = "RTC_simplified"
 
 
 def main():
-    simulation = Simulation(
+    simulation = RealTimeControl(
         model_path=rf"data\SWMM\{MODEL_NAME}.inp",
         step_size=300,
         # Extended summer period:
@@ -28,9 +29,9 @@ def main():
     postprocess.create_outfall_txt(suffix=SUFFIX)
 
     # postprocess.plot_outfalls(save=False, plot_rain=True, suffix=SUFFIX)
-    # postprocess.plot_pumps(
-    #     save=True, plot_rain=True, suffix=SUFFIX, target_setting=True, storage=True
-    # )
+    postprocess.plot_pumps(
+        save=True, plot_rain=True, suffix=SUFFIX, target_setting=True, storage=True
+    )
     # TODO postprocess.plot_storages()
 
 

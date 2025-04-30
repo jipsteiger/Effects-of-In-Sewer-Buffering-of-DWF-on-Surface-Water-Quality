@@ -1,7 +1,6 @@
 import swmm_api as sa
 import pandas as pd
 import numpy as np
-from datetime import datetime
 import plotly.graph_objects as go
 import plotly.offline as pyo
 import plotly.io as pio
@@ -898,5 +897,247 @@ def compare_NHflow():
                 name=f"Constant {key}",
             )
         )
+
+    pio.show(fig, renderer="browser")
+
+
+def compare_concentrations_BASE():
+    ES_conc_buffered = pd.read_csv(
+        rf"effluent_concentration\testing_results\RZ_concentrations.csv",
+        index_col=0,
+        parse_dates=True,
+    )
+    RZ_conc_buffered = pd.read_csv(
+        rf"effluent_concentration\testing_results\ES_concentrations.csv",
+        index_col=0,
+        parse_dates=True,
+    )
+    ES_conc = pd.read_csv(rf"effluent_concentration\ES.Effluent.csv", index_col=0)
+    RZ_conc = pd.read_csv(rf"effluent_concentration\RZ.Effluent.csv", index_col=0)
+
+    df_west = pd.read_csv(
+        rf"data\WEST\SWMM_inputs_dwf_and_precipitation\concentration_check.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west["timestamp"] = start_date + pd.to_timedelta(
+        df_west.index.astype(float), unit="D"
+    )
+    df_west.set_index("timestamp", inplace=True)
+
+    fig = go.Figure()
+    for key in df_west.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=df_west.index,
+                y=abs(df_west[key].astype(float)),
+                mode="lines",
+                name=f"West {key}",
+            )
+        )
+
+    for key in ["COD_part", "COD_sol", "X_TSS_sew", "NH4_sew", "PO4_sew"]:
+        fig.add_trace(
+            go.Scatter(
+                x=ES_conc_buffered.index,
+                y=ES_conc_buffered[key].astype(float),
+                mode="lines",
+                name=f"ES {key} BUFFERED",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=RZ_conc_buffered.index,
+                y=RZ_conc_buffered[key].astype(float),
+                mode="lines",
+                name=f"RZ {key} BUFFERED",
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=ES_conc_buffered.index,
+                y=abs(ES_conc[key].astype(float)),
+                mode="lines",
+                name=f"ES {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=RZ_conc_buffered.index,
+                y=abs(RZ_conc[key].astype(float)),
+                mode="lines",
+                name=f"RZ {key}",
+            )
+        )
+    fig.add_trace(
+        go.Scatter(
+            x=ES_conc_buffered.index,
+            y=abs(ES_conc["H2O_sew"].astype(float) * 1_000_000),
+            mode="lines",
+            name=f"ES H2O_sew",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=RZ_conc_buffered.index,
+            y=abs(RZ_conc["H2O_sew"].astype(float) * 1_000_000),
+            mode="lines",
+            name=f"RZ H2O_sew",
+        )
+    )
+
+    pio.show(fig, renderer="browser")
+
+
+def compare_concentrations_SIMULATION():
+    ES_conc_buffered = pd.read_csv(
+        rf"effluent_concentration\ES_buffered_concentrations.csv",
+        index_col=0,
+        parse_dates=True,
+    )
+    RZ_conc_buffered = pd.read_csv(
+        rf"effluent_concentration\RZ_buffered_concentrations.csv",
+        index_col=0,
+        parse_dates=True,
+    )
+    ES_conc_buffered_RTC = pd.read_csv(
+        rf"effluent_concentration\ES_RTC_buffer_concentrations.csv",
+        index_col=0,
+    )
+    RZ_conc_buffered_RTC = pd.read_csv(
+        rf"effluent_concentration\RZ_RTC_buffer_concentrations.csv",
+        index_col=0,
+    )
+    ES_conc = pd.read_csv(rf"effluent_concentration\ES.Effluent.csv", index_col=0)
+    RZ_conc = pd.read_csv(rf"effluent_concentration\RZ.Effluent.csv", index_col=0)
+
+    df_west = pd.read_csv(
+        rf"data\WEST\SWMM_inputs_dwf_and_precipitation\concentration_check.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west["timestamp"] = start_date + pd.to_timedelta(
+        df_west.index.astype(float), unit="D"
+    )
+    df_west.set_index("timestamp", inplace=True)
+
+    fig = go.Figure()
+    for key in df_west.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=df_west.index,
+                y=abs(df_west[key].astype(float)),
+                mode="lines",
+                name=f"West {key}",
+            )
+        )
+
+    for key in ["COD_part", "COD_sol", "X_TSS_sew", "NH4_sew", "PO4_sew"]:
+        fig.add_trace(
+            go.Scatter(
+                x=ES_conc_buffered.index,
+                y=abs(ES_conc_buffered[key].astype(float)),
+                mode="lines",
+                name=f"ES {key} BUFFERED",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=RZ_conc_buffered.index,
+                y=abs(RZ_conc_buffered[key].astype(float)),
+                mode="lines",
+                name=f"RZ {key} BUFFERED",
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=ES_conc_buffered.index,
+                y=abs(ES_conc[key].astype(float)),
+                mode="lines",
+                name=f"ES {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=RZ_conc_buffered.index,
+                y=abs(RZ_conc[key].astype(float)),
+                mode="lines",
+                name=f"RZ {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=ES_conc_buffered.index,
+                y=abs(ES_conc_buffered_RTC[key].astype(float)),
+                mode="lines",
+                name=f"ES RTC {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=ES_conc_buffered.index,
+                y=abs(RZ_conc_buffered_RTC[key].astype(float)),
+                mode="lines",
+                name=f"RZ RTC {key}",
+            )
+        )
+    fig.add_trace(
+        go.Scatter(
+            x=ES_conc_buffered.index,
+            y=abs(ES_conc["H2O_sew"].astype(float)),
+            mode="lines",
+            name=f"ES H2O_sew",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=ES_conc_buffered.index,
+            y=abs(RZ_conc["H2O_sew"].astype(float)),
+            mode="lines",
+            name=f"RZ H2O_sew",
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=ES_conc_buffered.index,
+            y=abs(ES_conc_buffered["H2O_sew"].astype(float) * 1_000_000),
+            mode="lines",
+            name=f"ES BUFFERED H2O_sew",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=ES_conc_buffered.index,
+            y=abs(ES_conc_buffered["H2O_sew"].astype(float) * 1_000_000),
+            mode="lines",
+            name=f"RZ BUFFERED H2O_sew",
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=ES_conc_buffered.index,
+            y=abs(ES_conc_buffered_RTC["H2O_sew"].astype(float) * 1_000_000),
+            mode="lines",
+            name=f"ES RTC BUFFERED H2O_sew",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=ES_conc_buffered.index,
+            y=abs(ES_conc_buffered_RTC["H2O_sew"].astype(float) * 1_000_000),
+            mode="lines",
+            name=f"RZ RTC BUFFERED H2O_sew",
+        )
+    )
 
     pio.show(fig, renderer="browser")

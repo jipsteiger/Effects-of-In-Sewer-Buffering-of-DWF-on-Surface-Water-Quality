@@ -74,21 +74,19 @@ class RealTimeControl(Simulation):
             self.handle_virtual_storage()
             self.handle_c_119_flows()
             self.handle_geldrop_out_flows()
+            self.update_WQ()
+
+            self.concentrations()
 
             self.real_time_control()
             self.track_control_settings()
 
+        self.save_concentrations(name="RTC_buffer")
         self.save_settings()
 
     def track_control_settings(self):
-        self.ES_setting.append(
-            self.links["P_eindhoven_out"].target_setting
-            # * RzPumpCurve.interpolated_curve(self.nodes["pipe_ES"].depth)
-        )
-        self.RZ_setting.append(
-            self.links["P_riool_zuid_out"].target_setting
-            # * RzPumpCurve.interpolated_curve(self.nodes["pre_ontvangstkelder"].depth)
-        )
+        self.ES_setting.append(self.links["P_eindhoven_out"].target_setting)
+        self.RZ_setting.append(self.links["P_riool_zuid_out"].target_setting)
         self.setting_time.append(self.sim.current_time)
 
     def real_time_control(self):
@@ -276,7 +274,7 @@ if __name__ == "__main__":
         step_size=300,
         report_start=dt.datetime(year=2024, month=7, day=1),
         start_time=dt.datetime(year=2024, month=7, day=1),
-        end_time=dt.datetime(year=2024, month=7, day=31),
+        end_time=dt.datetime(year=2024, month=8, day=1),
         virtual_pump_max=10,
     )
     simulation.start_simulation()

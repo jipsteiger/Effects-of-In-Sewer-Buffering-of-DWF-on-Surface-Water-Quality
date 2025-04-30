@@ -1,6 +1,3 @@
-from concentration_curves import concentration_dict
-
-
 class Storage:
     def __init__(self, max_volume):
         self.V_max = max_volume  # m3
@@ -17,9 +14,10 @@ class Storage:
 
 
 class RZ_storage(Storage):
-    def __init__(self, volume):
-        super().__init__(volume)  # Initialize the parent class with V_max
-        self.pipes = [
+    def __init__(
+        self,
+        volume,
+        pipes=[
             "Con_103",
             "Con_104",
             "Con_105",
@@ -44,7 +42,10 @@ class RZ_storage(Storage):
             "Con_154",
             "Con_155",
             "Con_156",
-        ]
+        ],
+    ):
+        super().__init__(volume)  # Initialize the parent class with V_max
+        self.pipes = pipes
 
     def get_volume(self, links):
         pipe_volumes = [links[pipe].volume for pipe in self.pipes]
@@ -55,26 +56,27 @@ class ConcentrationStorage:
     def __init__(self):
         self.V = 0
         self.storage_concentrations = {
-            "COD": 0,
-            "CODs": 0,
-            "TSS": 0,
-            "NH4": 0,
-            "PO4": 0,
+            "COD_part": 0,
+            "COD_sol": 0,
+            "X_TSS_sew": 0,
+            "NH4_sew": 0,
+            "PO4_sew": 0,
         }
 
-    def update_in(self, Q, h, timestep):
+    def update_in(self, Q, pollutant_load, timestep=300):
         V_in = Q * timestep
 
         for k, i in self.storage_concentrations.items():
-            hour_key = f"H_{int(h)}"  # ensure h is int or convert it
-            conc_in = getattr(concentration_dict[k], hour_key)
-            self.storage_concentrations[k] = (self.V * i + V_in * conc_in) / (
-                self.V + V_in
-            )
+            self.storage_concentrations[k] = (
+                self.V * i + pollutant_load[k] * (300 / 86400)
+            ) / (self.V + V_in)
         self.V += V_in
 
-    def update_out(self, Q, timestep):
-        V_out = Q * timestep
-        conc_out = self.storage_concentrations
+    def update_out(self, Q, timestep=300):
+        V_out = Q * timestep  # CMS to CM
+        conc_out = {
+            k: v * Q * 86400 for k, v in self.storage_concentrations.items()
+        }  # g/m3 to g/d
+        conc_out["H2O_sew"] = Q * 86400
         self.V -= V_out
         return conc_out

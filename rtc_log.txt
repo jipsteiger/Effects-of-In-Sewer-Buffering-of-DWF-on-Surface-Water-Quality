@@ -1,6 +1,6 @@
-2025-04-23 09:25:35,466 [DEBUG] matplotlib data path: f:\Interpreter\Anaconda3\lib\site-packages\matplotlib\mpl-data
-2025-04-23 09:25:35,470 [DEBUG] CONFIGDIR=C:\Users\Jip\.matplotlib
-2025-04-23 09:25:35,472 [DEBUG] interactive is False
-2025-04-23 09:25:35,472 [DEBUG] platform is win32
-2025-04-23 09:25:35,522 [DEBUG] CACHEDIR=C:\Users\Jip\.matplotlib
-2025-04-23 09:25:35,524 [DEBUG] Using fontManager instance from C:\Users\Jip\.matplotlib\fontlist-v330.json
+2025-04-30 16:38:13,291 [DEBUG] matplotlib data path: f:\Interpreter\Anaconda3\lib\site-packages\matplotlib\mpl-data
+2025-04-30 16:38:13,295 [DEBUG] CONFIGDIR=C:\Users\Jip\.matplotlib
+2025-04-30 16:38:13,298 [DEBUG] interactive is False
+2025-04-30 16:38:13,298 [DEBUG] platform is win32
+2025-04-30 16:38:13,360 [DEBUG] CACHEDIR=C:\Users\Jip\.matplotlib
+2025-04-30 16:38:13,363 [DEBUG] Using fontManager instance from C:\Users\Jip\.matplotlib\fontlist-v330.json

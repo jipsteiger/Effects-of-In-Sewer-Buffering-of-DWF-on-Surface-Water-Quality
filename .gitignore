@@ -17,3 +17,5 @@ api_key_bulk.txt
 
 
 *.pyc
+
+*log.txt

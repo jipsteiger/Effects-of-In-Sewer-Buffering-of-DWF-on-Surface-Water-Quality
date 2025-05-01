@@ -4,7 +4,7 @@ import pandas as pd
 from storage import ConcentrationStorage
 from emprical_sewer_wq import EmpericalSewerWQ
 from storage import Storage, RZ_storage
-from concentration_curves import concentration_dict_ES, concentration_dict_RZ
+from data.concentration_curves import concentration_dict_ES, concentration_dict_RZ
 
 
 class Simulation:

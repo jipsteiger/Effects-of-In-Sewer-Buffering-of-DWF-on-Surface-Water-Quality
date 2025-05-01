@@ -193,7 +193,7 @@ class EmpericalSewerWQ:
 
     def write_output_log(self, location=""):
         output = pd.DataFrame(self.log)
-        output.to_csv(rf"effluent_concentration/{location}.Effluent.csv")
+        output.to_csv(rf"output_effluent/{location}.Effluent.csv")
 
     def get_latest_log(self):
         return {

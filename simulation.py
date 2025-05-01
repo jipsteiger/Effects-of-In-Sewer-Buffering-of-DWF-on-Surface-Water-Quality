@@ -229,12 +229,8 @@ class Simulation:
             )
 
     def save_concentrations(self, name="buffered"):
-        self.ESconcentration_df.to_csv(
-            f"effluent_concentration/ES_{name}_concentrations.csv"
-        )
-        self.RZconcentration_df.to_csv(
-            f"effluent_concentration/RZ_{name}_concentrations.csv"
-        )
+        self.ESconcentration_df.to_csv(f"output_effluent/ES_{name}_concentrations.csv")
+        self.RZconcentration_df.to_csv(f"output_effluent/RZ_{name}_concentrations.csv")
 
     def handle_virtual_storage(self):
         for virtual_storage in self.virtual_storages:

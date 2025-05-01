@@ -264,7 +264,7 @@ class RealTimeControl(Simulation):
             index=self.setting_time,
         )
 
-        df.to_csv("swmm_output/target_setting.csv")
+        df.to_csv("output_swmm/target_setting.csv")
 
 
 if __name__ == "__main__":

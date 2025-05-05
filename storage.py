@@ -77,6 +77,6 @@ class ConcentrationStorage:
         conc_out = {
             k: v * Q * 86400 for k, v in self.storage_concentrations.items()
         }  # g/m3 to g/d
-        conc_out["H2O_sew"] = Q * 86400
+        conc_out["H2O_sew"] = Q * 86400 * 1e6  # CMS to g/d
         self.V -= V_out
         return conc_out

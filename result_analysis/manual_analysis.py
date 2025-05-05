@@ -215,9 +215,7 @@ def read_WEST_output():
             )
         )
 
-    output = sa.SwmmOutput(
-        rf"data\SWMM\model_jip_WEST_data_replicated_copy.out"
-    ).to_frame()
+    output = sa.SwmmOutput(rf"data\SWMM\model_jip_WEST_regen.out").to_frame()
     fig.add_trace(
         go.Scatter(
             x=output.node["out_ES"]["total_inflow"].index,
@@ -901,6 +899,82 @@ def compare_NHflow():
     pio.show(fig, renderer="browser")
 
 
+def checkNHDose():
+    df_west = pd.read_csv(
+        rf"data\WEST\SWMM_inputs_dwf_only\C_Dose_check.1.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west["timestamp"] = start_date + pd.to_timedelta(
+        df_west.index.astype(float), unit="D"
+    )
+    df_west.set_index("timestamp", inplace=True)
+
+    df_west2 = pd.read_csv(
+        rf"data\WEST\C_dosed_constant_DWF\C_Dose_check.1.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west2["timestamp"] = start_date + pd.to_timedelta(
+        df_west2.index.astype(float), unit="D"
+    )
+    df_west2.set_index("timestamp", inplace=True)
+
+    df_west3 = pd.read_csv(
+        rf"data\WEST\SWMM_input_constant_DWF\C_Dose_check.1.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west3["timestamp"] = start_date + pd.to_timedelta(
+        df_west3.index.astype(float), unit="D"
+    )
+    df_west3.set_index("timestamp", inplace=True)
+
+    df_west = df_west.loc["2024-07-01":"2024-07-31"]
+    df_west2 = df_west2.loc["2024-07-01":"2024-07-31"]
+    df_west3 = df_west3.loc["2024-07-01":"2024-07-31"]
+
+    fig = go.Figure()
+
+    for key in df_west2.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=df_west.index,
+                y=abs(df_west[key].astype(float)),
+                mode="lines",
+                name=f"Normal {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=df_west2.index,
+                y=abs(df_west2[key].astype(float)),
+                mode="lines",
+                name=f"Constant Dosed {key}",
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=df_west3.index,
+                y=abs(df_west3[key].astype(float)),
+                mode="lines",
+                name=f"Constant {key}",
+            )
+        )
+
+    pio.show(fig, renderer="browser")
+
+
 def compare_concentrations_BASE():
     ES_conc_buffered = pd.read_csv(
         rf"effluent_concentration\testing_results\RZ_concentrations.csv",
@@ -1140,4 +1214,135 @@ def compare_concentrations_SIMULATION():
         )
     )
 
+    pio.show(fig, renderer="browser")
+
+
+def analyse_concentrate_out():
+    """
+    This will show no meaningfull difference in outflow concentration.
+    Why? Because the base (no rtc) swmm file mimics the behaviour of the WEST model,
+    where the storage in ES, never goes below 6600 m3 -> so in SWMM the same behaviour. In RZ(1400 m3).
+    Therefor there constant diluation and averaging of the outflows
+    """
+
+    RTC = pd.read_csv(
+        rf"output_swmm\05-03_11-42_out_ES_RTC.csv",
+        index_col=0,
+        delimiter=";",
+        decimal=",",
+    )
+    start_date = pd.Timestamp("2024-01-01")
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    base = pd.read_csv(
+        rf"output_swmm\05-03_11-54_out_ES_no_RTC.csv",
+        index_col=0,
+        delimiter=";",
+        decimal=",",
+    )
+    start_date = pd.Timestamp("2024-01-01")
+    base["timestamp"] = start_date + pd.to_timedelta(base.index.astype(float), unit="D")
+    base.set_index("timestamp", inplace=True)
+
+    base2 = pd.read_csv(
+        rf"output_swmm\05-03_17-54_out_ES_no_RTC.csv",
+        index_col=0,
+        delimiter=";",
+        decimal=",",
+    )
+    start_date = pd.Timestamp("2024-01-01")
+    base2["timestamp"] = start_date + pd.to_timedelta(
+        base2.index.astype(float), unit="D"
+    )
+    base2.set_index("timestamp", inplace=True)
+
+    dry = pd.read_csv(
+        rf"output_swmm\05-03_13-44_out_ES_no_RTC_no_rain.csv",
+        index_col=0,
+        delimiter=";",
+        decimal=",",
+    )
+    start_date = pd.Timestamp("2024-01-01")
+    dry["timestamp"] = start_date + pd.to_timedelta(dry.index.astype(float), unit="D")
+    dry.set_index("timestamp", inplace=True)
+
+    constant = pd.read_csv(
+        rf"output_swmm\05-03_13-36_out_ES_no_RTC_no_rain_constant.csv",
+        index_col=0,
+        delimiter=";",
+        decimal=",",
+    )
+    start_date = pd.Timestamp("2024-01-01")
+    constant["timestamp"] = start_date + pd.to_timedelta(
+        constant.index.astype(float), unit="D"
+    )
+    constant.set_index("timestamp", inplace=True)
+
+    fig = go.Figure()
+    for key in RTC.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=RTC.index,
+                y=abs(RTC[key].astype(float)),
+                mode="lines",
+                name=f"RTC {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=dry.index,
+                y=abs(dry[key].astype(float)),
+                mode="lines",
+                name=f"dry {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=base.index,
+                y=abs(base[key].astype(float)),
+                mode="lines",
+                name=f"base {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=base2.index,
+                y=abs(base2[key].astype(float)),
+                mode="lines",
+                name=f"base fixed {key}",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=constant.index,
+                y=abs(constant[key].astype(float)),
+                mode="lines",
+                name=f"constant {key}",
+            )
+        )
+        if not "H2O" in key:
+            fig.add_trace(
+                go.Scatter(
+                    x=RTC.index,
+                    y=abs(RTC[key].astype(float) / RTC["H2O_sew"].astype(float)),
+                    mode="lines",
+                    name=f"CONC. RTC {key}",
+                )
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=base.index,
+                    y=abs(base[key].astype(float) / base["H2O_sew"].astype(float)),
+                    mode="lines",
+                    name=f"CONC. base {key}",
+                )
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=base2.index,
+                    y=abs(base2[key].astype(float) / base2["H2O_sew"].astype(float)),
+                    mode="lines",
+                    name=f"CONC. base fixed {key}",
+                )
+            )
     pio.show(fig, renderer="browser")

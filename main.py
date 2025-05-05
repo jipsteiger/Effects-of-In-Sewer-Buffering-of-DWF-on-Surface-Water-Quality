@@ -7,7 +7,10 @@ import datetime as dt
 # MODEL_NAME = "model_jip_WEST_regen"
 MODEL_NAME = "model_jip"
 # MODEL_NAME = "model_jip_no_rtc"
-SUFFIX = "RTC_simplified"
+
+# MODEL_NAME = "model_jip_with_pump_curve"
+
+SUFFIX = "RTC"
 
 
 def main():
@@ -18,21 +21,22 @@ def main():
         # report_start=dt.datetime(year=2024, month=4, day=15),
         # start_time=dt.datetime(year=2024, month=4, day=15),
         # end_time=dt.datetime(year=2024, month=10, day=16),
-        report_start=dt.datetime(year=2024, month=1, day=1),
-        start_time=dt.datetime(year=2024, month=1, day=1),
-        end_time=dt.datetime(year=2024, month=12, day=31),
+        report_start=dt.datetime(year=2024, month=7, day=1),
+        start_time=dt.datetime(year=2024, month=7, day=1),
+        end_time=dt.datetime(year=2024, month=7, day=31),
         virtual_pump_max=10,
+        constant_outflow=False,
     )
     simulation.start_simulation()
 
     postprocess = PostProcess(model_name=MODEL_NAME)
-    postprocess.create_outfall_txt(suffix=SUFFIX)
+    # postprocess.create_outfall_txt(suffix=SUFFIX)
+    postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="RTC")
 
     # postprocess.plot_outfalls(save=False, plot_rain=True, suffix=SUFFIX)
-    postprocess.plot_pumps(
-        save=True, plot_rain=True, suffix=SUFFIX, target_setting=True, storage=True
-    )
-    # TODO postprocess.plot_storages()
+    # postprocess.plot_pumps(
+    #     save=True, plot_rain=True, suffix=SUFFIX, target_setting=True, storage=True
+    # )
 
 
 if __name__ == "__main__":

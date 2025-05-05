@@ -50,29 +50,41 @@ class PostProcess:
             output_file = f"#.t\tH2O_sew\tNH4_sew\tPO4_sew\tCOD_sol\tX_TSS_sew\tCOD_part\n#d\tm3/d\tm3/d\tm3/d\tm3/d\tm3/d\tm3/d\n"
             output_file += df[:].to_csv(sep="\t", header=False)
             with open(
-                f"swmm_output/{self.current_time}_{outfall}_{suffix}.txt", "w"
+                f"output_swmm/{self.current_time}_{outfall}_{suffix}.txt", "w"
             ) as f:
                 f.write(output_file)
             df.to_csv(
-                f"swmm_output/{self.current_time}_{outfall}_{suffix}.csv",
+                f"output_swmm/{self.current_time}_{outfall}_{suffix}.csv",
                 sep=";",
                 decimal=",",
             )
             static_name = "latest"  # Change this as needed
-            with open(f"swmm_output/{static_name}_{outfall}_out.txt", "w") as f:
+            with open(f"output_swmm/{static_name}_{outfall}_out.txt", "w") as f:
                 f.write(output_file)
             df_csv.to_csv(
-                f"swmm_output/{static_name}_{outfall}_out.csv",
+                f"output_swmm/{static_name}_{outfall}_out.csv",
                 sep=";",
                 decimal=",",
             )
 
-    def create_outfall_txt_concentrate(self, suffix="concentrate"):
-        for outfall in ["out_RZ", "out_ES"]:
-            outfall_timeseries = pd.DataFrame(
-                self.output["node"][outfall]["total_inflow"]
+    def create_outfall_txt_concentrate(self, suffix="concentrate", specific_version=""):
+        for outfall in ["RZ", "ES"]:
+            effluent = pd.read_csv(
+                rf"output_effluent\{self.model_name}_{outfall}_effluent_conc_{specific_version}.csv",
+                index_col=0,
+                parse_dates=True,
             )
-            if self.model_name == "model_jip_geen_regen":
+            outfall_timeseries = pd.DataFrame(
+                self.output["node"][f"out_{outfall}"]["total_inflow"]
+            )
+            common_index = effluent.index.intersection(outfall_timeseries.index)
+
+            effluent = effluent.loc[common_index]
+            outfall_timeseries = outfall_timeseries.loc[common_index]
+
+            if (self.model_name == "model_jip_geen_regen") or (
+                common_index[0].year == 2023
+            ):
                 dec_index = (
                     outfall_timeseries.index - pd.Timestamp("2023-01-01")
                 ).total_seconds() / (24 * 60 * 60)
@@ -80,14 +92,15 @@ class PostProcess:
                 dec_index = (
                     outfall_timeseries.index - pd.Timestamp("2024-01-01")
                 ).total_seconds() / (24 * 60 * 60)
-            H2O_sew = (
+            H2O_sew = -(
                 outfall_timeseries["total_inflow"] * (24 * 3600 * 1e6)  # to g/d
             ).values  # From CMS to g/d
-            NH4_sew = [44] * H2O_sew
-            PO4_sew = [7.1] * H2O_sew
-            COD_sol = [158] * H2O_sew
-            X_TSS_sew = [255] * H2O_sew
-            COD_part = [546] * H2O_sew
+            NH4_sew = effluent["NH4_sew"].values
+            PO4_sew = effluent["PO4_sew"].values
+            COD_sol = effluent["COD_sol"].values
+            X_TSS_sew = effluent["X_TSS_sew"].values
+            COD_part = effluent["COD_part"].values
+            H2O_sew2 = effluent["H2O_sew"].values
             west_values = {
                 "H2O_sew": H2O_sew,
                 "NH4_sew": NH4_sew,
@@ -95,26 +108,27 @@ class PostProcess:
                 "COD_sol": COD_sol,
                 "X_TSS_sew": X_TSS_sew,
                 "COD_part": COD_part,
+                "H2O_sew2": H2O_sew2,
             }
             df = pd.DataFrame(west_values, index=dec_index)
             df_csv = pd.DataFrame(west_values, index=outfall_timeseries.index)
 
-            output_file = f"#.t\tH2O_sew\tNH4_sew\tPO4_sew\tCOD_sol\tX_TSS_sew\tCOD_part\n#d\tm3/d\tm3/d\tm3/d\tm3/d\tm3/d\tm3/d\n"
+            output_file = f"#.t\tH2O_sew\tNH4_sew\tPO4_sew\tCOD_sol\tX_TSS_sew\tCOD_part\tH2O_sew2\n#d\tg/d\tg/d\tg/d\tg/d\tg/d\tg/d\tg/d\n"
             output_file += df[:].to_csv(sep="\t", header=False)
             with open(
-                f"swmm_output/{self.current_time}_{outfall}_{suffix}.txt", "w"
+                f"output_swmm/{self.current_time}_out_{outfall}_{suffix}.txt", "w"
             ) as f:
                 f.write(output_file)
             df.to_csv(
-                f"swmm_output/{self.current_time}_{outfall}_{suffix}.csv",
+                f"output_swmm/{self.current_time}_out_{outfall}_{suffix}.csv",
                 sep=";",
                 decimal=",",
             )
             static_name = "latest"  # Change this as needed
-            with open(f"swmm_output/{static_name}_{outfall}_out.txt", "w") as f:
+            with open(f"output_swmm/{static_name}_out_{outfall}_out.txt", "w") as f:
                 f.write(output_file)
             df_csv.to_csv(
-                f"swmm_output/{static_name}_{outfall}_out.csv",
+                f"output_swmm/{static_name}_out_{outfall}_out.csv",
                 sep=";",
                 decimal=",",
             )
@@ -211,7 +225,7 @@ class PostProcess:
         if save:
             pyo.plot(
                 fig,
-                filename=f"swmm_output/plots/{self.current_time}_{file_name}_{suffix}.html",
+                filename=f"output_swmm/plots/{self.current_time}_{file_name}_{suffix}.html",
                 auto_open=True,
             )
         else:
@@ -262,7 +276,7 @@ class PostProcess:
 
     def add_target_settings(self, fig):
         df = pd.read_csv(
-            "swmm_output/target_setting.csv", index_col=0, parse_dates=True
+            "output_swmm/target_setting.csv", index_col=0, parse_dates=True
         )
         for key in df:
             fig.add_trace(

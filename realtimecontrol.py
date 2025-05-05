@@ -26,7 +26,8 @@ class RealTimeControl(Simulation):
         report_start: dt.datetime,
         start_time: dt.datetime,
         end_time: dt.datetime,
-        virtual_pump_max: int = 10,
+        virtual_pump_max=10,
+        constant_outflow=False,
         ES_out_max: float = 3.888,
         ES_out_ideal: float = 0.663,
         RZ_out_max: float = 4.7222,
@@ -39,6 +40,7 @@ class RealTimeControl(Simulation):
             start_time,
             end_time,
             virtual_pump_max,
+            constant_outflow,
         )
         self.current_forecast = None
         self.last_forecast_time = None
@@ -69,6 +71,8 @@ class RealTimeControl(Simulation):
         self.ES_transition_finished = False
         self.RZ_transition_finished = False
 
+        self.forecasts = read_forecasts()
+
     def simulation_steps(self):
         for step in self.sim:
             self.handle_virtual_storage()
@@ -81,7 +85,7 @@ class RealTimeControl(Simulation):
             self.real_time_control()
             self.track_control_settings()
 
-        self.save_concentrations(name="RTC_buffer")
+        self.save_concentrations(name="RTC")
         self.save_settings()
 
     def track_control_settings(self):
@@ -90,7 +94,7 @@ class RealTimeControl(Simulation):
         self.setting_time.append(self.sim.current_time)
 
     def real_time_control(self):
-        self.get_forecast()
+        self.get_ideal_forecast()
         self.set_storage()
         self.orchestrate_rtc()
         self.ES_last_setting = self.links["P_eindhoven_out"].target_setting
@@ -223,7 +227,7 @@ class RealTimeControl(Simulation):
         self.ES_storage.update_stored_volume(self.nodes["pipe_ES"].volume)
         self.RZ_storage.update_stored_volume(self.RZ_storage.get_volume(self.links))
 
-    def get_forecast(self):
+    def get_ideal_forecast(self):
         time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
 
         if time.hour % 6 == 0 and self.last_forecast_time != time:
@@ -232,6 +236,9 @@ class RealTimeControl(Simulation):
                 self.precipitation_forecast.loc[time:end_time].resample("h").sum()
             )
             self.last_forecast_time = time
+
+    def get_forecasts(self, upperbound=24):
+        current_time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
 
     def rain_predicted(self, start_horizon, end_horizon, es_threshold, rz_threshold):
         time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
@@ -265,6 +272,15 @@ class RealTimeControl(Simulation):
         )
 
         df.to_csv("output_swmm/target_setting.csv")
+
+
+def read_forecasts():
+    forecasts = pd.read_csv(
+        rf"data\precipitation\csv_forecasts\forecast_data.csv", index_col=0
+    )
+    forecasts["date"] = pd.to_datetime(forecasts["date"])
+    forecasts["date_of_forecast"] = pd.to_datetime(forecasts["date_of_forecast"])
+    return forecasts
 
 
 if __name__ == "__main__":

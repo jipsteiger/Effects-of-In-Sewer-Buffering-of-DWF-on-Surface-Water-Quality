@@ -1,6 +1,7 @@
 import pyswmm as ps
 import datetime as dt
 import pandas as pd
+from pathlib import Path
 from storage import ConcentrationStorage
 from emprical_sewer_wq import EmpericalSewerWQ
 from storage import Storage, RZ_storage
@@ -15,7 +16,8 @@ class Simulation:
         report_start: dt.datetime,
         start_time: dt.datetime,
         end_time: dt.datetime,
-        virtual_pump_max: int = 10,
+        virtual_pump_max=10,
+        constant_outflow=False,
     ):
         self.model_path = model_path
         self.step_size = step_size
@@ -24,6 +26,7 @@ class Simulation:
         self.end_time = end_time
 
         self.virtual_pump_max = virtual_pump_max
+        self.constant_outflow = constant_outflow
 
         # For EmpericalSewerWQ the Filling Degree of the storage, upstream of the WQ model
         # is required.
@@ -171,12 +174,26 @@ class Simulation:
             self.handle_c_119_flows()
             self.handle_geldrop_out_flows()
 
+            if self.constant_outflow and (self.model_path == "data\SWMM\model_jip.inp"):
+                self.do_constant_outflow()
+            if self.constant_outflow and not (
+                self.model_path == "data\SWMM\model_jip.inp"
+            ):
+                print(
+                    f"Constant outflow enabled, but wrong model is used, therefor regular outflow is done."
+                )
+
             self.update_WQ()
 
             self.concentrations()
         self.WQ_ES.write_output_log("ES")
         self.WQ_RZ.write_output_log("RZ")
         self.save_concentrations()
+
+    def do_constant_outflow(self):
+        self.links["P_eindhoven_out"].target_setting = 0.663 / 3.888
+
+        self.links["P_riool_zuid_out"].target_setting = 4.7222 / 0.5218
 
     def update_WQ(self):
         # Below inflows are used for testing
@@ -201,36 +218,49 @@ class Simulation:
         self.ES_inflow = self.WQ_ES.get_latest_log()
 
     def concentrations(self):
-        self.ESConcentrationStorage.update_in(
-            self.nodes["pipe_ES"].total_inflow, self.ES_inflow
-        )
-        ESconcentration_out = self.ESConcentrationStorage.update_out(
-            self.links["P_eindhoven_out"].flow
-        )
+
+        if (
+            type(self) is not Simulation
+        ):  # Is required to mimic better the concentration levels at the outflow if no RTC is used.
+            self.ESConcentrationStorage.update_in(
+                self.nodes["pipe_ES"].total_inflow, self.ES_inflow
+            )
+            ESconcentration_out = self.ESConcentrationStorage.update_out(
+                self.links["P_eindhoven_out"].flow
+            )
+        else:
+            ESconcentration_out = self.ES_inflow
         ESrow_df = pd.DataFrame([ESconcentration_out], index=[self.sim.current_time])
+
         if self.ESconcentration_df.empty:
             self.ESconcentration_df = ESrow_df.copy()
         else:
-            self.ESconcentration_df = pd.concat(
-                [self.ESconcentration_df, ESrow_df], ignore_index=True
-            )
+            self.ESconcentration_df = pd.concat([self.ESconcentration_df, ESrow_df])
 
-        RZ_in = self.nodes["Nod_112"].total_inflow + self.nodes["Nod_104"].total_inflow
-        self.RZConcentrationStorage.update_in(RZ_in, self.RZ_inflow)
-        RZconcentration_out = self.RZConcentrationStorage.update_out(
-            self.links["P_riool_zuid_out"].flow
-        )
+        if type(self) is not Simulation:
+            RZ_in = (
+                self.nodes["Nod_112"].total_inflow + self.nodes["Nod_104"].total_inflow
+            )
+            self.RZConcentrationStorage.update_in(RZ_in, self.RZ_inflow)
+            RZconcentration_out = self.RZConcentrationStorage.update_out(
+                self.links["P_riool_zuid_out"].flow
+            )
+        else:
+            RZconcentration_out = self.ES_inflow
         RZrow_df = pd.DataFrame([RZconcentration_out], index=[self.sim.current_time])
         if self.RZconcentration_df.empty:
             self.RZconcentration_df = RZrow_df.copy()
         else:
-            self.RZconcentration_df = pd.concat(
-                [self.RZconcentration_df, RZrow_df], ignore_index=True
-            )
+            self.RZconcentration_df = pd.concat([self.RZconcentration_df, RZrow_df])
 
-    def save_concentrations(self, name="buffered"):
-        self.ESconcentration_df.to_csv(f"output_effluent/ES_{name}_concentrations.csv")
-        self.RZconcentration_df.to_csv(f"output_effluent/RZ_{name}_concentrations.csv")
+    def save_concentrations(self, name="NO_RTC"):
+        model_name = Path(self.model_path).stem
+        self.ESconcentration_df.to_csv(
+            f"output_effluent/{model_name}_ES_effluent_conc_{name}.csv"
+        )
+        self.RZconcentration_df.to_csv(
+            f"output_effluent/{model_name}_RZ_effluent_conc_{name}.csv"
+        )
 
     def handle_virtual_storage(self):
         for virtual_storage in self.virtual_storages:

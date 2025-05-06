@@ -1069,25 +1069,25 @@ def compare_concentrations_BASE():
 
 def compare_concentrations_SIMULATION():
     ES_conc_buffered = pd.read_csv(
-        rf"effluent_concentration\ES_buffered_concentrations.csv",
+        rf"output_effluent\ES_buffered_concentrations.csv",
         index_col=0,
         parse_dates=True,
     )
     RZ_conc_buffered = pd.read_csv(
-        rf"effluent_concentration\RZ_buffered_concentrations.csv",
+        rf"output_effluent\RZ_buffered_concentrations.csv",
         index_col=0,
         parse_dates=True,
     )
     ES_conc_buffered_RTC = pd.read_csv(
-        rf"effluent_concentration\ES_RTC_buffer_concentrations.csv",
+        rf"output_effluent\ES_RTC_buffer_concentrations.csv",
         index_col=0,
     )
     RZ_conc_buffered_RTC = pd.read_csv(
-        rf"effluent_concentration\RZ_RTC_buffer_concentrations.csv",
+        rf"output_effluent\RZ_RTC_buffer_concentrations.csv",
         index_col=0,
     )
-    ES_conc = pd.read_csv(rf"effluent_concentration\ES.Effluent.csv", index_col=0)
-    RZ_conc = pd.read_csv(rf"effluent_concentration\RZ.Effluent.csv", index_col=0)
+    ES_conc = pd.read_csv(rf"output_effluent\ES.Effluent.csv", index_col=0)
+    RZ_conc = pd.read_csv(rf"output_effluent\RZ.Effluent.csv", index_col=0)
 
     df_west = pd.read_csv(
         rf"data\WEST\SWMM_inputs_dwf_and_precipitation\concentration_check.out.txt",
@@ -1224,6 +1224,11 @@ def analyse_concentrate_out():
     where the storage in ES, never goes below 6600 m3 -> so in SWMM the same behaviour. In RZ(1400 m3).
     Therefor there constant diluation and averaging of the outflows
     """
+    # RTC is regular RTC
+    # Base is dwf + precipitation (with pollutant mixing)
+    # base 2 is dwf + precipitation no mixing
+    # dry is only dwf
+    # constant is only constant flow
 
     RTC = pd.read_csv(
         rf"output_swmm\05-03_11-42_out_ES_RTC.csv",
@@ -1245,7 +1250,7 @@ def analyse_concentrate_out():
     base.set_index("timestamp", inplace=True)
 
     base2 = pd.read_csv(
-        rf"output_swmm\05-03_17-54_out_ES_no_RTC.csv",
+        rf"output_swmm\05-03_18-25_out_ES_no_RTC.csv",
         index_col=0,
         delimiter=";",
         decimal=",",
@@ -1257,7 +1262,7 @@ def analyse_concentrate_out():
     base2.set_index("timestamp", inplace=True)
 
     dry = pd.read_csv(
-        rf"output_swmm\05-03_13-44_out_ES_no_RTC_no_rain.csv",
+        rf"output_swmm\05-03_17-54_out_ES_no_RTC_no_rain.csv",
         index_col=0,
         delimiter=";",
         decimal=",",
@@ -1267,7 +1272,7 @@ def analyse_concentrate_out():
     dry.set_index("timestamp", inplace=True)
 
     constant = pd.read_csv(
-        rf"output_swmm\05-03_13-36_out_ES_no_RTC_no_rain_constant.csv",
+        rf"output_swmm\05-03_18-13_out_ES_no_RTC_no_rain_constant.csv",
         index_col=0,
         delimiter=";",
         decimal=",",

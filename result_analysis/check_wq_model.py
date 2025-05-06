@@ -3,6 +3,7 @@ from emprical_sewer_wq import EmpericalSewerWQ
 import plotly.graph_objects as go
 import plotly.offline as pyo
 import plotly.io as pio
+from data.concentration_curves import concentration_dict_ES
 
 df_west = pd.read_csv(
     rf"data\WEST\SWMM_inputs_dwf_and_precipitation\concentration_check.out.txt",
@@ -22,6 +23,7 @@ FDs = df_west[".ES_out.FD"].values.astype(float)
 H2O_inflows = df_west[".ES_out.Inflow(H2O_sew)"].values.astype(float)
 
 WQ_ES = EmpericalSewerWQ(
+    concentration_dict=concentration_dict_ES,
     COD_av=546,
     CODs_av=158,
     NH4_av=44,
@@ -40,7 +42,7 @@ WQ_ES = EmpericalSewerWQ(
 
 for time, FD, H2O_inflow in zip(times, FDs, H2O_inflows):
     WQ_ES.update(time, H2O_inflow / 1_000_000, FD)
-WQ_ES.write_output("compare_ES")
+WQ_ES.write_output_log("compare_ES")
 
 
 fig = go.Figure()
@@ -55,7 +57,7 @@ for key in df_west.keys():
             )
         )
 
-model_result = pd.read_csv("compare_ES.Effluent.csv", index_col=0)
+model_result = pd.read_csv("output_effluent/compare_ES.Effluent.csv", index_col=0)
 
 for key in model_result.keys():
     fig.add_trace(

@@ -157,6 +157,7 @@ class EmpericalSewerWQ:
             "X_TSS_sew": [],
             "NH4_sew": [],
             "PO4_sew": [],
+            "FD": [],
         }
         self.index = []
 
@@ -844,6 +845,7 @@ class EmpericalSewerWQ:
         self.log["X_TSS_sew"].append(-self.state["TSS"] * self.state["Q_in"])
         self.log["NH4_sew"].append(-self.state["NH4"] * self.state["Q_in"])
         self.log["PO4_sew"].append(-self.state["PO4"] * self.state["Q_in"])
+        self.log["FD"].append(FD)
         self.index.append(t)
 
         # Update time

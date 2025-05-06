@@ -28,6 +28,7 @@ class RealTimeControl(Simulation):
         end_time: dt.datetime,
         virtual_pump_max=10,
         constant_outflow=False,
+        use_ensemble_forecast=False,
         ES_out_max: float = 3.888,
         ES_out_ideal: float = 0.663,
         RZ_out_max: float = 4.7222,
@@ -44,6 +45,7 @@ class RealTimeControl(Simulation):
         )
         self.current_forecast = None
         self.last_forecast_time = None
+        self.use_ensemble_forecast = use_ensemble_forecast
 
         self.ES_storage = Storage(11000)
         self.RZ_storage = RZ_storage(7500)
@@ -94,27 +96,64 @@ class RealTimeControl(Simulation):
         self.setting_time.append(self.sim.current_time)
 
     def real_time_control(self):
-        self.get_ideal_forecast()
+        if self.use_ensemble_forecast:
+            self.get_current_forecasts()
+            self.is_rain_predicted(
+                rain_predicted_func=self.rain_predicted_by_ensembles,
+                st_lb=0,
+                st_ub=6,
+                lt_lb=6,
+                lt_up=12,
+                ES_threshold=1,
+                RZ_threshold=3,
+                # Start introducing ensemble forecast specific arugments
+                certainty_level=0.9,
+            )
+        else:
+            self.get_current_ideal_forecast()
+            self.is_rain_predicted(
+                rain_predicted_func=self.rain_predicted,
+                st_lb=0,
+                st_ub=6,
+                lt_lb=6,
+                lt_up=12,
+                ES_threshold=1,
+                RZ_threshold=3,
+            )
         self.set_storage()
+
         self.orchestrate_rtc()
         self.ES_last_setting = self.links["P_eindhoven_out"].target_setting
         self.RZ_last_setting = self.links["P_riool_zuid_out"].target_setting
 
-    def orchestrate_rtc(self):
-        st_ES_predicted, st_RZ_predicted = self.rain_predicted(0, 6, 1, 3 * 1)
+    def is_rain_predicted(
+        self,
+        rain_predicted_func: function,
+        st_lb,
+        st_ub,
+        lt_lb,
+        lt_up,
+        ES_threshold,
+        RZ_threshold,
+        *args,
+        **kwargs,
+    ):
+        st_ES_predicted, st_RZ_predicted = rain_predicted_func(
+            st_lb, st_ub, ES_threshold, RZ_threshold, *args, **kwargs
+        )
 
         if 11 <= self.sim.current_time.hour <= 23:
-            lt_start = 6
+            lt_start = lt_lb
 
             future_hour = (self.sim.current_time + dt.timedelta(hours=12)).hour
 
             if future_hour < 6 or future_hour > 20:
-                lt_end = 12
+                lt_end = lt_up
             else:
-                lt_end = 12 - (future_hour - 6)
+                lt_end = lt_up - (future_hour - lt_lb)
 
-            lt_ES_predicted, lt_RZ_predicted = self.rain_predicted(
-                lt_start, lt_end, 1, 3 * 1
+            lt_ES_predicted, lt_RZ_predicted = rain_predicted_func(
+                lt_start, lt_end, ES_threshold, RZ_threshold, *args, **kwargs
             )
 
             self.ES_predicted = st_ES_predicted or lt_ES_predicted or self.ES_predicted
@@ -123,6 +162,7 @@ class RealTimeControl(Simulation):
             self.ES_predicted = st_ES_predicted
             self.RZ_predicted = st_RZ_predicted
 
+    def orchestrate_rtc(self):
         ES_raining, RZ_raining = self.is_raining(2, 3 * 1)
 
         ES_dwf = not self.ES_predicted and not ES_raining
@@ -227,7 +267,7 @@ class RealTimeControl(Simulation):
         self.ES_storage.update_stored_volume(self.nodes["pipe_ES"].volume)
         self.RZ_storage.update_stored_volume(self.RZ_storage.get_volume(self.links))
 
-    def get_ideal_forecast(self):
+    def get_current_ideal_forecast(self):
         time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
 
         if time.hour % 6 == 0 and self.last_forecast_time != time:
@@ -237,8 +277,18 @@ class RealTimeControl(Simulation):
             )
             self.last_forecast_time = time
 
-    def get_forecasts(self, upperbound=24):
-        current_time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
+    def get_current_forecasts(self, upperbound=24):
+        time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
+        if time.hour % 6 == 0 and self.last_forecast_time != time:
+            upperbound_time = time + dt.timedelta(hours=upperbound)
+            current_forecast = self.forecasts[
+                (self.forecasts.date == time)
+                & (self.forecasts.date_of_forecast <= upperbound_time)
+            ]
+            self.current_forecast = current_forecast.groupby(
+                ["region", "date_of_forecast"]
+            )["ensembles"].apply(list)
+            self.last_forecast_time = time
 
     def rain_predicted(self, start_horizon, end_horizon, es_threshold, rz_threshold):
         time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
@@ -252,6 +302,14 @@ class RealTimeControl(Simulation):
             .mean()
         )
         return ES_forecast > es_threshold, RZ_forecast > rz_threshold
+
+    def rain_predicted_by_ensembles(
+        self, time_lb, time_ub, ES_threshold, RZ_threshold, certainty_level
+    ):
+        time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
+        start_time = time + dt.timedelta(hours=time_lb)
+        end_time = time + dt.timedelta(hours=time_ub)
+        pass
 
     def is_raining(self, es_threshold, rz_threshold):
         time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
@@ -280,6 +338,9 @@ def read_forecasts():
     )
     forecasts["date"] = pd.to_datetime(forecasts["date"])
     forecasts["date_of_forecast"] = pd.to_datetime(forecasts["date_of_forecast"])
+    forecasts["ensembles"] = forecasts["ensembles"].apply(
+        lambda s: [float(x) for x in s.strip("[]").split()]
+    )
     return forecasts
 
 

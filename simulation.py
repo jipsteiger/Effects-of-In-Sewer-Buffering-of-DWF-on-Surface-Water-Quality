@@ -182,7 +182,7 @@ class Simulation:
                 print(
                     f"Constant outflow enabled, but wrong model is used, therefor regular outflow is done."
                 )
-
+            self.set_storage_for_FD()
             self.update_WQ()
 
             self.concentrations()
@@ -218,7 +218,6 @@ class Simulation:
         self.ES_inflow = self.WQ_ES.get_latest_log()
 
     def concentrations(self):
-
         if (
             type(self) is not Simulation
         ):  # Is required to mimic better the concentration levels at the outflow if no RTC is used.
@@ -226,7 +225,7 @@ class Simulation:
                 self.nodes["pipe_ES"].total_inflow, self.ES_inflow
             )
             ESconcentration_out = self.ESConcentrationStorage.update_out(
-                self.links["P_eindhoven_out"].flow
+                self.links["P_eindhoven_out"].flow, self.ES_storage_FD.FD()
             )
         else:
             ESconcentration_out = self.ES_inflow
@@ -243,7 +242,7 @@ class Simulation:
             )
             self.RZConcentrationStorage.update_in(RZ_in, self.RZ_inflow)
             RZconcentration_out = self.RZConcentrationStorage.update_out(
-                self.links["P_riool_zuid_out"].flow
+                self.links["P_riool_zuid_out"].flow, self.RZ_storage_FD.FD()
             )
         else:
             RZconcentration_out = self.ES_inflow

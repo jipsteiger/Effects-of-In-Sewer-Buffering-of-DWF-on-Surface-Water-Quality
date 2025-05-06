@@ -5,7 +5,11 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 
-precipitaiton = pd.read_csv(rf"data\precipitation\csv_selected_area_euradclim\2024_5_min_precipitation_data.csv", index_col=0, parse_dates=True)
+precipitaiton = pd.read_csv(
+    rf"data\precipitation\csv_selected_area_euradclim\2024_5_min_precipitation_data.csv",
+    index_col=0,
+    parse_dates=True,
+)
 
 data = {
     "Region": ["A", "B", "A", "B"],
@@ -78,7 +82,10 @@ filtered_forecast = forecasts[
     (forecasts.date == current_time) & (forecasts.date_of_forecast <= upperbound_time)
 ]
 
-grouped = filtered_forecast.groupby(["region", "date_of_forecast"])["ensembles"].apply(list)
+
+grouped = filtered_forecast.groupby(["region", "date_of_forecast"])["ensembles"].apply(
+    list
+)
 
 
 def should_activate_pump_avg_confidence(
@@ -135,9 +142,6 @@ ensemble_matrix = list(zip(*ensemble_matrix))  # shape: (n_members, hours)
 avg_rains = [sum(member_forecast) / 6 for member_forecast in ensemble_matrix]
 
 
-
-
-
 current_time = pd.to_datetime(
     "2024-07-22 18:00:00"
 )  # Keep in mind thate only forecasts are made at intervals of 6 hours
@@ -147,28 +151,28 @@ filtered_forecast = forecasts[
     (forecasts.date == current_time) & (forecasts.date_of_forecast <= upperbound_time)
 ]
 
-grouped = filtered_forecast.groupby(["region", "date_of_forecast"])["ensembles"].apply(list)
+grouped = filtered_forecast.groupby(["region", "date_of_forecast"])["ensembles"].apply(
+    list
+)
 
 
+precipitation = precipitaiton.resample("h").sum()
+precipitation = precipitation.loc["2024-07-22 18:00:00":"2024-07-24 18:00:00", "ES"]
 
-precipitation = precipitaiton.resample('h').sum()
-precipitation = precipitation.loc['2024-07-22 18:00:00' : '2024-07-24 18:00:00', 'ES']
-
-ES = grouped['ES']
+ES = grouped["ES"]
 df = pd.DataFrame(ES)
-data = df['ensembles']
-labels = df['label'].tolist() if 'label' in df.columns else [str(i) for i in df.index]
+data = df["ensembles"]
+labels = df["label"].tolist() if "label" in df.columns else [str(i) for i in df.index]
 plt.figure(figsize=(20, 8))
 plt.boxplot(data, labels=labels)
-plt.plot(precipitation.index, precipitation.values, 'r')
-plt.xlabel('Group')
+plt.plot(precipitation.index, precipitation.values, "r")
+plt.xlabel("Group")
 plt.xticks(rotation=90)
-plt.ylabel('Values')
-plt.title('Boxplots of Ensemble Data')
+plt.ylabel("Values")
+plt.title("Boxplots of Ensemble Data")
 plt.grid(True)
 plt.tight_layout()
 plt.show()
-
 
 
 import pandas as pd
@@ -176,12 +180,14 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 # 1. Prepare and sort the forecast data
-ES = grouped['ES'].reset_index()
-ES['timestamp'] = pd.to_datetime(ES['date_of_forecast'])
-ES = ES.sort_values('timestamp')
+ES = grouped["ES"].reset_index()
+ES["timestamp"] = pd.to_datetime(ES["date_of_forecast"])
+ES = ES.sort_values("timestamp")
 
-data = ES['ensembles']
-positions = mdates.date2num(ES['timestamp'])  # Convert datetime to numeric format for plotting
+data = ES["ensembles"]
+positions = mdates.date2num(
+    ES["timestamp"]
+)  # Convert datetime to numeric format for plotting
 
 # 2. Create figure and axis
 fig, ax = plt.subplots(figsize=(20, 8))
@@ -190,15 +196,15 @@ fig, ax = plt.subplots(figsize=(20, 8))
 ax.boxplot(data, positions=positions, widths=0.1)
 
 # 4. Plot precipitation (make sure index is datetime and aligns with same time range)
-ax.plot(precipitation.index, precipitation.values, 'r-', label='Precipitation')
+ax.plot(precipitation.index, precipitation.values, "r-", label="Precipitation")
 
 # 5. Formatting
 ax.xaxis_date()
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d %H:%M'))
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d %H:%M"))
 plt.xticks(rotation=90)
-ax.set_xlabel('Time')
-ax.set_ylabel('Values (Shared Axis)')
-ax.set_title('Ensemble Forecasts and Precipitation (Shared Y-axis)')
+ax.set_xlabel("Time")
+ax.set_ylabel("Values (Shared Axis)")
+ax.set_title("Ensemble Forecasts and Precipitation (Shared Y-axis)")
 ax.grid(True)
 ax.legend()
 fig.tight_layout()

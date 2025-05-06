@@ -72,11 +72,12 @@ class ConcentrationStorage:
             ) / (self.V + V_in)
         self.V += V_in
 
-    def update_out(self, Q, timestep=300):
+    def update_out(self, Q, FD, timestep=300):
         V_out = Q * timestep  # CMS to CM
         conc_out = {
             k: v * Q * 86400 for k, v in self.storage_concentrations.items()
         }  # g/m3 to g/d
         conc_out["H2O_sew"] = Q * 86400 * 1e6  # CMS to g/d
+        conc_out["FD"] = FD
         self.V -= V_out
         return conc_out

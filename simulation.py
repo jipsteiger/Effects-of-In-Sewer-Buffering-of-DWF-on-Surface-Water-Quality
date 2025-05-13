@@ -314,11 +314,12 @@ class Simulation:
 
 
 def get_precipitation():
-    return pd.read_csv(
+    precipitation = pd.read_csv(
         rf"data\precipitation\csv_selected_area_euradclim\2024_5_min_precipitation_data.csv",
         index_col=0,
         parse_dates=True,
     )
+    return precipitation.resample("h").sum()
 
 
 ##################################################################################################

@@ -26,6 +26,10 @@ def main():
         end_time=dt.datetime(year=2024, month=7, day=31),
         virtual_pump_max=10,
         constant_outflow=False,
+        use_ensemble_forecast=False,
+        ES_threshold=1,
+        RZ_threshold=3,
+        certainty_threshold=0.9,
     )
     simulation.start_simulation()
 
@@ -34,9 +38,9 @@ def main():
     postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="RTC")
 
     # postprocess.plot_outfalls(save=False, plot_rain=True, suffix=SUFFIX)
-    # postprocess.plot_pumps(
-    #     save=True, plot_rain=True, suffix=SUFFIX, target_setting=True, storage=True
-    # )
+    postprocess.plot_pumps(
+        save=False, plot_rain=True, suffix=SUFFIX, target_setting=True, storage=True
+    )
 
 
 if __name__ == "__main__":

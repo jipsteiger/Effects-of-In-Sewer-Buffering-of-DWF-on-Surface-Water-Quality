@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 
 
 class PostProcess:
-    def __init__(self, model_name):
+    def __init__(self, model_name, path="data\SWMM"):
         self.model_name = model_name
-        self.report = sa.read_rpt_file(rf"data\SWMM\{model_name}.rpt")
-        self.output = sa.SwmmOutput(rf"data\SWMM\{model_name}.out").to_frame()
+        # self.report = sa.read_rpt_file(rf"data\SWMM\{model_name}.rpt")
+        self.output = sa.SwmmOutput(rf"{path}\{model_name}.out").to_frame()
         self.current_time = datetime.now().strftime("%m-%d_%H-%M")
 
     def create_outfall_txt(self, suffix=""):
@@ -161,6 +161,7 @@ class PostProcess:
         suffix="",
         target_setting=False,
         storage=False,
+        title="Pump flows",
     ):
         pumps = [
             "P_eindhoven_out",
@@ -175,7 +176,7 @@ class PostProcess:
             "link",
             "flow",
             "pumps",
-            "Pump flows",
+            title,
             "Datetime",
             "Flow [CMS]",
             save=save,

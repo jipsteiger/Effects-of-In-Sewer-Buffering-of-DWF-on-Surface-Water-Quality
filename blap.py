@@ -142,18 +142,18 @@ ensemble_matrix = list(zip(*ensemble_matrix))  # shape: (n_members, hours)
 avg_rains = [sum(member_forecast) / 6 for member_forecast in ensemble_matrix]
 
 
-current_time = pd.to_datetime(
+time = pd.to_datetime(
     "2024-07-22 18:00:00"
 )  # Keep in mind thate only forecasts are made at intervals of 6 hours
 upperbound = 48
-upperbound_time = current_time + dt.timedelta(hours=upperbound)
-filtered_forecast = forecasts[
-    (forecasts.date == current_time) & (forecasts.date_of_forecast <= upperbound_time)
+upperbound_time = time + dt.timedelta(hours=upperbound)
+current_forecast = forecasts[
+    (forecasts.date == time) & (forecasts.date_of_forecast <= upperbound_time)
 ]
 
-grouped = filtered_forecast.groupby(["region", "date_of_forecast"])["ensembles"].apply(
-    list
-)
+current_forecast = current_forecast.groupby(["region", "date_of_forecast"])[
+    "ensembles"
+].apply(lambda x: [item for sublist in x for item in sublist])
 
 
 precipitation = precipitaiton.resample("h").sum()
@@ -209,3 +209,99 @@ ax.grid(True)
 ax.legend()
 fig.tight_layout()
 plt.show()
+
+
+######################
+
+
+forecasts = pd.read_csv(
+    rf"data\precipitation\csv_forecasts\forecast_data.csv", index_col=0
+)
+forecasts["date"] = pd.to_datetime(forecasts["date"])
+forecasts["date_of_forecast"] = pd.to_datetime(forecasts["date_of_forecast"])
+forecasts["ensembles"] = forecasts["ensembles"].apply(
+    lambda s: [float(x) for x in s.strip("[]").split()]
+)
+
+time = pd.to_datetime(
+    "2024-07-29 12:00:00"
+)  # Keep in mind thate only forecasts are made at intervals of 6 hours
+upperbound = 48
+upperbound_time = time + dt.timedelta(hours=upperbound)
+current_forecast = forecasts[
+    (forecasts.date == time) & (forecasts.date_of_forecast <= upperbound_time)
+]
+
+current_forecast = current_forecast.groupby(["region", "date_of_forecast"])[
+    "ensembles"
+].apply(lambda x: [item for sublist in x for item in sublist])
+
+time_lb = 2
+time_ub = 8
+
+start_time = time + dt.timedelta(hours=time_lb)
+end_time = time + dt.timedelta(hours=time_ub)
+
+current_forecast_window = current_forecast.loc[
+    (current_forecast.index.get_level_values("date_of_forecast") >= start_time)
+    & (current_forecast.index.get_level_values("date_of_forecast") <= end_time)
+]
+print(current_forecast_window)
+
+rain_threshold = 1
+confidence = 0.9
+
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.interpolate import interp1d
+
+quantile_values_by_region = {}
+
+for region_name in current_forecast_window.index.get_level_values("region").unique():
+    region_forecast_series = current_forecast_window.loc[region_name]
+    quantile_values_by_region[region_name] = []
+
+    for forecast_time, ensemble_values in region_forecast_series.items():
+        ensemble_array = np.array(ensemble_values)
+
+        if len(ensemble_array) == 0 or np.all(ensemble_array == 0):
+            quantile_values_by_region[region_name].append(0.0)
+            continue
+
+        sorted_values = np.sort(ensemble_array)
+        empirical_probabilities = np.linspace(0, 1, len(sorted_values))
+
+        # Interpolate inverse CDF (quantile function)
+        quantile_function = interp1d(
+            empirical_probabilities,
+            sorted_values,
+            bounds_error=False,
+            fill_value=(sorted_values[0], sorted_values[-1]),
+        )
+
+        # Append the rainfall value at the given confidence level
+        # Here you calculate that with a certain confidence level, there will less rain that.
+        # Thus: With 90% confidence, the rainfall will be less than X mm.
+        quantile_values_by_region[region_name].append(
+            float(quantile_function(confidence))
+        )
+
+ES_predicted = np.mean(quantile_values_by_region["ES"]) > rain_threshold
+
+RZ_totals = [
+    np.mean(quantile_values_by_region[region]) for region in ["RZ1", "RZ2", "GE"]
+]
+RZ_predicted = any(total > 3 for total in RZ_totals) or np.mean(RZ_totals) > 1
+
+
+import matplotlib.pyplot as plt
+
+# Plot individual region quantiles over time
+for region_name, quantiles in quantile_values_by_region.items():
+    plt.figure(figsize=(10, 4))
+    plt.plot(
+        quantiles,
+        marker="o",
+        linestyle="-",
+        label=f"{region_name} ({confidence*100:.0f}th percentile)",
+    )

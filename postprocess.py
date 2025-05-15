@@ -100,7 +100,7 @@ class PostProcess:
             COD_sol = effluent["COD_sol"].values
             X_TSS_sew = effluent["X_TSS_sew"].values
             COD_part = effluent["COD_part"].values
-            H2O_sew2 = effluent["H2O_sew"].values
+            FD = effluent["FD"].values
             west_values = {
                 "H2O_sew": H2O_sew,
                 "NH4_sew": NH4_sew,
@@ -108,12 +108,12 @@ class PostProcess:
                 "COD_sol": COD_sol,
                 "X_TSS_sew": X_TSS_sew,
                 "COD_part": COD_part,
-                "H2O_sew2": H2O_sew2,
+                "FD": FD,
             }
             df = pd.DataFrame(west_values, index=dec_index)
             df_csv = pd.DataFrame(west_values, index=outfall_timeseries.index)
 
-            output_file = f"#.t\tH2O_sew\tNH4_sew\tPO4_sew\tCOD_sol\tX_TSS_sew\tCOD_part\tH2O_sew2\n#d\tg/d\tg/d\tg/d\tg/d\tg/d\tg/d\tg/d\n"
+            output_file = f"#.t\tH2O_sew\tNH4_sew\tPO4_sew\tCOD_sol\tX_TSS_sew\tCOD_part\tFD\n#d\tg/d\tg/d\tg/d\tg/d\tg/d\tg/d\t\n"
             output_file += df[:].to_csv(sep="\t", header=False)
             with open(
                 f"output_swmm/{self.current_time}_out_{outfall}_{suffix}.txt", "w"

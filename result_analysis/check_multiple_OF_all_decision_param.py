@@ -3,9 +3,11 @@ import pandas as pd
 import numpy as np
 import swmm_api as sa
 import os as os
-from storage import RZ_storage
+from storage import RZ_storage, ConcentrationStorage
 import re
 import time
+from emprical_sewer_wq import EmpericalSewerWQ
+from data.concentration_curves import concentration_dict_ES, concentration_dict_RZ
 
 states = pd.read_csv(rf"simulation_states.csv", index_col=0, parse_dates=True)
 filenames = os.listdir(rf"data/SWMM/outfile_saved")
@@ -19,11 +21,17 @@ def main():
         "certainty_threshold": [],
         "OF_1_outflow": [],
         "OF_1_FD": [],
+        "OF_1_outflow_2": [],
         "OF_2_cso": [],
         "OF_3_margin_025": [],
         "OF_3_margin_05": [],
         "OF_3_margin_10": [],
         "OF_3_margin_15": [],
+        "OF_4_COD_part": [],
+        "OF_4_COD_sol": [],
+        "OF_4_X_TSS_sew": [],
+        "OF_4_NH4_sew": [],
+        "OF_4_PO4_sew": [],
     }
     for filename in filenames:
         location, threshold, certainty = (
@@ -43,9 +51,12 @@ def main():
         outflow, FD, outflow_ideal = get_catchment_specific_flow_and_FD(
             output, location
         )
-        OF_1_outflow, OF_1_FD = objective_function_1(outflow, FD, state, outflow_ideal)
+        OF_1_outflow, OF_1_FD, OF_1_outflow_2 = objective_function_1(
+            outflow, FD, state, outflow_ideal, output
+        )
         results["OF_1_outflow"].append(OF_1_outflow)
         results["OF_1_FD"].append(OF_1_FD)
+        results["OF_1_outflow_2"].append(OF_1_outflow_2)
 
         OF_2_cso = objective_function_2(output, location)
         results["OF_2_cso"].append(OF_2_cso)
@@ -59,7 +70,12 @@ def main():
         results["OF_3_margin_10"].append(OF_3_margin_10)
         results["OF_3_margin_15"].append(OF_3_margin_15)
 
-        # One more for Loads
+        OF_4_avg_load = objective_function_4(output, FD, location)
+        results["OF_4_COD_part"].append(OF_4_avg_load["COD_part"])
+        results["OF_4_COD_sol"].append(OF_4_avg_load["COD_sol"])
+        results["OF_4_X_TSS_sew"].append(OF_4_avg_load["X_TSS_sew"])
+        results["OF_4_NH4_sew"].append(OF_4_avg_load["NH4_sew"])
+        results["OF_4_PO4_sew"].append(OF_4_avg_load["PO4_sew"])
 
         # One more for WWTP effluent
 
@@ -70,7 +86,7 @@ def main():
     results_df.to_csv("objective_function_values.csv", index=False)
 
 
-def objective_function_1(outflow, FD, state, outflow_ideal):
+def objective_function_1(outflow, FD, state, outflow_ideal, output):
     wanted_state_outflow = np.logical_or(
         state.values == "dwf", state.values == "transition"
     )
@@ -81,7 +97,10 @@ def objective_function_1(outflow, FD, state, outflow_ideal):
 
     OF_outflow = (dwf_transition_outflow - outflow_ideal) ** 2 / outflow_ideal
 
-    return np.mean(OF_outflow.values), np.mean(initial_wwf_FD)
+    mask = filted_high_inflows(output, outflow_ideal, outflow, wanted_state_outflow)
+    filtered = outflow[mask]
+
+    return OF_outflow.var(), np.mean(initial_wwf_FD), filtered.var()
 
 
 def objective_function_2(output, location):
@@ -120,6 +139,97 @@ def objective_function_3(outflow, outflow_ideal, margin=1.1):
     return len(OF_outflow)
 
 
+def objective_function_4(output, FDs, location):
+    if location == "ES":
+        WQ_model = EmpericalSewerWQ(
+            concentration_dict=concentration_dict_ES,
+            COD_av=546,
+            CODs_av=158,
+            NH4_av=44,
+            PO4_av=7.1,
+            TSS_av=255,
+            Q_95_av=70800,
+            alpha_CODs=0.8,
+            alpha_NH4=0.8,
+            alpha_PO4=0.8,
+            alpha_TSS=0.8,
+            beta_CODs=0.8,
+            beta_NH4=0.8,
+            beta_PO4=0.8,
+            beta_TSS=0.8,
+        )
+
+        inflow = output.node.pipe_ES.total_inflow * 3600 * 24
+        timesteps = inflow.index
+        outflow = output.link.P_eindhoven_out.flow * 3600 * 24
+    else:
+        WQ_model = EmpericalSewerWQ(
+            concentration_dict=concentration_dict_RZ,
+            COD_av=573,
+            CODs_av=206,
+            NH4_av=44,
+            PO4_av=7.1,
+            TSS_av=203,
+            Q_95_av=58800,
+            alpha_CODs=0.8,
+            alpha_NH4=0.8,
+            alpha_PO4=0.8,
+            alpha_TSS=0.8,
+            beta_CODs=0.8,
+            beta_NH4=0.8,
+            beta_PO4=0.8,
+            beta_TSS=0.8,
+            proc4_slope1_CODs=0.288,
+            proc4_slope1_NH4=0.288,
+            proc4_slope1_PO4=0.288,
+            proc4_slope2_CODs=0.576,
+            proc4_slope2_NH4=0.576,
+            proc4_slope2_PO4=0.576,
+            Q_proc6=120000,
+            proc6_slope2_COD=864,
+            proc6_slope2_TSS=864,
+            proc6_t1_COD=3,
+            proc6_t1_TSS=3,
+            proc6_t2_COD=12,
+            proc6_t2_TSS=12,
+            proc7_slope1_COD=23040,
+            proc7_slope1_TSS=23040,
+            proc7_slope2_COD=5760,
+            proc4_slope2_TSS=5760,
+        )
+        inflow = (
+            (output.node["Nod_112"].total_inflow + output.node["Nod_104"].total_inflow)
+            * 3600
+            * 24
+        )
+        timesteps = inflow.index
+        outflow = output.link.P_riool_zuid_out.flow * 3600 * 24
+    concentration_storage = ConcentrationStorage()
+
+    load_df = pd.DataFrame()
+    for time, FD, Qin, Qout in zip(timesteps, FDs, inflow, outflow):
+        WQ_model.update(time, Qin, FD)
+        pollutant_flow = WQ_model.get_latest_log()
+
+        concentration_storage.update_in(Qin, pollutant_flow)
+
+        out_conc = concentration_storage.update_out(Qout, FD)
+
+        row = pd.DataFrame([out_conc], index=[time])
+        load_df = pd.concat([load_df, row])
+
+    variance_dict = {}
+
+    for pollutant in load_df.columns:
+        series = load_df[pollutant]
+        threshold = series.quantile(0.10)
+        filtered = series[series >= threshold]
+        # filtered.plot()
+        variance_dict[pollutant] = filtered.var()
+
+    return pd.Series(variance_dict, name="variance_below_95%")
+
+
 def get_first_wwf_state(state):
     # Identify the condition for 'wwf'
     wwf_condition = state.values == "wwf"
@@ -135,6 +245,24 @@ def get_first_wwf_state(state):
     # If the first element is 'wwf', mark it as True as well
     first_wwf[0] = wwf_condition[0]
     return first_wwf
+
+
+def filted_high_inflows(output, outflow_ideal, outflow, wanted_state_outflow):
+    inflow = output.node.pipe_ES.total_inflow
+    threshold = 2 * outflow_ideal
+
+    mask = pd.Series(True, index=outflow.index)
+    filter_mode = False
+
+    for i in range(len(outflow)):
+        if filter_mode:
+            mask.iloc[i] = False
+            if wanted_state_outflow[i]:
+                filter_mode = False
+        elif inflow.iloc[i] > threshold:
+            mask.iloc[i] = False
+            filter_mode = True
+    return mask
 
 
 def get_catchment_specific_flow_and_FD(output, location):

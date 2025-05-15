@@ -105,6 +105,7 @@ class RealTimeControl(Simulation):
 
             self.concentrations()
 
+            self.set_storage_for_FD()
             self.real_time_control()
             self.track_control_settings()
             self.track_state()
@@ -524,97 +525,3 @@ if __name__ == "__main__":
         certainty_threshold=0.75,
     )
     simulation.start_simulation()
-
-    from postprocess import PostProcess
-
-    suffix = "1st"
-    postprocess = PostProcess(model_name=MODEL_NAME)
-    postprocess.plot_pumps(
-        save=False, plot_rain=True, target_setting=True, suffix=suffix, storage=True
-    )
-
-    simulation = RealTimeControl(
-        model_path=rf"data\SWMM\{MODEL_NAME}.inp",
-        step_size=300,
-        report_start=dt.datetime(year=2024, month=7, day=1),
-        start_time=dt.datetime(year=2024, month=7, day=1),
-        end_time=dt.datetime(year=2024, month=7, day=31),
-        virtual_pump_max=10,
-        use_ensemble_forecast=True,
-        ES_threshold=0.75,
-        RZ_threshold=1.5,
-        certainty_threshold=0.825,
-    )
-    simulation.start_simulation()
-
-    from postprocess import PostProcess
-
-    suffix = "2nd"
-    postprocess = PostProcess(model_name=MODEL_NAME)
-    postprocess.plot_pumps(
-        save=False, plot_rain=True, target_setting=True, suffix=suffix, storage=True
-    )
-
-    simulation = RealTimeControl(
-        model_path=rf"data\SWMM\{MODEL_NAME}.inp",
-        step_size=300,
-        report_start=dt.datetime(year=2024, month=7, day=1),
-        start_time=dt.datetime(year=2024, month=7, day=1),
-        end_time=dt.datetime(year=2024, month=7, day=31),
-        virtual_pump_max=10,
-        use_ensemble_forecast=True,
-        ES_threshold=0.5,
-        RZ_threshold=4,
-        certainty_threshold=0.925,
-    )
-    simulation.start_simulation()
-
-    from postprocess import PostProcess
-
-    suffix = "3rd"
-    postprocess = PostProcess(model_name=MODEL_NAME)
-    postprocess.plot_pumps(
-        save=False, plot_rain=True, target_setting=True, suffix=suffix, storage=True
-    )
-
-    simulation = RealTimeControl(
-        model_path=rf"data\SWMM\{MODEL_NAME}.inp",
-        step_size=300,
-        report_start=dt.datetime(year=2024, month=7, day=1),
-        start_time=dt.datetime(year=2024, month=7, day=1),
-        end_time=dt.datetime(year=2024, month=7, day=31),
-        virtual_pump_max=10,
-        use_ensemble_forecast=False,
-    )
-    simulation.start_simulation()
-
-    from postprocess import PostProcess
-
-    suffix = "4th"
-    postprocess = PostProcess(model_name=MODEL_NAME)
-    postprocess.plot_pumps(
-        save=False, plot_rain=True, target_setting=True, suffix=suffix, storage=True
-    )
-
-    simulation = RealTimeControl(
-        model_path=rf"data\SWMM\{MODEL_NAME}.inp",
-        step_size=300,
-        report_start=dt.datetime(year=2024, month=7, day=1),
-        start_time=dt.datetime(year=2024, month=7, day=1),
-        end_time=dt.datetime(year=2024, month=7, day=31),
-        virtual_pump_max=10,
-        use_ensemble_forecast=True,
-        ES_threshold=1,
-        RZ_threshold=4.5,
-        ES_certainty_threshold=0.9,
-        RZ_certainty_threshold=0.875,
-    )
-    simulation.start_simulation()
-
-    from postprocess import PostProcess
-
-    suffix = "5th"
-    postprocess = PostProcess(model_name=MODEL_NAME)
-    postprocess.plot_pumps(
-        save=False, plot_rain=True, target_setting=True, suffix=suffix, storage=True
-    )

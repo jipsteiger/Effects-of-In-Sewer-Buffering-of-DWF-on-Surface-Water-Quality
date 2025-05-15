@@ -34,14 +34,10 @@ class Simulation:
         self.RZ_storage_FD = RZ_storage(
             35721,
             pipes=[
-                "Con_161",
                 "Con_103",
                 "Con_104",
                 "Con_105",
                 "Con_106",
-                "Con_162",
-                "Con_147",
-                "Con_148",
                 "Con_158",
                 "Con_107",
                 "Con_108",

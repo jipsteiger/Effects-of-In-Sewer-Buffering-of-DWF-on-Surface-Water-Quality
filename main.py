@@ -38,9 +38,9 @@ def main():
     postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="RTC")
 
     # postprocess.plot_outfalls(save=False, plot_rain=True, suffix=SUFFIX)
-    postprocess.plot_pumps(
-        save=False, plot_rain=True, suffix=SUFFIX, target_setting=True, storage=True
-    )
+    # postprocess.plot_pumps(
+    #     save=False, plot_rain=True, suffix=SUFFIX, target_setting=True, storage=True
+    # )
 
 
 if __name__ == "__main__":

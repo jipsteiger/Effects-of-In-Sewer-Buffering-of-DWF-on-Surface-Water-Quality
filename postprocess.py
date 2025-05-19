@@ -95,6 +95,7 @@ class PostProcess:
             H2O_sew = -(
                 outfall_timeseries["total_inflow"] * (24 * 3600 * 1e6)  # to g/d
             ).values  # From CMS to g/d
+            Q_out = (outfall_timeseries["total_inflow"] * (24 * 3600)).values  # to m3/d
             NH4_sew = effluent["NH4_sew"].values
             PO4_sew = effluent["PO4_sew"].values
             COD_sol = effluent["COD_sol"].values
@@ -109,11 +110,12 @@ class PostProcess:
                 "X_TSS_sew": X_TSS_sew,
                 "COD_part": COD_part,
                 "FD": FD,
+                "Q_out": Q_out,
             }
             df = pd.DataFrame(west_values, index=dec_index)
             df_csv = pd.DataFrame(west_values, index=outfall_timeseries.index)
 
-            output_file = f"#.t\tH2O_sew\tNH4_sew\tPO4_sew\tCOD_sol\tX_TSS_sew\tCOD_part\tFD\n#d\tg/d\tg/d\tg/d\tg/d\tg/d\tg/d\t\n"
+            output_file = f"#.t\tH2O_sew\tNH4_sew\tPO4_sew\tCOD_sol\tX_TSS_sew\tCOD_part\tFD\tQ_out\n#d\tg/d\tg/d\tg/d\tg/d\tg/d\tg/d\t\tm3/d\n"
             output_file += df[:].to_csv(sep="\t", header=False)
             with open(
                 f"output_swmm/{self.current_time}_out_{outfall}_{suffix}.txt", "w"

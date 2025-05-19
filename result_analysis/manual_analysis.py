@@ -10,7 +10,8 @@ from sklearn.metrics import r2_score
 
 def check_any_west_results():
     df_west = pd.read_csv(
-        f"data\WEST\Model_Dommel_Full_2\FD.out.txt",
+        f"data\WEST\Pollutant_input_uncontrolled_backup2\wwtp_control.out.txt",
+        # rf'data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt',
         delimiter="\t",
         header=0,
         index_col=0,
@@ -21,14 +22,14 @@ def check_any_west_results():
         df_west.index.astype(float), unit="D"
     )
     df_west.set_index("timestamp", inplace=True)
-    df = pd.read_csv(
-        rf"output_swmm\05-15_13-14_out_ES_No_RTC.csv",
-        index_col=0,
-        delimiter=";",
-        decimal=",",
-    )
-    df["timestamp"] = start_date + pd.to_timedelta(df.index.astype(float), unit="D")
-    df.set_index("timestamp", inplace=True)
+    # df = pd.read_csv(
+    #     rf"output_swmm\05-15_13-14_out_ES_No_RTC.csv",
+    #     index_col=0,
+    #     delimiter=";",
+    #     decimal=",",
+    # )
+    # df["timestamp"] = start_date + pd.to_timedelta(df.index.astype(float), unit="D")
+    # df.set_index("timestamp", inplace=True)
 
     fig = go.Figure()
 
@@ -36,19 +37,19 @@ def check_any_west_results():
         fig.add_trace(
             go.Scatter(
                 x=df_west.index,
-                y=abs(df_west[key].astype(float)),
+                y=df_west[key].astype(float),
                 mode="lines",
                 name=f"WEST {key}",
             )
         )
-    fig.add_trace(
-        go.Scatter(
-            x=df.index,
-            y=df.FD,
-            mode="lines",
-            name="Swmm FD",
-        )
-    )
+    # fig.add_trace(
+    #     go.Scatter(
+    #         x=df.index,
+    #         y=df.FD,
+    #         mode="lines",
+    #         name="Swmm FD",
+    #     )
+    # )
 
     pio.show(fig, renderer="browser")
 

@@ -14,9 +14,9 @@ SUFFIX = "RTC"
 simulation = RealTimeControl(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",
     step_size=300,
-    report_start=dt.datetime(year=2024, month=7, day=1),
-    start_time=dt.datetime(year=2024, month=7, day=1),
-    end_time=dt.datetime(year=2024, month=7, day=31),
+    report_start=dt.datetime(year=2024, month=4, day=15),
+    start_time=dt.datetime(year=2024, month=4, day=15),
+    end_time=dt.datetime(year=2024, month=10, day=16),
     virtual_pump_max=10,
 )
 simulation.start_simulation()
@@ -27,9 +27,9 @@ SUFFIX = "Ensemble_RTC"
 simulation = RealTimeControl(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",
     step_size=300,
-    report_start=dt.datetime(year=2024, month=7, day=1),
-    start_time=dt.datetime(year=2024, month=7, day=1),
-    end_time=dt.datetime(year=2024, month=7, day=31),
+    report_start=dt.datetime(year=2024, month=4, day=15),
+    start_time=dt.datetime(year=2024, month=4, day=15),
+    end_time=dt.datetime(year=2024, month=10, day=16),
     virtual_pump_max=10,
     use_ensemble_forecast=True,
     ES_threshold=0.75,
@@ -46,23 +46,25 @@ MODEL_NAME = "model_jip_no_rtc"
 simulation = Simulation(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",
     step_size=300,
-    report_start=dt.datetime(year=2024, month=7, day=1),
-    start_time=dt.datetime(year=2024, month=7, day=1),
-    end_time=dt.datetime(year=2024, month=7, day=31),
+    report_start=dt.datetime(year=2024, month=9, day=15),
+    start_time=dt.datetime(year=2024, month=9, day=15),
+    end_time=dt.datetime(year=2024, month=10, day=16),
     virtual_pump_max=10,
 )
 simulation.start_simulation()
 postprocess = PostProcess(model_name=MODEL_NAME)
-postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")
+postprocess.plot_pumps()
+
+# postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")
 
 SUFFIX = "No_RTC_no_rain"
 MODEL_NAME = "model_jip_no_rtc"
 simulation = Simulation(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",
     step_size=300,
-    report_start=dt.datetime(year=2023, month=7, day=1),
-    start_time=dt.datetime(year=2023, month=7, day=1),
-    end_time=dt.datetime(year=2023, month=7, day=31),
+    report_start=dt.datetime(year=2023, month=4, day=15),
+    start_time=dt.datetime(year=2023, month=4, day=15),
+    end_time=dt.datetime(year=2023, month=10, day=16),
     virtual_pump_max=10,
 )
 simulation.start_simulation()
@@ -74,12 +76,13 @@ MODEL_NAME = "model_jip"
 simulation = Simulation(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",
     step_size=300,
-    report_start=dt.datetime(year=2023, month=7, day=1),
-    start_time=dt.datetime(year=2023, month=7, day=1),
-    end_time=dt.datetime(year=2023, month=7, day=31),
+    report_start=dt.datetime(year=2023, month=4, day=15),
+    start_time=dt.datetime(year=2023, month=4, day=15),
+    end_time=dt.datetime(year=2023, month=10, day=16),
     virtual_pump_max=10,
     constant_outflow=True,
 )
 simulation.start_simulation()
 postprocess = PostProcess(model_name=MODEL_NAME)
+postprocess.plot_pumps()
 postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")

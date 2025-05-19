@@ -189,7 +189,7 @@ class Simulation:
     def do_constant_outflow(self):
         self.links["P_eindhoven_out"].target_setting = 0.663 / 3.888
 
-        self.links["P_riool_zuid_out"].target_setting = 4.7222 / 0.5218
+        self.links["P_riool_zuid_out"].target_setting = 0.5218 / 4.7222
 
     def update_WQ(self):
         # Below inflows are used for testing

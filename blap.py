@@ -12,7 +12,7 @@ precipitaiton = pd.read_csv(
 )
 
 data = {
-    "Region": ["A", "B", "A", "B"],
+    "Region": ["Aa", "B", "A", "B"],
     "datetime_of_creation": [
         "2024-01-01 00:00:00",
         "2024-01-01 00:00:00",

@@ -263,7 +263,9 @@ class RealTimeControl(Simulation):
     def ES_transition_to_wwf_logic(self):
         inflow = self.nodes["pipe_ES"].total_inflow
         setting = max(self.ES_out_ideal, inflow)
-        if (setting / self.ES_out_max) / self.ES_last_setting > 1.025:
+        if (
+            setting / self.ES_out_max
+        ) / self.ES_last_setting > 1.025:  # Check if volume is not to low? When stops?
             self.links["P_eindhoven_out"].target_setting = self.ES_last_setting * 1.0125
         else:
             self.links["P_eindhoven_out"].target_setting = setting / self.ES_out_max

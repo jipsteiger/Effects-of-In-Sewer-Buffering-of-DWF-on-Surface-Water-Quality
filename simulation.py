@@ -170,10 +170,12 @@ class Simulation:
             self.handle_c_119_flows()
             self.handle_geldrop_out_flows()
 
-            if self.constant_outflow and (self.model_path == "data\SWMM\model_jip.inp"):
+            if self.constant_outflow and (
+                self.model_path == "data\SWMM\model_jip_no_rtc_no_rain_constant.inp"
+            ):
                 self.do_constant_outflow()
             if self.constant_outflow and not (
-                self.model_path == "data\SWMM\model_jip.inp"
+                self.model_path == "data\SWMM\model_jip_no_rtc_no_rain_constant.inp"
             ):
                 print(
                     f"Constant outflow enabled, but wrong model is used, therefor regular outflow is done."
@@ -192,30 +194,36 @@ class Simulation:
         self.links["P_riool_zuid_out"].target_setting = 0.5218 / 4.7222
 
     def update_WQ(self):
-        # Below inflows are used for testing
-        # RZ_in = self.links["P_riool_zuid_out"].flow * 3600 * 24
-        # RZ_in = self.nodes["out_RZ"].total_inflow * 3600 * 24
-        RZ_in = (
-            (self.nodes["Nod_112"].total_inflow + self.nodes["Nod_104"].total_inflow)
-            * 3600
-            * 24
-        )
         RZ_FD = self.RZ_storage_FD.FD()
-        self.WQ_RZ.update(self.sim.current_time, RZ_in, RZ_FD)
 
-        # Below inflows are used for testing
-        # ES_in = self.links["P_eindhoven_out"].flow * 3600 * 24
-        # ES_in = self.nodes["out_ES"].total_inflow * 3600 * 24
-        ES_in = self.nodes["pipe_ES"].total_inflow * 3600 * 24
+        if type(self) is not Simulation or self.constant_outflow:
+            RZ_in = (
+                (
+                    self.nodes["Nod_112"].total_inflow
+                    + self.nodes["Nod_104"].total_inflow
+                )
+                * 3600
+                * 24
+            )
+            self.WQ_RZ.update(self.sim.current_time, RZ_in, RZ_FD)
+        else:
+            RZ_in = self.links["P_riool_zuid_out"].flow * 3600 * 24
+            self.WQ_RZ.update(self.sim.current_time, RZ_in, RZ_FD)
+
         ES_FD = self.ES_storage_FD.FD()
-        self.WQ_ES.update(self.sim.current_time, ES_in, ES_FD)
+        if type(self) is not Simulation or self.constant_outflow:
+            ES_in = self.nodes["pipe_ES"].total_inflow * 3600 * 24
+            self.WQ_ES.update(self.sim.current_time, ES_in, ES_FD)
+        else:
+            ES_in = self.links["P_eindhoven_out"].flow * 3600 * 24
+            self.WQ_ES.update(self.sim.current_time, ES_in, ES_FD)
 
         self.RZ_inflow = self.WQ_RZ.get_latest_log()  # Returns pollutant flow in g/d
         self.ES_inflow = self.WQ_ES.get_latest_log()
 
     def concentrations(self):
         if (
-            type(self) is not Simulation
+            type(self) is not Simulation or self.constant_outflow
         ):  # Is required to mimic better the concentration levels at the outflow if no RTC is used.
             self.ESConcentrationStorage.update_in(
                 self.nodes["pipe_ES"].total_inflow, self.ES_inflow
@@ -232,7 +240,7 @@ class Simulation:
         else:
             self.ESconcentration_df = pd.concat([self.ESconcentration_df, ESrow_df])
 
-        if type(self) is not Simulation:
+        if type(self) is not Simulation or self.constant_outflow:
             RZ_in = (
                 self.nodes["Nod_112"].total_inflow + self.nodes["Nod_104"].total_inflow
             )

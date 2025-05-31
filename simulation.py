@@ -194,6 +194,14 @@ class Simulation:
         self.links["P_riool_zuid_out"].target_setting = 0.5218 / 4.7222
 
     def update_WQ(self):
+        ES_FD = self.ES_storage_FD.FD()
+        if type(self) is not Simulation or self.constant_outflow:
+            ES_in = self.nodes["pipe_ES"].total_inflow * 3600 * 24
+            self.WQ_ES.update(self.sim.current_time, ES_in, ES_FD)
+        else:
+            ES_in = self.links["P_eindhoven_out"].flow * 3600 * 24
+            self.WQ_ES.update(self.sim.current_time, ES_in, ES_FD)
+
         RZ_FD = self.RZ_storage_FD.FD()
 
         if type(self) is not Simulation or self.constant_outflow:
@@ -209,14 +217,6 @@ class Simulation:
         else:
             RZ_in = self.links["P_riool_zuid_out"].flow * 3600 * 24
             self.WQ_RZ.update(self.sim.current_time, RZ_in, RZ_FD)
-
-        ES_FD = self.ES_storage_FD.FD()
-        if type(self) is not Simulation or self.constant_outflow:
-            ES_in = self.nodes["pipe_ES"].total_inflow * 3600 * 24
-            self.WQ_ES.update(self.sim.current_time, ES_in, ES_FD)
-        else:
-            ES_in = self.links["P_eindhoven_out"].flow * 3600 * 24
-            self.WQ_ES.update(self.sim.current_time, ES_in, ES_FD)
 
         self.RZ_inflow = self.WQ_RZ.get_latest_log()  # Returns pollutant flow in g/d
         self.ES_inflow = self.WQ_ES.get_latest_log()

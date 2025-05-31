@@ -56,7 +56,7 @@ def check_any_west_results():
 
 def compare_models():
     df_west = pd.read_csv(
-        f"data\WEST\Model_Dommel_Full\CSO_AND_INFLOW.out.txt",
+        r"data\WEST\WEST_modelRepository\Model_Dommel_Full\CSO_AND_INFLOW.out.txt",
         delimiter="\t",
         header=0,
         index_col=0,
@@ -68,9 +68,7 @@ def compare_models():
     )
     df_west.set_index("timestamp", inplace=True)
 
-    output = sa.SwmmOutput(
-        rf"data\SWMM\model_jip_WEST_regen_geen_extra_storage_ts5.out"
-    ).to_frame()
+    output = sa.SwmmOutput(rf"data\SWMM\model_jip_WEST_regen.out").to_frame()
 
     swmm_csos = {
         "ES": ["cso_ES_1"],

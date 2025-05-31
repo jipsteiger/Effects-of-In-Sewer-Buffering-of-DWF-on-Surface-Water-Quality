@@ -68,7 +68,7 @@ class ConcentrationStorage:
 
         for k, i in self.storage_concentrations.items():
             self.storage_concentrations[k] = (
-                self.V * i + pollutant_load[k] * (300 / 86400)
+                self.V * i + pollutant_load[k] * (timestep / 86400)
             ) / (self.V + V_in)
         self.V += V_in
 

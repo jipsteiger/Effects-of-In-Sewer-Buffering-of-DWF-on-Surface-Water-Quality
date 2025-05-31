@@ -24,6 +24,7 @@ postprocess = PostProcess(model_name=MODEL_NAME)
 postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="RTC")
 
 SUFFIX = "Ensemble_RTC"
+MODEL_NAME = "model_jip_ENSEMBLE"
 simulation = RealTimeControl(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",
     step_size=300,
@@ -46,19 +47,19 @@ MODEL_NAME = "model_jip_no_rtc"
 simulation = Simulation(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",
     step_size=300,
-    report_start=dt.datetime(year=2024, month=9, day=15),
-    start_time=dt.datetime(year=2024, month=9, day=15),
+    report_start=dt.datetime(year=2024, month=4, day=15),
+    start_time=dt.datetime(year=2024, month=4, day=15),
     end_time=dt.datetime(year=2024, month=10, day=16),
     virtual_pump_max=10,
 )
 simulation.start_simulation()
 postprocess = PostProcess(model_name=MODEL_NAME)
-postprocess.plot_pumps()
+postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")
 
 # postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")
 
 SUFFIX = "No_RTC_no_rain"
-MODEL_NAME = "model_jip_no_rtc"
+MODEL_NAME = "model_jip_no_rtc_no_rain"
 simulation = Simulation(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",
     step_size=300,
@@ -72,7 +73,7 @@ postprocess = PostProcess(model_name=MODEL_NAME)
 postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")
 
 SUFFIX = "No_RTC_no_rain_constant"
-MODEL_NAME = "model_jip"
+MODEL_NAME = "model_jip_no_rtc_no_rain_constant"
 simulation = Simulation(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",
     step_size=300,
@@ -84,5 +85,4 @@ simulation = Simulation(
 )
 simulation.start_simulation()
 postprocess = PostProcess(model_name=MODEL_NAME)
-postprocess.plot_pumps()
 postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")

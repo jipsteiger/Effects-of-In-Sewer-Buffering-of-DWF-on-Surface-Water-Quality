@@ -157,7 +157,7 @@ current_forecast = current_forecast.groupby(["region", "date_of_forecast"])[
 
 
 precipitation = precipitaiton.resample("h").sum()
-precipitation = precipitation.loc["2024-07-22 18:00:00":"2024-07-24 18:00:00", "ES"]
+precipitation = precipitation.loc["2024-04-15 20:00:00":"2024-04-17 18:00:00", "ES"]
 
 ES = grouped["ES"]
 df = pd.DataFrame(ES)

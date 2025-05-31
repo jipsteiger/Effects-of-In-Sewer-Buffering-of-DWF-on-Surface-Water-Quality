@@ -1,0 +1,1589 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import seaborn as sns
+import swmm_api as sa
+from typing import List
+import plotly.graph_objects as go
+import plotly.offline as pyo
+import plotly.io as pio
+from emprical_sewer_wq import EmpericalSewerWQ
+import plotly.io as pio
+from data.concentration_curves import concentration_dict_ES, concentration_dict_RZ
+from storage import Storage, RZ_storage
+from storage import ConcentrationStorage
+import os
+from datetime import datetime
+import datetime as dt
+import matplotlib.dates as mdates
+import numpy as np
+
+# Optional: seaborn colorblind-friendly palette
+sns.set_palette("colorblind")
+
+
+def nash_sutcliff(observed, modelled):
+    obs_mean = observed.mean()
+    NSE = 1 - ((observed - modelled) ** 2).sum() / ((observed - obs_mean) ** 2).sum()
+    return NSE
+
+
+def plot(
+    x_list: List[pd.Series],
+    y_list: List[pd.Series],
+    labels: List[str],
+    x_label: str,
+    y_label: str,
+):
+    for x, y, label in zip(x_list, y_list, labels):
+        plt.plot(x.index, y.values, label=label)
+
+    plt.xlabel(x_label, fontsize=10)
+    plt.ylabel(y_label, fontsize=10)
+    plt.legend(fontsize=9)
+    plt.grid(True, linestyle="--", alpha=0.5)
+
+    # Format x-axis as mm-dd\nHH:MM
+    ax = plt.gca()
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d\n%H:%M"))
+    plt.xticks(rotation=0)
+
+    plt.tight_layout()
+    plt.show()
+
+
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from typing import List
+import pandas as pd
+
+
+def plot_two_regions_side_by_side(
+    x_list1: List[pd.Series],
+    y_list1: List[pd.Series],
+    x_list2: List[pd.Series],
+    y_list2: List[pd.Series],
+    labels: List[str],
+    x_label: str,
+    y_label: str,
+    region_titles: List[str],  # e.g., ["Region A", "Region B"]
+):
+    fig, axes = plt.subplots(2, 1, figsize=(14, 10), sharey=True)
+
+    # First region
+    for x, y, label in zip(x_list1, y_list1, labels):
+        axes[0].plot(x.index, y.values, label=label)
+    axes[0].set_title(region_titles[0])
+    axes[0].set_xlabel(x_label)
+    axes[0].set_ylabel(y_label)
+    axes[0].grid(True, linestyle="--", alpha=0.5)
+
+    # Second region
+    for x, y, label in zip(x_list2, y_list2, labels):
+        axes[1].plot(x.index, y.values, label=label)
+    axes[1].set_title(region_titles[1])
+    axes[1].set_xlabel(x_label)
+    axes[1].set_ylabel(y_label)
+    axes[1].grid(True, linestyle="--", alpha=0.5)
+
+    # Format x-axis as mm-dd\nHH:MM
+    for ax in axes:
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d\n%H:%M"))
+        ax.tick_params(axis="x", rotation=0)
+
+    # Single shared legend to the right of the second plot
+    handles, legend_labels = axes[1].get_legend_handles_labels()
+    fig.legend(
+        handles,
+        legend_labels,
+        loc="center left",
+        bbox_to_anchor=(1.01, 0.5),
+        fontsize=9,
+    )
+
+    plt.tight_layout()  # Leave space on right for legend
+    plt.show()
+
+
+def model_setup_dwf():
+    # Read models
+    swmm = sa.read_out_file(r"data\SWMM\model_jip_WEST_regen.out").to_frame()
+    west = pd.read_csv(
+        r"data\WEST\WEST_modelRepository\Model_Dommel_Full\system_compare.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+
+    # Setup WEST timestamps
+    start_date = pd.Timestamp("2024-01-01")
+    west["timestamp"] = start_date + pd.to_timedelta(west.index.astype(float), unit="D")
+    west.set_index("timestamp", inplace=True)
+    west.index = west.index.round("15min")
+
+    # Extract flows
+    ES_Q_swmm = swmm.link.P_eindhoven_out.flow.resample("15min").mean()
+    RZ_Q_swmm = swmm.link.P_riool_zuid_out.flow.resample("15min").mean()
+    ES_Q_west = west[".pipe_ES.Q_out"].astype(float) / 24 / 3600
+    RZ_Q_west = west[".pipe_RZ.Q_out"].astype(float) / 24 / 3600
+
+    # Align ES flows
+    ES_Q_swmm_aligned, ES_Q_west_aligned = ES_Q_swmm.align(ES_Q_west, join="inner")
+    RZ_Q_swmm_aligned, RZ_Q_west_aligned = RZ_Q_swmm.align(RZ_Q_west, join="inner")
+
+    # Crop to analysis period
+    start, end = "2024-06-27", "2024-06-29"
+    ES_Q_swmm = ES_Q_swmm_aligned.loc[start:end]
+    ES_Q_west = ES_Q_west_aligned.loc[start:end]
+    RZ_Q_swmm = RZ_Q_swmm_aligned.loc[start:end]
+    RZ_Q_west = RZ_Q_west_aligned.loc[start:end]
+
+    # Plot ES
+    nash_sutcliff(ES_Q_west.values, ES_Q_swmm.values)
+    plot(
+        x_list=[ES_Q_swmm, ES_Q_west],
+        y_list=[ES_Q_swmm, ES_Q_west],
+        labels=["SWMM", "WEST"],
+        x_label="Date and time",
+        y_label="Discharge $Q$ [m³/s]",
+    )
+
+    # Plot RZ
+    nash_sutcliff(RZ_Q_west.values, RZ_Q_swmm.values)
+    plot(
+        x_list=[RZ_Q_swmm, RZ_Q_west],
+        y_list=[RZ_Q_swmm, RZ_Q_west],
+        labels=["SWMM", "WEST"],
+        x_label="Date and time",
+        y_label="Discharge $Q$ [m³/s]",
+    )
+
+    # Shift SWMM by -2.5h and align
+    RZ_Q_swmm_shifted = RZ_Q_swmm.shift(freq="-120min")
+    RZ_Q_swmm_aligned, RZ_Q_west_aligned = RZ_Q_swmm_shifted.align(
+        RZ_Q_west, join="inner"
+    )
+
+    # Plot shifted
+    nash_sutcliff(RZ_Q_west_aligned.values, RZ_Q_swmm_aligned.values)
+    plot(
+        x_list=[RZ_Q_swmm_aligned, RZ_Q_west_aligned],
+        y_list=[RZ_Q_swmm_aligned, RZ_Q_west_aligned],
+        labels=["SWMM (shifted)", "WEST"],
+        x_label="Date and time",
+        y_label="Discharge $Q$ [m³/s]",
+    )
+
+
+def model_setup_wwf():
+    swmm = sa.read_out_file(r"data\SWMM\model_jip_WEST_regen.out").to_frame()
+    west = pd.read_csv(
+        r"data\WEST\WEST_modelRepository\Model_Dommel_Full\system_compare.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+
+    # Setup WEST timestamps
+    start_date = pd.Timestamp("2024-01-01")
+    west["timestamp"] = start_date + pd.to_timedelta(west.index.astype(float), unit="D")
+    west.set_index("timestamp", inplace=True)
+    west.index = west.index.round("15min")
+
+    # Extract flows
+    ES_Q_swmm = swmm.link.P_eindhoven_out.flow.resample("15min").mean()
+    RZ_Q_swmm = swmm.link.P_riool_zuid_out.flow.resample("15min").mean()
+    ES_Q_west = west[".pipe_ES.Q_out"].astype(float) / 24 / 3600
+    RZ_Q_west = west[".pipe_RZ.Q_out"].astype(float) / 24 / 3600
+
+    # Align ES flows
+    ES_Q_swmm_aligned, ES_Q_west_aligned = ES_Q_swmm.align(ES_Q_west, join="inner")
+    RZ_Q_swmm_aligned, RZ_Q_west_aligned = RZ_Q_swmm.align(RZ_Q_west, join="inner")
+
+    # Crop to analysis period
+    start, end = "2024-06-01", "2024-06-10"
+    ES_Q_swmm = ES_Q_swmm_aligned.loc[start:end]
+    ES_Q_west = ES_Q_west_aligned.loc[start:end]
+    RZ_Q_swmm = RZ_Q_swmm_aligned.loc[start:end]
+    RZ_Q_west = RZ_Q_west_aligned.loc[start:end]
+
+    # Plot ES
+    nash_sutcliff(ES_Q_west.values, ES_Q_swmm.values)
+    plot(
+        x_list=[ES_Q_swmm, ES_Q_west],
+        y_list=[ES_Q_swmm, ES_Q_west],
+        labels=["SWMM", "WEST"],
+        x_label="Date and time",
+        y_label="Discharge $Q$ [m³/s]",
+    )
+
+    # Plot RZ
+    nash_sutcliff(RZ_Q_west.values, RZ_Q_swmm.values)
+    plot(
+        x_list=[RZ_Q_swmm, RZ_Q_west],
+        y_list=[RZ_Q_swmm, RZ_Q_west],
+        labels=["SWMM", "WEST"],
+        x_label="Date and time",
+        y_label="Discharge $Q$ [m³/s]",
+    )
+
+    # Shift SWMM by -2.5h and align
+    RZ_Q_swmm_shifted = RZ_Q_swmm.shift(freq="-120min")
+    RZ_Q_swmm_aligned, RZ_Q_west_aligned = RZ_Q_swmm_shifted.align(
+        RZ_Q_west, join="inner"
+    )
+
+    # Plot shifted
+    nash_sutcliff(RZ_Q_west_aligned.values, RZ_Q_swmm_aligned.values)
+    plot(
+        x_list=[RZ_Q_swmm_aligned, RZ_Q_west_aligned],
+        y_list=[RZ_Q_swmm_aligned, RZ_Q_west_aligned],
+        labels=["SWMM (shifted)", "WEST"],
+        x_label="Date and time",
+        y_label="Discharge $Q$ [m³/s]",
+    )
+
+
+def model_creation_csos():
+    df_west = pd.read_csv(
+        r"data\WEST\WEST_modelRepository\Model_Dommel_Full\CSO_AND_INFLOW.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west["timestamp"] = start_date + pd.to_timedelta(
+        df_west.index.astype(float), unit="D"
+    )
+    df_west.set_index("timestamp", inplace=True)
+
+    output = sa.SwmmOutput(rf"data\SWMM\model_jip_WEST_regen.out").to_frame()
+
+    swmm_csos = {
+        "ES": ["cso_ES_1"],
+        "GB": ["cso_gb_136"],
+        "GE": ["cso_Geldrop", "cso_gb127"],
+        "TL": ["cso_RZ"],
+        "RZ": [
+            "cso_AALST",
+            "cso_c_123",
+            "cso_c_122",
+            "cso_c_119_1",
+            "cso_c_119_2",
+            "cso_c_119_3",
+            "cso_c_112",
+            "cso_c_99",
+        ],
+    }
+
+    Q_keys = df_west.keys()
+    cso_ES_1_keys = [key for key in Q_keys if "Ein" in key]
+
+    cso_Geldrop_keys = [
+        key
+        for key in Q_keys
+        if any(substring in key for substring in ["Mierlo", "Geldrop"])
+    ]
+
+    cso_gb_136_keys = [
+        key
+        for key in Q_keys
+        if any(substring in key for substring in ["Heeze2", "Leende"])
+    ]
+
+    cso_RZ_keys = [key for key in Q_keys if "Collse_Molen" in key]
+
+    cso_AALST_keys = [
+        key
+        for key in Q_keys
+        if any(
+            substring in key
+            for substring in [
+                "Aalst",
+                "Valkenswaard",
+                "Dom",
+                "Westerhoven",
+                "Bergeijk",
+            ]
+        )
+        and not ".Aalst_gemaal" in key
+    ] + [".Waalre.Q_in", ".Aalst.Q_in"]
+
+    west_csos = {
+        "ES": cso_ES_1_keys,
+        "GB": cso_gb_136_keys,
+        "GE": cso_Geldrop_keys,
+        "TL": cso_RZ_keys,
+        "RZ": cso_AALST_keys,
+    }
+    start, end = "2024-04-15", "2024-10-15"
+    df_west = df_west.loc[start:end]
+    fig = go.Figure()
+    for key in swmm_csos.keys():
+        swmm_values = 0
+        for swmm_cso in swmm_csos[key]:
+            swmm_values += output.node[swmm_cso].total_inflow.values * 3600
+
+        west_values = df_west[west_csos[key][:]].astype(float).sum(axis=1)
+        fig.add_trace(
+            go.Scatter(
+                x=output.index,
+                y=swmm_values,
+                mode="lines",
+                name=f"SWMM cso flow {key}",
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=west_values.index,
+                y=west_values.values,
+                mode="lines",
+                name=f"WEST cso flow {key}",
+            )
+        )
+
+    fig.update_layout(
+        title_text="Total CSO flow per catchment comparison",
+        xaxis_title="Date",
+        yaxis_title="Flow [m3/h]",
+        legend_title="",
+        bargap=0.1,  # Reducing gap between bars for better visibility
+    )
+    pio.show(fig, renderer="browser")
+    # Keep old table I cant be bothered with rerunning west
+    # Catchment     SWMM    WEST
+    # ES            9       9
+    # Geldrop       11      11
+    # Mierlo        4       3
+    # Aalst         16      22
+    # Would need to be updated tho if swmm change (but then onyl sswmm values are adjusted i quess)
+
+
+def wq_model():
+    df_west = pd.read_csv(
+        rf"data\WEST\WEST_modelRepository\Model_Dommel_Full\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west["timestamp"] = (
+        start_date + pd.to_timedelta(df_west.index.astype(float), unit="D")
+    ).astype("O")
+    df_west.set_index("timestamp", inplace=True)
+    df_west = df_west.loc["2024-04-15":"2024-10-15", :]
+
+    model_result_ES = pd.read_csv(
+        "output_effluent/compare_ES.Effluent.csv", index_col=0
+    )
+    model_result_ES.index = df_west.index
+
+    model_result_RZ = pd.read_csv(
+        "output_effluent/compare_RZ.Effluent.csv", index_col=0
+    )
+    model_result_RZ.index = df_west.index
+
+    df_west = df_west.loc["2024-09-05":"2024-09-08"]
+    model_result_ES = model_result_ES.loc["2024-09-05":"2024-09-08"]
+
+    xlist = []
+    ylist = []
+    labels = []
+    labels = [
+        "Original COD particulate",
+        "Original COD soluable",
+        "Original NH4",
+        "Original PO4",
+        "Original # TSS",
+        "Recreated COD particulate",
+        "Recreated COD soluable",
+        "Recreated NH4",
+        "Recreated PO4",
+        "Recreated # TSS",
+    ]
+    for key in df_west.keys():
+        if (
+            "_out.Outflow" in key
+            and not ".NS" in key
+            and "ES" in key
+            and not "H2O" in key
+        ):
+            xlist.append(df_west)
+            ylist.append(abs(df_west[key].astype(float)))
+            # labels.append(f"Original model {key}")
+
+    for key in model_result_ES.keys():
+        if not "H2O" in key:
+            xlist.append(model_result_ES)
+            ylist.append(abs(model_result_ES[key].astype(float)))
+            # labels.append(f"Script model {key}")
+
+    NSE_COD_p = nash_sutcliff(
+        abs(df_west[".ES_out.Outflow(COD_part)"].astype(float)),
+        abs(model_result_ES["COD_part"].astype(float)),
+    )
+    NSE_COD_s = nash_sutcliff(
+        abs(df_west[".ES_out.Outflow(COD_sol)"].astype(float)),
+        abs(model_result_ES["COD_sol"].astype(float)),
+    )
+    NSE_NH4 = nash_sutcliff(
+        abs(df_west[".ES_out.Outflow(NH4_sew)"].astype(float)),
+        abs(model_result_ES["NH4_sew"].astype(float)),
+    )
+    NSE_PO4 = nash_sutcliff(
+        abs(df_west[".ES_out.Outflow(PO4_sew)"].astype(float)),
+        abs(model_result_ES["PO4_sew"].astype(float)),
+    )
+    NSE_TSS = nash_sutcliff(
+        abs(df_west[".ES_out.Outflow(X_TSS_sew)"].astype(float)),
+        abs(model_result_ES["X_TSS_sew"].astype(float)),
+    )
+
+    # plt.figure(figsize=(15, 8))
+    # plot(xlist, ylist, labels, "Date and time", "Catchment effluent load [g/d]")
+    xlist1 = xlist
+    ylist1 = ylist
+    df_west = df_west.loc["2024-09-05":"2024-09-08"]
+    model_result_RZ = model_result_RZ.loc["2024-09-05":"2024-09-08"]
+
+    xlist = []
+    ylist = []
+    labels = []
+    labels = [
+        "Original COD particulate",
+        "Original COD soluable",
+        "Original NH4",
+        "Original PO4",
+        "Original # TSS",
+        "Recreated COD particulate",
+        "Recreated COD soluable",
+        "Recreated NH4",
+        "Recreated PO4",
+        "Recreated # TSS",
+    ]
+    for key in df_west.keys():
+        if (
+            "_out.Outflow" in key
+            and not ".NS" in key
+            and "RZ" in key
+            and not "H2O" in key
+        ):
+            xlist.append(df_west)
+            ylist.append(abs(df_west[key].astype(float)))
+            # labels.append(f"Original model {key}")
+
+    for key in model_result_RZ.keys():
+        if not "H2O" in key:
+            xlist.append(model_result_RZ)
+            ylist.append(abs(model_result_RZ[key].astype(float)))
+            # labels.append(f"Script model {key}")
+
+    NSE_COD_p = nash_sutcliff(
+        abs(df_west[".RZ_out.Outflow(COD_part)"].astype(float)),
+        abs(model_result_RZ["COD_part"].astype(float)),
+    )
+    NSE_COD_s = nash_sutcliff(
+        abs(df_west[".RZ_out.Outflow(COD_sol)"].astype(float)),
+        abs(model_result_RZ["COD_sol"].astype(float)),
+    )
+    NSE_NH4 = nash_sutcliff(
+        abs(df_west[".RZ_out.Outflow(NH4_sew)"].astype(float)),
+        abs(model_result_RZ["NH4_sew"].astype(float)),
+    )
+    NSE_PO4 = nash_sutcliff(
+        abs(df_west[".RZ_out.Outflow(PO4_sew)"].astype(float)),
+        abs(model_result_RZ["PO4_sew"].astype(float)),
+    )
+    NSE_TSS = nash_sutcliff(
+        abs(df_west[".RZ_out.Outflow(X_TSS_sew)"].astype(float)),
+        abs(model_result_RZ["X_TSS_sew"].astype(float)),
+    )
+
+    plt.figure()
+    # plot(xlist1, ylist, labels, "Date and time", "Catchment effluent load [g/d]")
+    plot_two_regions_side_by_side(
+        xlist1,
+        ylist1,
+        xlist,
+        ylist,
+        labels,
+        "Date and time",
+        "Effluent load [g/d]",
+        region_titles=["Eindhoven City catchment", "Riool Zuid catchment"],
+    )
+
+
+def WQ_model_location():
+    # DOESNT WORK
+    swmm = sa.read_out_file(r"data\SWMM\model_jip_WEST_regen.out").to_frame()
+
+    start, end = "2024-06-27", "2024-06-30"
+    swmm = swmm.loc[start:end]
+
+    ES_out = swmm.link.P_eindhoven_out.flow * 3600 * 24
+    RZ_out = swmm.link.P_riool_zuid_out.flow * 3600 * 24
+    ES_storage_FD = Storage(165000)
+    RZ_storage_FD = RZ_storage(
+        35721,
+        pipes=[
+            "Con_103",
+            "Con_104",
+            "Con_105",
+            "Con_106",
+            "Con_158",
+            "Con_107",
+            "Con_108",
+            "Con_110",
+            "Con_157",
+            "Con_111",
+            "Con_112",
+            "Con_113",
+            "Con_114",
+            "Con_115",
+            "Con_116",
+            "Con_117",
+            "Con_118",
+            "Con_119",
+            "Con_120",
+            "Con_121",
+            "Con_122",
+            "Con_123",
+            "Con_141",
+            "Con_142",
+            "Con_143",
+            "Con_144",
+            "Con_152",
+            "Con_153",
+            "Con_154",
+            "Con_155",
+            "Con_156",
+            "Con_159",
+            "Con_160",
+            "Con_109",
+        ],
+    )
+
+    ES_in = swmm.node["pipe_ES"].total_inflow * 3600 * 24
+    RZ_in = (
+        swmm.node["Nod_112"].total_inflow
+        + swmm.node["Nod_104"].total_inflow * 3600 * 24
+    )
+
+    ESConcentrationStorage_after = ConcentrationStorage()
+    RZConcentrationStorage_after = ConcentrationStorage()
+
+    pipes = [
+        "Con_103",
+        "Con_104",
+        "Con_105",
+        "Con_106",
+        "Con_158",
+        "Con_107",
+        "Con_108",
+        "Con_110",
+        "Con_157",
+        "Con_111",
+        "Con_112",
+        "Con_113",
+        "Con_114",
+        "Con_115",
+        "Con_116",
+        "Con_117",
+        "Con_118",
+        "Con_119",
+        "Con_120",
+        "Con_121",
+        "Con_122",
+        "Con_123",
+        "Con_141",
+        "Con_142",
+        "Con_143",
+        "Con_144",
+        "Con_152",
+        "Con_153",
+        "Con_154",
+        "Con_155",
+        "Con_156",
+        "Con_159",
+        "Con_160",
+        "Con_109",
+    ]
+    WQ_ES_after = EmpericalSewerWQ(
+        concentration_dict=concentration_dict_ES,
+        COD_av=546,
+        CODs_av=158,
+        NH4_av=44,
+        PO4_av=7.1,
+        TSS_av=255,
+        Q_95_av=70800,
+        alpha_CODs=0.8,
+        alpha_NH4=0.8,
+        alpha_PO4=0.8,
+        alpha_TSS=0.8,
+        beta_CODs=0.8,
+        beta_NH4=0.8,
+        beta_PO4=0.8,
+        beta_TSS=0.8,
+    )
+    WQ_RZ_after = EmpericalSewerWQ(
+        concentration_dict=concentration_dict_RZ,
+        COD_av=573,
+        CODs_av=206,
+        NH4_av=44,
+        PO4_av=7.1,
+        TSS_av=203,
+        Q_95_av=58800,
+        alpha_CODs=0.8,
+        alpha_NH4=0.8,
+        alpha_PO4=0.8,
+        alpha_TSS=0.8,
+        beta_CODs=0.8,
+        beta_NH4=0.8,
+        beta_PO4=0.8,
+        beta_TSS=0.8,
+        proc4_slope1_CODs=0.288,
+        proc4_slope1_NH4=0.288,
+        proc4_slope1_PO4=0.288,
+        proc4_slope2_CODs=0.576,
+        proc4_slope2_NH4=0.576,
+        proc4_slope2_PO4=0.576,
+        Q_proc6=120000,
+        proc6_slope2_COD=864,
+        proc6_slope2_TSS=864,
+        proc6_t1_COD=3,
+        proc6_t1_TSS=3,
+        proc6_t2_COD=12,
+        proc6_t2_TSS=12,
+        proc7_slope1_COD=23040,
+        proc7_slope1_TSS=23040,
+        proc7_slope2_COD=5760,
+        proc4_slope2_TSS=5760,
+    )
+    WQ_ES_before = EmpericalSewerWQ(
+        concentration_dict=concentration_dict_ES,
+        COD_av=546,
+        CODs_av=158,
+        NH4_av=44,
+        PO4_av=7.1,
+        TSS_av=255,
+        Q_95_av=70800,
+        alpha_CODs=0.8,
+        alpha_NH4=0.8,
+        alpha_PO4=0.8,
+        alpha_TSS=0.8,
+        beta_CODs=0.8,
+        beta_NH4=0.8,
+        beta_PO4=0.8,
+        beta_TSS=0.8,
+    )
+    WQ_RZ_before = EmpericalSewerWQ(
+        concentration_dict=concentration_dict_RZ,
+        COD_av=573,
+        CODs_av=206,
+        NH4_av=44,
+        PO4_av=7.1,
+        TSS_av=203,
+        Q_95_av=58800,
+        alpha_CODs=0.8,
+        alpha_NH4=0.8,
+        alpha_PO4=0.8,
+        alpha_TSS=0.8,
+        beta_CODs=0.8,
+        beta_NH4=0.8,
+        beta_PO4=0.8,
+        beta_TSS=0.8,
+        proc4_slope1_CODs=0.288,
+        proc4_slope1_NH4=0.288,
+        proc4_slope1_PO4=0.288,
+        proc4_slope2_CODs=0.576,
+        proc4_slope2_NH4=0.576,
+        proc4_slope2_PO4=0.576,
+        Q_proc6=120000,
+        proc6_slope2_COD=864,
+        proc6_slope2_TSS=864,
+        proc6_t1_COD=3,
+        proc6_t1_TSS=3,
+        proc6_t2_COD=12,
+        proc6_t2_TSS=12,
+        proc7_slope1_COD=23040,
+        proc7_slope1_TSS=23040,
+        proc7_slope2_COD=5760,
+        proc4_slope2_TSS=5760,
+    )
+
+    ES_conc_after_fix = []
+    RZ_conc_after_fix = []
+    ES_conc_before_fix = []
+    RZ_conc_before_fix = []
+    timestamps = []
+    for index, Q_ES_out, Q_rz_out, Q_ES_in, Q_RZ_in in zip(
+        swmm.index, ES_out, RZ_out, ES_in, RZ_in
+    ):
+        ES_vol = swmm.node.pipe_ES.volume[index]
+        RZ_vol = sum([swmm.link[pipe].volume[index] for pipe in pipes])
+        ES_storage_FD.update_stored_volume(ES_vol)
+        RZ_storage_FD.update_stored_volume(RZ_vol)
+
+        WQ_ES_after.update(index, Q_ES_in, ES_storage_FD.FD())
+        WQ_RZ_after.update(index, Q_RZ_in, RZ_storage_FD.FD())
+
+        WQ_ES_before.update(index, Q_ES_out, ES_storage_FD.FD())
+        WQ_RZ_before.update(index, Q_rz_out, RZ_storage_FD.FD())
+
+        RZ_pollutant_after = WQ_RZ_after.get_latest_log()
+        ES_pollutant_after = WQ_ES_after.get_latest_log()
+        RZ_pollutant_before = WQ_RZ_before.get_latest_log()
+        ES_pollutant_before = WQ_ES_before.get_latest_log()
+
+        ESConcentrationStorage_after.update_in(Q_ES_in / 24 / 3600, ES_pollutant_after)
+        RZConcentrationStorage_after.update_in(Q_RZ_in / 24 / 3600, RZ_pollutant_after)
+
+        ES_conc_out_after = ESConcentrationStorage_after.update_out(
+            Q_ES_out / 24 / 3600, ES_storage_FD.FD()
+        )
+        RZ_conc_out_after = RZConcentrationStorage_after.update_out(
+            Q_rz_out / 24 / 3600, RZ_storage_FD.FD()
+        )
+        print(index)
+        timestamps.append(index)
+        ES_conc_after_fix.append(ES_conc_out_after)
+        RZ_conc_after_fix.append(RZ_conc_out_after)
+        ES_conc_before_fix.append(RZ_pollutant_before)
+        RZ_conc_before_fix.append(ES_pollutant_before)
+
+    # Convert to DataFrames
+    df_ES_fixed = pd.DataFrame(ES_conc_after_fix, index=timestamps)
+    df_RZ_fixed = pd.DataFrame(RZ_conc_after_fix, index=timestamps)
+
+    df_ES_old = pd.DataFrame(ES_conc_before_fix, index=timestamps)
+    df_RZ_old = pd.DataFrame(RZ_conc_before_fix, index=timestamps)
+
+    for key in df_ES_fixed.keys():
+        if not (("FD" in key) or ("H2O" in key)):
+            df_ES_fixed[f"{key}_conc"] = abs(df_ES_fixed[key] / df_ES_fixed["H2O_sew"])
+            df_RZ_fixed[f"{key}_conc"] = abs(df_RZ_fixed[key] / df_RZ_fixed["H2O_sew"])
+            df_ES_old[f"{key}_conc"] = abs(df_ES_old[key] / df_ES_old["H2O_sew"])
+            df_RZ_old[f"{key}_conc"] = abs(df_RZ_old[key] / df_RZ_old["H2O_sew"])
+
+    # Save to CSV files
+    df_ES_fixed.to_csv("ES_pollutant_fixed.csv")
+    df_RZ_fixed.to_csv("RZ_pollutant_fixed.csv")
+    df_ES_old.to_csv("ES_pollutant_not_fixed.csv")
+    df_RZ_old.to_csv("RZ_pollutant_not_fixed.csv")
+
+    key = "NH4_sew"
+    plt.figure()
+    df_ES_old[key].plot(label="Conc old")
+    df_ES_fixed[key].plot(label="Conc fixed")
+    plt.legend()
+
+    plt.figure()
+    df_ES_old[f"{key}_conc"].plot(label="Conc old")
+    df_ES_fixed[f"{key}_conc"].plot(label="Conc fixed")
+
+
+def precipitation_data_forecast():
+    path_ensemble = rf"data\precipitation\raw_data\zip_raw_harmonie"
+
+    files = [
+        f
+        for f in os.listdir(path_ensemble)
+        if (
+            os.path.isfile(os.path.join(path_ensemble, f))
+            and f.endswith(".nc")
+            # and any(f"_0{horizon}.nc" in f for horizon in forecast_horizon)
+        )
+    ]
+
+    from collections import defaultdict, Counter
+    import re
+
+    # Dictionary to store counts
+    counts = defaultdict(int)
+
+    # Extract date part and count
+    for file in files:
+        match = re.search(r"_(\d{10})_", file)
+        if match:
+            datetime_str = match.group(1)
+            date_str = datetime_str[:8]  # Extract yyyymmdd
+            counts[date_str] += 1
+    # Plot all counts (or just filtered_counts for <188)
+    dates = sorted(counts.keys())
+    counts_per_day = [counts[date] for date in dates]
+
+    # Convert to datetime
+    dates_dt = [datetime.strptime(date, "%Y%m%d") for date in dates]
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(dates_dt, counts_per_day, marker="o", linestyle="-", color="steelblue")
+
+    # Format x-axis
+
+    plt.xlabel("Date")
+    plt.ylabel("File Count")
+    plt.grid(True, linestyle="--", alpha=0.6)
+    plt.tight_layout()
+    plt.show()
+
+    ######## Plot of ensemble vs actual
+    forecasts = pd.read_csv(
+        r"data\precipitation\csv_forecasts\forecast_data.csv", index_col=0
+    )
+    forecasts["date"] = pd.to_datetime(forecasts["date"])
+    forecasts["date_of_forecast"] = pd.to_datetime(forecasts["date_of_forecast"])
+    forecasts["ensembles"] = forecasts["ensembles"].apply(
+        lambda s: [float(x) for x in s.strip("[]").split()]
+    )
+
+    start_time = "2024-04-15 18:00:00"
+    end_time = "2024-04-17 18:00:00"
+    current_time = pd.to_datetime(start_time)  # 6-hour intervals
+    upperbound = 48  # hours
+    upperbound_time = current_time + dt.timedelta(hours=upperbound)
+
+    filtered_forecast = forecasts[
+        (forecasts.date == current_time)
+        & (forecasts.date_of_forecast <= upperbound_time)
+    ]
+
+    grouped = filtered_forecast.groupby(["region", "date_of_forecast"])[
+        "ensembles"
+    ].apply(list)
+
+    precipitation = pd.read_csv(
+        r"data\precipitation\csv_selected_area_euradclim\2024_5_min_precipitation_data.csv",
+        index_col=0,
+        parse_dates=True,
+    )
+    precipitation = precipitation.resample("h").sum()
+    precipitation = precipitation.loc[start_time:end_time, "ES"]
+
+    ES = grouped["ES"].reset_index()
+    ES["timestamp"] = pd.to_datetime(ES["date_of_forecast"])
+    ES = ES.sort_values("timestamp")
+
+    ensemble_data = ES["ensembles"]
+    positions = mdates.date2num(ES["timestamp"])
+
+    fig, ax = plt.subplots(figsize=(20, 8))
+    ax.plot(
+        precipitation.index,
+        precipitation.values,
+        color="lightblue",
+        lw=4,
+        label="Precipitation",
+    )
+    ax.boxplot(
+        ensemble_data,
+        positions=positions,
+        widths=0.025,
+        patch_artist=True,  # Allows filling boxes
+        showfliers=False,  # Optionally hide outliers if they clutter
+        medianprops=dict(color="black", linewidth=1.5),
+        boxprops=dict(facecolor="lightblue", alpha=0.7, edgecolor="gray"),
+        whiskerprops=dict(color="gray", linestyle="--"),
+        capprops=dict(color="gray"),
+    )
+
+    ax.xaxis_date()
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d %H:%M"))
+    plt.xticks(rotation=90)
+    ax.set_xlabel("Date and time")
+    ax.set_ylabel("Precipitation [mm]")
+    ax.grid(True, linestyle="--", alpha=0.6)
+    ax.legend()
+    ax.set_xlim(min(positions) - 0.1, max(positions) + 0.1)
+    fig.tight_layout()
+    plt.style.use("seaborn-v0_8-whitegrid")
+    plt.show()
+
+
+def system_character():
+    labels = {
+        "H2O_sew": "Discharge [g/d]",
+        "NH4_sew": "NH4 Load [g/d]",
+        "PO4_sew": "PO4 Load [g/d]",
+        "COD_sol": "Solluable COD Load [g/d]",
+        "X_TSS_sew": "Total Suspended Solids Load [g/d]",
+        "COD_part": "Particulate COD Load [g/d]",
+    }
+    labels_conc = {
+        "H2O_sew": "Discharge [g/d]",
+        "NH4_sew": "NH4 Concentration [g/g]",
+        "PO4_sew": "PO4 Concentration [g/g]",
+        "COD_sol": "Solluable COD Concentration [g/g]",
+        "X_TSS_sew": "Total Suspended Solids Concentration [g/g]",
+        "COD_part": "Particulate COD Concentration [g/g]",
+    }
+    start_date = pd.Timestamp("2024-01-01")
+    normal = pd.read_csv(
+        rf"output_swmm\05-31_19-42_out_ES_No_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    normal["timestamp"] = start_date + pd.to_timedelta(
+        normal.index.astype(float), unit="D"
+    )
+    normal.set_index("timestamp", inplace=True)
+    normal.index = normal.index.round("15min")
+    constant = pd.read_csv(
+        rf"output_swmm\05-31_20-24_out_ES_No_RTC_no_rain_constant.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    constant["timestamp"] = start_date + pd.to_timedelta(
+        constant.index.astype(float), unit="D"
+    )
+    constant.set_index("timestamp", inplace=True)
+    constant.index = constant.index.round("15min")
+    dry = pd.read_csv(
+        rf"output_swmm\05-31_20-02_out_ES_No_RTC_no_rain.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    dry["timestamp"] = start_date + pd.to_timedelta(dry.index.astype(float), unit="D")
+    dry.set_index("timestamp", inplace=True)
+    dry.index = dry.index.round("15min")
+
+    scenarios = {
+        "Dry weather flow only": dry,
+        "Constant dry weather flow only": constant,
+        "Dry and wet weather flow": normal,
+    }
+
+    # Define your time window
+    start_date = pd.Timestamp("2024-08-10")
+    end_date = pd.Timestamp("2024-09-01")
+
+    for key in list(dry.keys()):
+        if not ("FD" in key or "Q_out" in key):
+            # Filter by time window and store filtered versions
+            filtered_scenarios = {
+                key: df.loc[start_date:end_date] for key, df in scenarios.items()
+            }
+
+            # Determine subplot layout based on whether to include concentration
+            include_conc = "H2O" not in key
+
+            # Create figure and axes
+            if include_conc:
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), sharex=True)
+            else:
+                fig, ax1 = plt.subplots(figsize=(14, 6))
+
+            # --- Absolute values plot ---
+            for label, df in filtered_scenarios.items():
+                if key in df.columns:
+                    ax1.plot(df.index, abs(df[key]), label=label)
+                else:
+                    print(f"Column '{key}' not found in scenario '{label}'")
+
+            ax1.set_ylabel(labels[key])
+            ax1.legend(loc=1)
+            ax1.grid(True)
+
+            # --- Concentration plot (only if applicable) ---
+            if include_conc:
+                for label, df in filtered_scenarios.items():
+                    if key in df.columns and "H2O_sew" in df.columns:
+                        ax2.plot(df.index, df[key] / df["H2O_sew"], label=label)
+                    else:
+                        print(
+                            f"Column '{key}' or 'H2O_sew' not found in scenario '{label}'"
+                        )
+
+                ax2.set_ylabel(labels_conc[key])
+                ax2.legend(loc=1)
+                ax2.grid(True)
+                ax1.set_xlabel("Date")
+                ax2.set_xlabel("Date")
+            else:
+                ax1.set_xlabel("Date")
+
+            # Final layout
+            fig.tight_layout(rect=[0, 0, 1, 0.96])
+            for label in ax1.get_xticklabels():
+                label.set_rotation(45)
+            ax1.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+            if include_conc:
+                ax2.legend(loc=4, frameon=True, facecolor="white", framealpha=0.8)
+                for label in ax2.get_xticklabels():
+                    label.set_rotation(45)
+            # plt.savefig(f"{key}")
+            plt.show()
+
+    labels = {
+        ".WWTP2river.Outflow(rH2O)": "Discharge [g/d]",
+        ".WWTP2river.Outflow(rBOD1)": "BOD1 Load [g/d]",
+        ".WWTP2river.Outflow(rBOD1p)": "BOD1 Particulate Load [g/d]",
+        ".WWTP2river.Outflow(rBOD2)": "BOD2 Load [g/d]",
+        ".WWTP2river.Outflow(rBOD2p)": "BOD2 Particulate Load [g/d]",
+        ".WWTP2river.Outflow(rBODs)": "BOD Solluable Load [g/d]",
+        ".WWTP2river.Outflow(rNH4)": "NH4 Load [g/d]",
+        ".WWTP2river.Outflow(rO2)": "O2 Load [g/d]",
+    }
+
+    labels_conc = {
+        ".WWTP2river.Outflow(rH2O)": "Discharge [g/d]",
+        ".WWTP2river.Outflow(rBOD1)": "BOD1 Concentration [g/g]",
+        ".WWTP2river.Outflow(rBOD1p)": "BOD1 Particulate Concentration [g/g]",
+        ".WWTP2river.Outflow(rBOD2)": "BOD2 Concentration [g/g]",
+        ".WWTP2river.Outflow(rBOD2p)": "BOD2 Particulate Concentration [g/g]",
+        ".WWTP2river.Outflow(rBODs)": "BOD Solluable Concentration [g/g]",
+        ".WWTP2river.Outflow(rNH4)": "NH4 Concentration [g/g]",
+        ".WWTP2river.Outflow(rO2)": "O2 Concentration [g/g]",
+    }
+    start_date = pd.Timestamp("2024-01-01")
+    normal = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    normal["timestamp"] = start_date + pd.to_timedelta(
+        normal.index.astype(float), unit="D"
+    )
+    normal.set_index("timestamp", inplace=True)
+    normal.index = normal.index.round("15min")
+
+    constant = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC_no_rain_constant\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    constant["timestamp"] = start_date + pd.to_timedelta(
+        constant.index.astype(float), unit="D"
+    )
+    constant.set_index("timestamp", inplace=True)
+    constant.index = constant.index.round("15min")
+
+    dry = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC_no_rain\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    dry["timestamp"] = start_date + pd.to_timedelta(dry.index.astype(float), unit="D")
+    dry.set_index("timestamp", inplace=True)
+    dry.index = dry.index.round("15min")
+    scenarios = {
+        "Dry weather flow only": abs(dry.astype(float)),
+        "Constant dry weather flow only": abs(constant.astype(float)),
+        "Dry and wet weather flow": abs(normal.astype(float)),
+    }
+    # Define your time window
+    start_date = pd.Timestamp("2024-08-02")
+    end_date = pd.Timestamp("2024-08-09")
+
+    for key in list(dry.keys()):
+        if "WWTP2river" in key:
+            # Filter by time window and store filtered versions
+            filtered_scenarios = {
+                key: df.loc[start_date:end_date] for key, df in scenarios.items()
+            }
+
+            include_conc = "H2O" not in key
+
+            if include_conc:
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5), sharex=False)
+            else:
+                fig, ax1 = plt.subplots(figsize=(14, 6))
+
+            # --- Absolute values plot ---
+            for label, df in filtered_scenarios.items():
+                if key in df.columns:
+                    ax1.plot(df.index, df[key].astype(float), label=label)
+                else:
+                    print(f"Column '{key}' not found in scenario '{label}'")
+
+            ax1.set_xlabel("Date")
+            ax1.set_ylabel(labels[key])
+            ax1.grid(True)
+            ax1.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+            ax1.tick_params(axis="x", rotation=45)
+
+            # --- Concentration plot (if applicable) ---
+            if include_conc:
+                for label, df in filtered_scenarios.items():
+                    if key in df.columns and ".WWTP2river.Outflow(rH2O)" in df.columns:
+                        ax2.plot(
+                            df.index,
+                            df[key].astype(float)
+                            / df[".WWTP2river.Outflow(rH2O)"].astype(float),
+                            label=label,
+                        )
+                    else:
+                        print(
+                            f"Column '{key}' or '.WWTP2river.Outflow(rH2O)' not found in '{label}'"
+                        )
+
+                ax2.set_xlabel("Date")
+                ax2.set_ylabel(labels_conc[key])
+                ax2.grid(True)
+                ax2.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+                ax2.tick_params(axis="x", rotation=45)
+
+            # Final formatting
+            fig.tight_layout()
+            fig.savefig(f"{key}.png")
+            plt.show()
+
+    from collections import defaultdict
+
+    summary_stats = defaultdict(dict)
+    # Iterate over all relevant pollutant keys
+    for key in list(dry.keys()):
+        if "WWTP2river" in key:
+            # Filter the time window
+            filtered_scenarios = {
+                label: df.loc[start_date:end_date] for label, df in scenarios.items()
+            }
+
+            for label, df in filtered_scenarios.items():
+                if key not in df.columns:
+                    continue  # Skip if key missing
+
+                # Parse float just in case
+                df_key = df[[key]].astype(float)
+
+                # 1. Load stats
+                daily_avg_load = df_key.resample("D").mean()
+                daily_max_load = df_key.resample("D").max()
+
+                # 2. Concentration stats (if applicable)
+                if "H2O" not in key and ".WWTP2river.Outflow(rH2O)" in df.columns:
+                    flow = df[".WWTP2river.Outflow(rH2O)"].astype(float)
+                    conc = df[key].astype(float) / flow.replace(0, pd.NA)
+
+                    daily_avg_conc = conc.resample("D").mean()
+                    daily_max_conc = conc.resample("D").max()
+
+                    # Store average of daily stats
+                    summary_stats[key][label] = {
+                        "avg_daily_load": daily_avg_load.mean().values[0],
+                        "max_daily_load": daily_max_load.mean().values[0],
+                        "avg_daily_concentration": daily_avg_conc.mean(),
+                        "max_daily_concentration": daily_max_conc.mean(),
+                    }
+                else:
+                    summary_stats[key][label] = {
+                        "avg_daily_load": daily_avg_load.mean().values[0],
+                        "max_daily_load": daily_max_load.mean().values[0],
+                        "avg_daily_concentration": None,
+                        "max_daily_concentration": None,
+                    }
+    records = []
+    for key, scenarios_dict in summary_stats.items():
+        for scenario, metrics in scenarios_dict.items():
+            record = {"Key": key, "Scenario": scenario, **metrics}
+            records.append(record)
+    summary_df = pd.DataFrame(records)
+
+
+def time_to_empty():
+    #################################
+    # Pump duration for different V and Pump flows smaller volume
+    #################################
+
+    # Constants
+    P_max = 1 * 3600  # seconds
+    V_max = 11000  # cubic meters
+
+    # Pumping rate range (m³/s)
+    Q_pump = np.linspace(0.01, 0.66, 200)
+
+    # Time lines to plot (in seconds)
+    time_hours = np.arange(2, 13, 2)  # hours
+    time_lines = [t * 3600 for t in time_hours]
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+
+    for t in time_lines:
+        volume = Q_pump * t
+        plt.plot(Q_pump, volume, label=f"{int(t / 3600)} h")
+
+        # Place a label near the end of the line (on the left, since x-axis is flipped)
+        x_text = Q_pump[0] - 0.03  # far left, due to inverted x-axis
+        y_text = volume[0]
+
+        # Check if the label goes above the upper limit of ylim
+
+        # plt.text(x_text, y_text, f"{int(t / 3600)} h", va="center", ha="left", fontsize=9)
+
+    # Optional: add max volume as horizontal line
+    plt.axhline(11000, color="gray", linestyle="--", label="Max. volume Eindhoven")
+    plt.axhline(7500, color="gray", linestyle="-.", label="Max. volume Riool Zuid")
+
+    plt.xlabel("Pump Rate on top of DWF inflow (m³/s)")
+    plt.ylabel("Total Volume Pumped (m³)")
+    # plt.title("Total Volume Pumped vs Pump Rate for Different Durations")
+    plt.ylim(top=V_max + 500)
+    plt.legend()
+    plt.grid(True, linestyle="--", alpha=0.6)
+    plt.gca().invert_xaxis()
+    plt.tight_layout()
+    plt.show()
+
+    #####################################
+    # Total volume stored analysis
+    #####################################
+    pattern_RZ = (
+        pd.read_csv(
+            rf"output_swmm\latest_out_RZ_DWF_only_out.csv",
+            delimiter=";",
+            decimal=",",
+            index_col=0,
+            parse_dates=True,
+        )
+        / 24
+        / 3600
+        * 5
+        * 60
+    )
+    pattern_ES = (
+        pd.read_csv(
+            rf"output_swmm\latest_out_ES_DWF_only_out.csv",
+            delimiter=";",
+            decimal=",",
+            index_col=0,
+            parse_dates=True,
+        )
+        / 24
+        / 3600
+        * 5
+        * 60
+    )
+
+    ES_inflow = pattern_ES.loc["2023-05-01":"2023-09-07", "H2O_sew"]
+    ES_mean_inflow = ES_inflow.mean()
+    RZ_inflow = pattern_RZ.loc["2023-05-01":"2023-09-07", "H2O_sew"]
+    RZ_mean_inflow = RZ_inflow.mean()
+
+    ES_storage = [0]
+    RZ_storage = [0]
+    for i in range(1, len(ES_inflow)):
+        ES_delta = ES_inflow.iloc[i] - ES_mean_inflow
+        ES_current_storage = max(ES_storage[-1] + ES_delta, 0)
+        ES_storage.append(ES_current_storage)
+
+        RZ_delta = RZ_inflow.iloc[i] - RZ_mean_inflow
+        RZ_current_storage = max(RZ_storage[-1] + RZ_delta, 0)
+        RZ_storage.append(RZ_current_storage)
+
+    day_hour_formatter = mdates.DateFormatter(
+        "%d %H"
+    )  # Shows "day hour", e.g., "1 12" for May 1st, 12:00
+
+    fig, ax = plt.subplots(figsize=(15, 8))
+    ax.plot(ES_inflow.index, ES_storage, label="ES Storage")
+    ax.plot(RZ_inflow.index, RZ_storage, label="RZ Storage")
+    ax.set_xlabel("Day number and hour [dd hh]")
+    ax.set_ylabel("Buffered storage Volume [m3]")
+    ax.grid(True, linestyle="--", alpha=0.6)
+
+    # Set the major formatter to include both day and hour
+    ax.xaxis.set_major_formatter(day_hour_formatter)
+
+    # Set HourLocator to increase the number of x-ticks
+    ax.xaxis.set_major_locator(mdates.HourLocator(interval=6))  # Show every hour
+    # ax.xaxis.set_major_locator(mdates.HourLocator(interval=2))  # Show every 2 hours (comment/uncomment based on preference)
+
+    # Adjust the limits so the x-axis doesn't go beyond the data range
+    ax.set_xlim([RZ_inflow.index[0], RZ_inflow.index[-1]])
+
+    plt.legend()
+
+    # Rotate and align x labels
+    plt.xticks(rotation=45, ha="right")
+
+    plt.tight_layout()
+
+    plt.show()
+
+
+def research_question_2():
+    start_date = pd.Timestamp("2024-01-01")
+    normal = pd.read_csv(
+        rf"output_swmm\outflow_and_pollutant\05-29_17-45_out_ES_No_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    normal["timestamp"] = start_date + pd.to_timedelta(
+        normal.index.astype(float), unit="D"
+    )
+    normal.set_index("timestamp", inplace=True)
+    normal.index = normal.index.round("5min")
+    RTC = pd.read_csv(
+        rf"output_swmm\outflow_and_pollutant\05-29_18-51_out_ES_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("5min")
+
+    start_date = pd.Timestamp("2024-05-07")
+    end_date = pd.Timestamp("2024-05-15")
+
+    normal_dry = normal.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
+    RTC_dry = RTC.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
+
+    plt.figure()
+    abs(normal_dry["H2O_sew"]).plot()
+    abs(RTC_dry["H2O_sew"]).plot()
+
+    normal_dry.std()
+    RTC_dry.std()
+
+    SWMM = sa.read_out_file("data\SWMM\model_jip.out").to_frame()
+    SWMM = SWMM.loc[pd.Timestamp("2024-07-08") : pd.Timestamp("2024-07-15")]
+
+    fig, ax1 = plt.subplots(figsize=(10, 5))
+
+    # Plot Flow on primary axis
+    SWMM.link.P_eindhoven_out.flow.plot(ax=ax1, label="Flow", color="tab:blue")
+    ax1.set_ylabel("Flow [m³/s]")
+    ax1.tick_params(axis="y")
+
+    # Plot Volume on secondary axis
+    SWMM.node.pipe_ES.volume.plot(
+        ax=ax1, label="Volume", secondary_y=True, color="tab:orange"
+    )
+    ax1.right_ax.set_ylabel("Volume [m³]")
+    ax1.right_ax.tick_params(axis="y")
+
+    # Legend handling
+    lines, labels = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax1.right_ax.get_legend_handles_labels()
+    ax1.legend(lines + lines2, labels + labels2, loc="upper left")
+
+    plt.xlabel("Date")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    ######################################################################
+    start_date = pd.Timestamp("2024-01-01")
+    normal = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    normal["timestamp"] = start_date + pd.to_timedelta(
+        normal.index.astype(float), unit="D"
+    )
+    normal.set_index("timestamp", inplace=True)
+    normal.index = normal.index.round("15min")
+    RTC = pd.read_csv(
+        f"data\WEST\Pollutant_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("15min")
+
+    start_date = pd.Timestamp("2024-05-10")
+    end_date = pd.Timestamp("2024-05-13")
+
+    scenarios = {"normal": abs(normal.astype(float)), "RTC": abs(RTC.astype(float))}
+
+    for key in list(normal.keys()):
+        if "WWTP2river" in key:
+            # Filter by time window and store filtered versions
+            filtered_scenarios = {
+                key: df.loc[start_date:end_date] for key, df in scenarios.items()
+            }
+
+            # Now plot all filtered scenarios together
+            plt.figure(figsize=(14, 6))
+
+            for label, df in filtered_scenarios.items():
+                if key in df.columns:
+                    plt.plot(df.index, df[key].astype(float), label=label)
+                else:
+                    print(f"Column '{key}' not found in scenario '{label}'")
+
+            plt.xlabel("Date")
+            plt.ylabel(key)
+            plt.legend()
+            plt.grid(True)
+            plt.tight_layout()
+            plt.show()
+
+            if not "H2O" in key:
+                plt.figure(figsize=(14, 6))
+                for label, df in filtered_scenarios.items():
+                    if key in df.columns:
+                        plt.plot(
+                            df.index,
+                            df[key].astype(float)
+                            / df[".WWTP2river.Outflow(rH2O)"].astype(float),
+                            label=label,
+                        )
+                    else:
+                        print(f"Column '{key}' not found in scenario '{label}'")
+
+                plt.xlabel("Date")
+                plt.ylabel(key + "Concentration")
+                plt.legend()
+                plt.grid(True)
+                plt.tight_layout()
+                plt.show()
+    from collections import defaultdict
+
+    summary_stats = defaultdict(dict)
+    # Iterate over all relevant pollutant keys
+    for key in list(normal.keys()):
+        if "WWTP2river" in key:
+            # Filter the time window
+            filtered_scenarios = {
+                label: df.loc[start_date:end_date] for label, df in scenarios.items()
+            }
+
+            for label, df in filtered_scenarios.items():
+                if key not in df.columns:
+                    continue  # Skip if key missing
+
+                # Parse float just in case
+                df_key = df[[key]].astype(float)
+
+                # 1. Load stats
+                daily_avg_load = df_key.resample("D").mean()
+                daily_max_load = df_key.resample("D").max()
+
+                # 2. Concentration stats (if applicable)
+                if "H2O" not in key and ".WWTP2river.Outflow(rH2O)" in df.columns:
+                    flow = df[".WWTP2river.Outflow(rH2O)"].astype(float)
+                    conc = df[key].astype(float) / flow.replace(0, pd.NA)
+
+                    daily_avg_conc = conc.resample("D").mean()
+                    daily_max_conc = conc.resample("D").max()
+
+                    # Store average of daily stats
+                    summary_stats[key][label] = {
+                        "avg_daily_load": daily_avg_load.mean().values[0],
+                        "max_daily_load": daily_max_load.mean().values[0],
+                        "avg_daily_concentration": daily_avg_conc.mean(),
+                        "max_daily_concentration": daily_max_conc.mean(),
+                    }
+                else:
+                    summary_stats[key][label] = {
+                        "avg_daily_load": daily_avg_load.mean().values[0],
+                        "max_daily_load": daily_max_load.mean().values[0],
+                        "avg_daily_concentration": None,
+                        "max_daily_concentration": None,
+                    }
+    records = []
+    for key, scenarios_dict in summary_stats.items():
+        for scenario, metrics in scenarios_dict.items():
+            record = {"Key": key, "Scenario": scenario, **metrics}
+            records.append(record)
+    summary_df = pd.DataFrame(records)
+
+
+def research_question_3():
+    start_date = pd.Timestamp("2024-01-01")
+    normal = pd.read_csv(
+        rf"output_swmm\outflow_and_pollutant\05-29_17-45_out_ES_No_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    normal["timestamp"] = start_date + pd.to_timedelta(
+        normal.index.astype(float), unit="D"
+    )
+    normal.set_index("timestamp", inplace=True)
+    normal.index = normal.index.round("5min")
+    RTC = pd.read_csv(
+        rf"output_swmm\outflow_and_pollutant\05-29_18-51_out_ES_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("5min")
+
+    ENSEMBLE = pd.read_csv(
+        rf"output_swmm\outflow_and_pollutant\05-29_19-25_out_ES_Ensemble_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    ENSEMBLE["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE.index.astype(float), unit="D"
+    )
+    ENSEMBLE.set_index("timestamp", inplace=True)
+    ENSEMBLE.index = ENSEMBLE.index.round("5min")
+
+    start_date = pd.Timestamp("2024-05-07")
+    end_date = pd.Timestamp("2024-05-15")
+
+    normal_dry = normal.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
+    RTC_dry = RTC.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
+    ENSEMBLE = ENSEMBLE.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
+
+    plt.figure()
+    abs(normal_dry["H2O_sew"]).plot()
+    abs(RTC_dry["H2O_sew"]).plot()
+    abs(ENSEMBLE["H2O_sew"]).plot()
+
+    normal_dry.std()
+    RTC_dry.std()
+
+    SWMM = sa.read_out_file("data\SWMM\model_jip.out").to_frame()
+    SWMM = SWMM.loc[pd.Timestamp("2024-07-08") : pd.Timestamp("2024-07-15")]
+    ENSEMBLE_SWMM = sa.read_out_file("data\SWMM\model_jip.out").to_frame()
+    ENSEMBLE_SWMM = ENSEMBLE_SWMM.loc[
+        pd.Timestamp("2024-07-08") : pd.Timestamp("2024-07-15")
+    ]
+
+    fig, ax1 = plt.subplots(figsize=(10, 5))
+
+    # Plot Flow on primary axis
+    SWMM.link.P_eindhoven_out.flow.plot(ax=ax1, label="Flow", color="tab:blue")
+    ENSEMBLE_SWMM.link.P_eindhoven_out.flow.plot(ax=ax1, label="Flow", color="tab:blue")
+    ax1.set_ylabel("Flow [m³/s]")
+    ax1.tick_params(axis="y")
+
+    # Plot Volume on secondary axis
+    SWMM.node.pipe_ES.volume.plot(
+        ax=ax1, label="Volume", secondary_y=True, color="tab:orange"
+    )
+    ENSEMBLE_SWMM.node.pipe_ES.volume.plot(
+        ax=ax1, label="Volume", secondary_y=True, color="tab:orange"
+    )
+    ax1.right_ax.set_ylabel("Volume [m³]")
+    ax1.right_ax.tick_params(axis="y")
+
+    # Legend handling
+    lines, labels = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax1.right_ax.get_legend_handles_labels()
+    ax1.legend(lines + lines2, labels + labels2, loc="upper left")
+
+    plt.xlabel("Date")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()

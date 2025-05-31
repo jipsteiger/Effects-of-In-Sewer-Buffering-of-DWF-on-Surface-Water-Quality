@@ -644,23 +644,20 @@ class EmpericalSewerWQ:
         self.state["proc3_COD"] = proc3_COD
 
         # proc4_COD (Ramp)
+        t_proc4 = t - self.previous_state.get("t_start_proc4", t)
         if self.state["event"] in [3, 9]:
             proc4_COD_h = 1
         elif self.previous_state["event"] == 3:
             proc4_COD_h = self.previous_state["proc2_COD"]
         elif self.previous_state["event"] == 9:
             proc4_COD_h = self.previous_state["proc3_COD"]
+        elif self.previous_state["proc4_COD"] >= 1:
+            proc4_COD_h = 1
+        elif t_proc4.total_seconds() / 86400 < self.window_proc4_COD:
+            proc4_COD_h = self.previous_state["proc4_COD"] + self.proc4_slope1_COD * dt
         else:
-            t_proc4 = t - self.previous_state.get("t_start_proc4", t)
-            if t_proc4.total_seconds() / 86400 < self.window_proc4_COD:
-                proc4_COD_h = (
-                    self.previous_state["proc4_COD"] + self.proc4_slope1_COD * dt
-                )
-            else:
-                proc4_COD_h = (
-                    self.previous_state["proc4_COD"] + self.proc4_slope2_COD * dt
-                )
-        self.state["proc4_COD"] = min(proc4_COD_h, 1)
+            proc4_COD_h = self.previous_state["proc4_COD"] + self.proc4_slope2_COD * dt
+        self.state["proc4_COD"] = proc4_COD_h
 
         # proc6_COD_h
         if self.state["event"] in [3, 9] and self.previous_state["event"] < 3:
@@ -678,19 +675,17 @@ class EmpericalSewerWQ:
                 proc6_COD_h = self.peak_COD_high
         elif self.state["event"] in [3, 9] and self.state["Q_in"] > self.Q_proc6:
             proc6_COD_h = (
-                self.previous_state.get("proc6_COD_h", t).hour
-                - self.proc6_slope1_COD * dt
+                self.previous_state.get("proc6_COD_h", 0) - self.proc6_slope1_COD * dt
             )
         else:
             proc6_COD_h = (
-                self.previous_state.get("proc6_COD_h", t).hour
-                - self.proc6_slope2_COD * dt
+                self.previous_state.get("proc6_COD_h", 0) - self.proc6_slope2_COD * dt
             )
         self.state["proc6_COD"] = max(proc6_COD_h, 0)
 
         if (
-            self.previous_state["event"] == 3 or self.previous_state["event"]
-        ) == 9 and self.state["event"] < 3:
+            self.previous_state["event"] == 3 or self.previous_state["event"] == 9
+        ) and self.state["event"] < 3:
             self.state["t_end_event39"] = t
         else:
             self.state["t_end_event39"] = self.previous_state.get("t_end_event39", t)
@@ -751,23 +746,20 @@ class EmpericalSewerWQ:
         self.state["proc3_TSS"] = proc3_TSS
 
         # proc4_TSS (Ramp)
+        t_proc4 = t - self.previous_state.get("t_start_proc4", t)
         if self.state["event"] in [3, 9]:
             proc4_TSS_h = 1
         elif self.previous_state["event"] == 3:
             proc4_TSS_h = self.previous_state["proc2_TSS"]
         elif self.previous_state["event"] == 9:
             proc4_TSS_h = self.previous_state["proc3_TSS"]
+        elif self.previous_state["proc4_TSS"] >= 1:
+            proc4_TSS_h = 1
+        elif t_proc4.total_seconds() / 86400 < self.window_proc4_TSS:
+            proc4_TSS_h = self.previous_state["proc4_TSS"] + self.proc4_slope1_TSS * dt
         else:
-            t_proc4 = t - self.previous_state.get("t_start_proc4", t)
-            if t_proc4.total_seconds() / 86400 < self.window_proc4_TSS:
-                proc4_TSS_h = (
-                    self.previous_state["proc4_TSS"] + self.proc4_slope1_TSS * dt
-                )
-            else:
-                proc4_TSS_h = (
-                    self.previous_state["proc4_TSS"] + self.proc4_slope2_TSS * dt
-                )
-        self.state["proc4_TSS"] = min(proc4_TSS_h, 1)
+            proc4_TSS_h = self.previous_state["proc4_TSS"] + self.proc4_slope2_TSS * dt
+        self.state["proc4_TSS"] = proc4_TSS_h
 
         # proc6_TSS_h
         if self.state["event"] in [3, 9] and self.previous_state["event"] < 3:
@@ -785,19 +777,17 @@ class EmpericalSewerWQ:
                 proc6_TSS_h = self.peak_TSS_high
         elif self.state["event"] in [3, 9] and self.state["Q_in"] > self.Q_proc6:
             proc6_TSS_h = (
-                self.previous_state.get("proc6_TSS_h", t).hour
-                - self.proc6_slope1_TSS * dt
+                self.previous_state.get("proc6_TSS_h", 0) - self.proc6_slope1_TSS * dt
             )
         else:
             proc6_TSS_h = (
-                self.previous_state.get("proc6_TSS_h", t).hour
-                - self.proc6_slope2_TSS * dt
+                self.previous_state.get("proc6_TSS_h", 0) - self.proc6_slope2_TSS * dt
             )
         self.state["proc6_TSS"] = max(proc6_TSS_h, 0)
 
         if (
-            self.previous_state["event"] == 3 or self.previous_state["event"]
-        ) == 9 and self.state["event"] < 3:
+            self.previous_state["event"] == 3 or self.previous_state["event"] == 9
+        ) and self.state["event"] < 3:
             self.state["t_end_event39"] = t
         else:
             self.state["t_end_event39"] = self.previous_state.get("t_end_event39", t)

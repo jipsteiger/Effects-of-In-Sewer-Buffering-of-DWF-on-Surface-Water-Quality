@@ -1,0 +1,912 @@
+
+  EPA STORM WATER MANAGEMENT MODEL - VERSION 5.2 (Build 5.2.4)
+  PYSWMM TOOLKIT API - VERSION v1.0 (2023-11-27)
+  ------------------------------------------------------------
+
+  WARNING 02: maximum depth increased for Node gb127
+  
+  ****************
+  Analysis Options
+  ****************
+  Flow Units ............... CMS
+  Process Models:
+    Rainfall/Runoff ........ YES
+    RDII ................... NO
+    Snowmelt ............... NO
+    Groundwater ............ NO
+    Flow Routing ........... YES
+    Ponding Allowed ........ NO
+    Water Quality .......... NO
+  Infiltration Method ...... HORTON
+  Flow Routing Method ...... DYNWAVE
+  Surcharge Method ......... EXTRAN
+  Starting Date ............ 04/15/2023 00:00:00
+  Ending Date .............. 05/30/2023 00:00:00
+  Antecedent Dry Days ...... 0.0
+  Report Time Step ......... 00:05:00
+  Wet Time Step ............ 00:01:00
+  Dry Time Step ............ 00:10:00
+  Routing Time Step ........ 2.00 sec
+  Variable Time Step ....... YES
+  Maximum Trials ........... 12
+  Number of Threads ........ 2
+  Head Tolerance ........... 0.000200 m
+  
+  
+  *********************
+  Rainfall File Summary
+  *********************
+  Station    First        Last         Recording   Periods    Periods    Periods
+  ID         Date         Date         Frequency  w/Precip    Missing    Malfunc.
+  -------------------------------------------------------------------------------
+  ES         01/01/2024   12/31/2024       5 min    105217          0          0
+
+  GE         01/01/2024   12/31/2024       5 min    105217          0          0
+
+  RZ1        01/01/2024   12/31/2024       5 min    105217          0          0
+
+  RZ2        01/01/2024   12/31/2024       5 min    105217          0          0
+
+  
+  
+  **************************        Volume         Depth
+  Runoff Quantity Continuity     hectare-m            mm
+  **************************     ---------       -------
+  Total Precipitation ......         0.000         0.000
+  Evaporation Loss .........         0.000         0.000
+  Infiltration Loss ........         0.000         0.000
+  Surface Runoff ...........         0.000         0.000
+  Final Storage ............         0.000         0.000
+  Continuity Error (%) .....         0.000
+  
+  
+  **************************        Volume        Volume
+  Flow Routing Continuity        hectare-m      10^6 ltr
+  **************************     ---------     ---------
+  Dry Weather Inflow .......        10.480       104.803
+  Wet Weather Inflow .......         0.000         0.000
+  Groundwater Inflow .......         0.000         0.000
+  RDII Inflow ..............         0.000         0.000
+  External Inflow ..........         4.722        47.224
+  External Outflow .........        14.537       145.370
+  Flooding Loss ............         0.282         2.820
+  Evaporation Loss .........         0.000         0.000
+  Exfiltration Loss ........         0.000         0.000
+  Initial Stored Volume ....         0.804         8.043
+  Final Stored Volume ......         2.622        26.222
+  Continuity Error (%) .....        -8.960
+  
+  
+  *************************
+  Highest Continuity Errors
+  *************************
+  Node J119 (-237.99%)
+  Node J1 (-41.53%)
+  Node Nod_890 (14.10%)
+  Node Nod_891 (12.81%)
+  Node Nod_A*HLCMRZ1135 (9.64%)
+  
+  
+  ***************************
+  Time-Step Critical Elements
+  ***************************
+  None
+  
+  
+  ********************************
+  Highest Flow Instability Indexes
+  ********************************
+  Link Con_160 (2)
+  Link Con_117 (2)
+  Link P_aalst_4 (2)
+  Link P_riool_zuid_out (1)
+  Link Con_152 (1)
+  
+  
+  *********************************
+  Most Frequent Nonconverging Nodes
+  *********************************
+  Node cso_Geldrop (0.59%)
+  Node cso_gb_136 (0.59%)
+  Node cso_RZ (0.59%)
+  Node cso_ES_1 (0.59%)
+  Node cso_AALST (0.59%)
+  
+  
+  *************************
+  Routing Time Step Summary
+  *************************
+  Minimum Time Step           :     1.50 sec
+  Average Time Step           :     2.00 sec
+  Maximum Time Step           :     2.00 sec
+  % of Time in Steady State   :     0.00
+  Average Iterations per Step :     2.08
+  % of Steps Not Converging   :     0.59
+  Time Step Frequencies       :
+      2.000 -  1.516 sec      :   100.00 %
+      1.516 -  1.149 sec      :     0.00 %
+      1.149 -  0.871 sec      :     0.00 %
+      0.871 -  0.660 sec      :     0.00 %
+      0.660 -  0.500 sec      :     0.00 %
+  
+  
+  ***************************
+  Subcatchment Runoff Summary
+  ***************************
+  
+  ------------------------------------------------------------------------------------------------------------------------------
+                            Total      Total      Total      Total     Imperv       Perv      Total       Total     Peak  Runoff
+                           Precip      Runon       Evap      Infil     Runoff     Runoff     Runoff      Runoff   Runoff   Coeff
+  Subcatchment                 mm         mm         mm         mm         mm         mm         mm    10^6 ltr      CMS
+  ------------------------------------------------------------------------------------------------------------------------------
+  c_24_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_23_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_22_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_21_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_12_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_20_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_19_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_10_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_16_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_15_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_14_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_129_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_128_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_1285_catchment           0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_127_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_126_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_125_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_124_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_136_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_135_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_131_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_130_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_134_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_132_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_150_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_123_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_143_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_147_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_160_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_145_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_144_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_142_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_148_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_149_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_151_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_161_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_138_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_139_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_137_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_122_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_121_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_120_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_119_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_100_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_118_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_116_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_114_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_112_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_107_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_107_2_catchment          0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_106_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_99_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_103_catchment            0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  c_98_catchment             0.00       0.00       0.00       0.00       0.00       0.00       0.00        0.00     0.00   0.000
+  
+  
+  ******************
+  Node Depth Summary
+  ******************
+  
+  ---------------------------------------------------------------------------------
+                                 Average  Maximum  Maximum  Time of Max    Reported
+                                   Depth    Depth      HGL   Occurrence   Max Depth
+  Node                 Type       Meters   Meters   Meters  days hr:min      Meters
+  ---------------------------------------------------------------------------------
+  Nod_100              JUNCTION     0.54     2.97    17.45     0  00:00        2.97
+  Nod_890              JUNCTION     0.46     0.69    13.62     0  00:53        0.69
+  Nod_891              JUNCTION     0.39     0.63    13.63     0  00:51        0.62
+  Nod_892              JUNCTION     0.33     0.58    13.64     0  00:49        0.58
+  Nod_A*HLCMRZ1135     JUNCTION     0.55     0.81    13.65     0  00:49        0.79
+  Nod_103              JUNCTION     0.38     0.77    14.74     0  00:10        0.77
+  Nod_104              JUNCTION     0.27     0.53    14.31     0  00:20        0.53
+  Nod_105              JUNCTION     0.28     0.54    14.30     0  00:20        0.54
+  Nod_106              JUNCTION     0.37     0.56    14.13     0  00:34        0.56
+  Nod_107              JUNCTION     0.37     0.56    14.11     0  00:42        0.56
+  Nod_108              JUNCTION     0.76     0.85    12.05     0  00:46        0.85
+  Nod_109              JUNCTION     0.11     0.50    12.02     0  00:00        0.25
+  Nod_110              JUNCTION     0.33     0.68    14.22     0  00:31        0.68
+  Nod_111              JUNCTION     0.31     0.65    14.12     0  00:34        0.65
+  Nod_112              JUNCTION     0.55     0.78    13.62     0  00:55        0.78
+  Nod_113              JUNCTION     0.58     0.81    13.61     0  00:56        0.81
+  Nod_114              JUNCTION     0.32     0.60    13.37     0  02:47        0.60
+  Nod_115              JUNCTION     0.32     0.61    13.31     0  02:49        0.61
+  Nod_116              JUNCTION     0.32     0.61    13.28     0  02:49        0.61
+  Nod_117              JUNCTION     0.33     0.65    12.92     0  02:59        0.65
+  Nod_118              JUNCTION     0.37     0.90    12.81     0  03:05        0.90
+  Nod_119              JUNCTION     0.12     0.39    11.83     0  00:01        0.29
+  Nod_120              JUNCTION     0.10     0.31    11.68     0  00:03        0.29
+  Nod_121              JUNCTION     0.12     0.27    11.53     0  00:06        0.26
+  Nod_122              JUNCTION     0.21     0.36    11.50     0  03:17        0.36
+  Nod_123              JUNCTION     0.26     0.40    11.49     0  03:11        0.40
+  Nod_124              JUNCTION     0.05     0.10    11.11     0  00:00        0.08
+  Nod_126              JUNCTION     0.37     0.81    17.98     0  01:44        0.81
+  Nod_127              JUNCTION     0.55     1.13    19.14     0  00:58        1.12
+  Nod_128              JUNCTION     0.22     0.67    18.39     0  00:00        0.44
+  Nod_129              JUNCTION     0.38     0.89    16.53     0  00:06        0.84
+  Nod_130              JUNCTION     0.24     1.70    16.76     0  00:05        1.70
+  Nod_131              JUNCTION     0.36     1.81    16.35     0  00:05        1.81
+  Nod_132              JUNCTION     0.35     1.36    15.69     0  00:06        1.17
+  Nod_133              JUNCTION     0.36     1.36    15.64     0  00:06        1.10
+  Nod_134              JUNCTION     0.39     1.06    15.16     0  00:09        1.06
+  Nod_135              JUNCTION     0.41     1.01    15.06     0  00:08        0.99
+  Nod_136              JUNCTION     0.47     0.95    14.88     0  00:19        0.94
+  Nod_222              JUNCTION     1.09     1.70    12.90     0  03:07        1.68
+  Nod_233              JUNCTION     0.41     0.77    12.29     0  03:13        0.77
+  Nod_244              JUNCTION     0.41     0.75    12.19     0  03:09        0.74
+  Nod_266              JUNCTION     0.37     0.68    12.05     0  03:14        0.68
+  Nod_277              JUNCTION     0.35     0.63    11.89     0  03:16        0.63
+  J1                   JUNCTION     2.22     4.00    19.06     0  03:08        4.00
+  J119                 JUNCTION    67.86   170.84   170.84     0  13:35      170.84
+  cso_Geldrop          OUTFALL      0.00     0.00     4.62     0  00:00        0.00
+  cso_gb_136           OUTFALL      0.00     0.00     1.00     0  00:00        0.00
+  cso_RZ               OUTFALL      0.00     0.00    16.07     0  00:00        0.00
+  cso_ES_1             OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  cso_AALST            OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  out_ES               OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  out_RZ               OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  cso_gb127            OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  cso_c_122            OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  cso_c_119_1          OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  cso_c_112            OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  cso_c_99             OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  cso_c_123            OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  cso_c_119_2          OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  cso_c_119_3          OUTFALL      0.00     0.00     0.00     0  00:00        0.00
+  c_24_vr_storage_5    STORAGE      0.00     0.00     0.00     0  12:30        0.00
+  c_23_vr_storage_7    STORAGE      0.00     0.00     0.00     0  12:05        0.00
+  c_22_vr_storage_5    STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_21_vr_storage_7    STORAGE      0.00     0.00     0.00     1  12:05        0.00
+  c_12_vr_storage_8    STORAGE      0.00     0.00     0.00     1  12:10        0.00
+  c_20_vr_storage_13   STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_19_vr_storage_7    STORAGE      0.00     0.00     0.00     1  12:05        0.00
+  c_10_vr_storage_10   STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_16_vr_storage_20   STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_15_vr_storage_24   STORAGE      0.00     0.00     0.00     0  12:25        0.00
+  c_14_vr_storage_24   STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  pipe_ES              STORAGE      0.16     0.25     0.25     0  14:05        0.25
+  pipe_Geldrop         STORAGE      0.00     0.00    15.06     0  00:00        0.00
+  gb_136               STORAGE      0.00     0.00    16.45     0  00:00        0.00
+  c_129_vr_storage_5   STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_128_vr_storage_5   STORAGE      0.00     0.00     0.00     0  12:20        0.00
+  c_1285_vr_storage_5  STORAGE      0.00     0.00     0.00     1  12:05        0.00
+  c_127_vr_storage_5   STORAGE      0.00     0.00     0.00     0  12:15        0.00
+  c_126_vr_storage_5   STORAGE      0.00     0.00     0.00     0  12:10        0.00
+  c_125_vr_storage_5   STORAGE      0.00     0.00     0.00     0  12:05        0.00
+  c_124_storage        STORAGE      0.00     0.00    14.22     1  12:15        0.00
+  c_136_vr_storage_5   STORAGE      0.00     0.00     0.00     0  12:15        0.00
+  c_135_vr_storage_5   STORAGE      0.00     0.00     0.00     0  12:05        0.00
+  c_131_vr_storage_5   STORAGE      0.00     0.00     0.00     0  12:10        0.00
+  c_130_vr_storage_5   STORAGE      0.00     0.00     0.00     0  12:05        0.00
+  c_134_vr_storage_5   STORAGE      0.00     0.00     0.00     1  12:05        0.00
+  c_132_vr_storage_5   STORAGE      0.00     0.00     0.00     0  12:05        0.00
+  Aalst_gemaal         STORAGE      0.04     0.67     0.67     0  00:15        0.67
+  pre_ontvangstkelder  STORAGE      1.73     4.95    -5.55     0  03:48        4.94
+  c_150_vr_storage_57  STORAGE      0.00     0.00     0.00     0  12:55        0.00
+  c_123_vr_storage_40  STORAGE      0.00     0.00     0.00     0  12:40        0.00
+  c_143_vr_storage_70  STORAGE      0.00     0.00     0.00     0  13:10        0.00
+  c_147_vr_storage_4   STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_160_vr_storage_8   STORAGE      0.00     0.00     0.00     0  12:10        0.00
+  c_145_vr_storage_4   STORAGE      0.00     0.00     0.00     0  12:05        0.00
+  c_144_vr_storage_19  STORAGE      0.00     0.00     0.00     0  12:20        0.00
+  c_142_vr_storage_35  STORAGE      0.00     0.00     0.00     0  12:35        0.00
+  c_148_vr_storage_12  STORAGE      0.00     0.00     0.00     1  12:10        0.00
+  c_149_vr_storage_17  STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_151_vr_storage_22  STORAGE      0.00     0.00     0.00     0  12:20        0.00
+  c_161_vr_storage_32  STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_138_vr_storage_22  STORAGE      0.00     0.00     0.00     0  12:25        0.00
+  c_139_vr_storage_8   STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_137_vr_storage_4   STORAGE      0.00     0.00     0.00     0  12:05        0.00
+  c_122_vr_storage_29  STORAGE      0.00     0.00     0.00     0  12:30        0.00
+  c_121_vr_storage_12  STORAGE      0.00     0.00     0.00     0  12:20        0.00
+  c_120_vr_storage_8   STORAGE      0.00     0.00     0.00     1  12:10        0.00
+  c_119_vr_storage_80  STORAGE      0.00     0.00     0.00     0  13:10        0.00
+  c_100_vr_storage_10  STORAGE      0.00     0.00     0.00     0  12:10        0.00
+  c_118_vr_storage_13  STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_116_vr_storage_15  STORAGE      0.00     0.00     0.00     0  12:25        0.00
+  c_114_vr_storage_10  STORAGE      0.00     0.00     0.00     0  12:10        0.00
+  c_112_vr_storage_21  STORAGE      0.00     0.00     0.00     0  12:20        0.00
+  c_107_vr_storage_36  STORAGE      0.00     0.00     0.00     0  12:50        0.00
+  c_107_2_vr_storage_12 STORAGE      0.00     0.00     0.00     0  12:10        0.00
+  c_106_vr_storage_13  STORAGE      0.00     0.00     0.00     0  12:15        0.00
+  c_99_vr_storage_41   STORAGE      0.00     0.00     0.00     0  12:50        0.00
+  c_103_vr_storage_8   STORAGE      0.00     0.00     0.00     0  12:10        0.00
+  c_98_vr_storage_20   STORAGE      0.00     0.00     0.00     0  12:20        0.00
+  gb127                STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_123                STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_122                STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_112                STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_99                 STORAGE      0.00     0.00     0.00     0  00:00        0.00
+  c_119_1              STORAGE      0.14     2.93     2.93     0  00:05        2.92
+  c_119_2              STORAGE      0.10     2.91     2.91     0  00:05        2.90
+  c_119_3              STORAGE      0.09     2.89     2.89     0  00:05        2.88
+  
+  
+  *******************
+  Node Inflow Summary
+  *******************
+  
+  -------------------------------------------------------------------------------------------------
+                                  Maximum  Maximum                  Lateral       Total        Flow
+                                  Lateral    Total  Time of Max      Inflow      Inflow     Balance
+                                   Inflow   Inflow   Occurrence      Volume      Volume       Error
+  Node                 Type           CMS      CMS  days hr:min    10^6 ltr    10^6 ltr     Percent
+  -------------------------------------------------------------------------------------------------
+  Nod_100              JUNCTION     0.000   10.019     0  00:00           0          14       0.000
+  Nod_890              JUNCTION     0.000    0.725     0  00:31           0        1.83      16.414
+  Nod_891              JUNCTION     0.000    0.442     0  00:32           0        1.05      14.698
+  Nod_892              JUNCTION     0.000    0.263     0  00:30           0       0.773       8.261
+  Nod_A*HLCMRZ1135     JUNCTION     0.000    0.317     0  00:00           0       0.429      10.669
+  Nod_103              JUNCTION     0.000    0.817     0  00:05           0        11.6       0.005
+  Nod_104              JUNCTION     0.000    0.372     0  00:11           0        11.6       0.330
+  Nod_105              JUNCTION     0.000    0.320     0  00:16           0        11.6      -0.192
+  Nod_106              JUNCTION     0.000    0.315     0  00:00           0        11.6       0.000
+  Nod_107              JUNCTION     0.000    0.295     0  00:22           0        11.6      -1.345
+  Nod_108              JUNCTION     0.000    0.209     0  00:43           0        11.7       0.334
+  Nod_109              JUNCTION     0.000    0.210     0  00:50           0        11.7      -2.204
+  Nod_110              JUNCTION     0.000    1.774     0  00:20           0        65.3       0.043
+  Nod_111              JUNCTION     0.000    1.638     0  00:23           0        65.3       0.645
+  Nod_112              JUNCTION     0.000    1.451     0  00:38           0        65.7       0.386
+  Nod_113              JUNCTION     0.000    1.285     0  00:54           0        64.2       0.382
+  Nod_114              JUNCTION     0.000    1.230     0  00:56           0        63.9       0.023
+  Nod_115              JUNCTION     0.000    1.204     0  02:44           0        63.9       0.041
+  Nod_116              JUNCTION     0.000    1.203     0  02:47           0        63.8       0.176
+  Nod_117              JUNCTION     0.000    1.204     0  02:49           0        63.7       0.345
+  Nod_118              JUNCTION     0.000    3.166     0  03:04           0        76.2       0.187
+  Nod_119              JUNCTION     0.000    0.981     0  00:01           0          12      -0.121
+  Nod_120              JUNCTION     0.000    0.691     0  00:02           0          12      -0.188
+  Nod_121              JUNCTION     0.000    0.532     0  00:04           0          12      -0.138
+  Nod_122              JUNCTION     0.000    0.424     0  00:07           0          12       0.154
+  Nod_123              JUNCTION     0.000    1.290     0  03:10           0          75       0.060
+  Nod_124              JUNCTION     0.000    1.285     0  03:11           0          75      -0.022
+  Nod_126              JUNCTION     0.000    1.903     0  00:00           0          56      -0.410
+  Nod_127              JUNCTION     0.000    2.100     0  00:05           0          56       0.630
+  Nod_128              JUNCTION     0.000    1.363     0  01:00           0        55.6      -0.719
+  Nod_129              JUNCTION     0.000    3.395     0  00:04           0        56.8      -0.217
+  Nod_130              JUNCTION     0.000   10.805     0  00:00           0        67.1       0.052
+  Nod_131              JUNCTION     0.000    9.744     0  00:01           0        66.5       0.197
+  Nod_132              JUNCTION     0.000    7.133     0  00:05           0        66.4       0.156
+  Nod_133              JUNCTION     0.000    5.318     0  00:05           0        66.3       0.146
+  Nod_134              JUNCTION     0.000    4.520     0  00:06           0        66.2       0.173
+  Nod_135              JUNCTION     0.000    3.567     0  00:07           0        66.1       0.137
+  Nod_136              JUNCTION     0.000    3.269     0  00:09           0          66       1.039
+  Nod_222              JUNCTION     0.000    4.126     0  03:06           0          76       0.401
+  Nod_233              JUNCTION     0.000    1.618     0  03:08           0        63.1      -0.214
+  Nod_244              JUNCTION     0.000    1.320     0  03:09           0        63.2       0.070
+  Nod_266              JUNCTION     0.000    1.279     0  03:09           0        63.1       0.080
+  Nod_277              JUNCTION     0.000    1.239     0  03:15           0        63.1       0.110
+  J1                   JUNCTION     0.000    0.142     0  12:20           0        14.5     -29.345
+  J119                 JUNCTION     0.000    0.063     0  13:30           0        3.78     -70.413
+  cso_Geldrop          OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  cso_gb_136           OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  cso_RZ               OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  cso_ES_1             OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  cso_AALST            OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  out_ES               OUTFALL      0.000    0.982     0  14:05           0        70.4       0.000
+  out_RZ               OUTFALL      0.000    1.208     0  01:31           0          75       0.000
+  cso_gb127            OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  cso_c_122            OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  cso_c_119_1          OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  cso_c_112            OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  cso_c_99             OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  cso_c_123            OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  cso_c_119_2          OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  cso_c_119_3          OUTFALL      0.000    0.000     0  00:00           0           0       0.000 ltr
+  c_24_vr_storage_5    STORAGE      1.197    1.213     0  12:25        84.2        84.9       0.000
+  c_23_vr_storage_7    STORAGE      0.003    0.003     0  12:00       0.129       0.129       0.000
+  c_22_vr_storage_5    STORAGE      0.000    0.000     0  00:00           0           0       0.000 ltr
+  c_21_vr_storage_7    STORAGE      0.003    0.003     0  12:00       0.121       0.121       0.000
+  c_12_vr_storage_8    STORAGE      0.005    0.005     0  12:00       0.201       0.201       0.000
+  c_20_vr_storage_13   STORAGE      0.000    0.000     0  00:00           0           0       0.000 ltr
+  c_19_vr_storage_7    STORAGE      0.002    0.002     0  12:00      0.0968      0.0968       0.000
+  c_10_vr_storage_10   STORAGE      0.000    0.000     0  00:00           0           0       0.000 ltr
+  c_16_vr_storage_20   STORAGE      0.000    0.000     0  00:00           0           0       0.000 ltr
+  c_15_vr_storage_24   STORAGE      0.003    0.003     0  12:00       0.142       0.142       0.000
+  c_14_vr_storage_24   STORAGE      0.000    0.000     0  00:00           0           0       0.000 ltr
+  pipe_ES              STORAGE      0.000    1.213     0  12:30           0        84.6       0.002
+  pipe_Geldrop         STORAGE      0.000    0.142     0  12:20           0        14.5       0.000
+  gb_136               STORAGE      0.000    0.043     0  12:15           0        3.81       0.000
+  c_129_vr_storage_5   STORAGE      0.000    0.000     0  00:00           0           0       0.000 ltr
+  c_128_vr_storage_5   STORAGE      0.100    0.142     0  12:15        10.3        14.5       0.000
+  c_1285_vr_storage_5  STORAGE      0.001    0.001     0  12:00      0.0586      0.0586       0.000
+  c_127_vr_storage_5   STORAGE      0.016    0.041     0  12:10        1.02        4.17       0.000
+  c_126_vr_storage_5   STORAGE      0.025    0.025     0  12:05        3.12        3.16       0.000
+  c_125_vr_storage_5   STORAGE      0.001    0.001     0  12:00      0.0395      0.0395       0.000
+  c_124_storage        STORAGE      0.008    0.014     0  00:20       0.536       0.557       0.011
+  c_136_vr_storage_5   STORAGE      0.027    0.043     0  12:10        2.78        3.82       0.000
+  c_135_vr_storage_5   STORAGE      0.006    0.006     0  12:00       0.392       0.392       0.000
+  c_131_vr_storage_5   STORAGE      0.006    0.008     0  12:05       0.373       0.486       0.000
+  c_130_vr_storage_5   STORAGE      0.002    0.002     0  12:00       0.113       0.113       0.000
+  c_134_vr_storage_5   STORAGE      0.001    0.001     0  12:00      0.0841      0.0841       0.000
+  c_132_vr_storage_5   STORAGE      0.001    0.001     0  12:00      0.0828      0.0828       0.000
+  Aalst_gemaal         STORAGE      0.000    1.169     0  00:00           0        55.8      -0.488
+  pre_ontvangstkelder  STORAGE      0.000    1.285     0  03:12           0          75       0.016
+  c_150_vr_storage_57  STORAGE      0.024    0.024     0  12:00         2.2         2.2       0.000
+  c_123_vr_storage_40  STORAGE      0.019    0.019     0  12:00         1.2         1.2       0.000
+  c_143_vr_storage_70  STORAGE      0.167    0.304     0  12:35        10.6        19.3       0.001
+  c_147_vr_storage_4   STORAGE      0.000    0.000     0  00:00           0           0       0.000 ltr
+  c_160_vr_storage_8   STORAGE      0.102    0.102     0  12:00        6.49        6.49       0.000
+  c_145_vr_storage_4   STORAGE      0.001    0.001     0  12:00      0.0854      0.0854       0.000
+  c_144_vr_storage_19  STORAGE      0.003    0.003     0  12:00       0.213       0.213       0.000
+  c_142_vr_storage_35  STORAGE      0.016    0.016     0  12:00        1.03        1.03       0.000
+  c_148_vr_storage_12  STORAGE      0.002    0.002     0  12:00       0.115       0.115       0.000
+  c_149_vr_storage_17  STORAGE      0.000    0.000     0  00:00           0           0       0.000 ltr
+  c_151_vr_storage_22  STORAGE      0.001    0.001     0  12:00      0.0866      0.0866       0.000
+  c_161_vr_storage_32  STORAGE      0.000    0.000     0  00:00           0           0       0.000 ltr
+  c_138_vr_storage_22  STORAGE      0.008    0.011     0  12:05        0.48       0.697       0.000
+  c_139_vr_storage_8   STORAGE      0.000    0.000     0  00:00           0           0       0.000 ltr
+  c_137_vr_storage_4   STORAGE      0.003    0.003     0  12:00       0.218       0.218       0.000
+  c_122_vr_storage_29  STORAGE      0.010    0.010     0  12:00       0.617       0.617       0.000
+  c_121_vr_storage_12  STORAGE      0.009    0.012     0  12:10        1.04        1.19       0.000
+  c_120_vr_storage_8   STORAGE      0.002    0.002     0  12:00       0.152       0.152       0.000
+  c_119_vr_storage_80  STORAGE      0.062    0.063     0  12:10        3.95        4.03       0.001
+  c_100_vr_storage_10  STORAGE      0.001    0.001     0  12:00      0.0841      0.0841       0.000
+  c_118_vr_storage_13  STORAGE      0.000    0.000     0  00:00           0           0       0.000 ltr
+  c_116_vr_storage_15  STORAGE      0.003    0.004     0  12:10       0.172       0.262       0.000
+  c_114_vr_storage_10  STORAGE      0.001    0.001     0  12:00      0.0905      0.0905       0.000
+  c_112_vr_storage_21  STORAGE      0.004    0.004     0  12:00       0.228       0.228       0.000
+  c_107_vr_storage_36  STORAGE      0.132    0.146     0  12:15        16.3        17.9       0.000
+  c_107_2_vr_storage_12 STORAGE      0.000    0.000     0  12:00      0.0365      0.0365       0.000
+  c_106_vr_storage_13  STORAGE      0.014    0.014     0  12:00        1.55        1.55       0.000
+  c_99_vr_storage_41   STORAGE      0.014    0.016     0  12:10       0.914       0.992       0.000
+  c_103_vr_storage_8   STORAGE      0.001    0.001     0  12:00       0.079       0.079       0.000
+  c_98_vr_storage_20   STORAGE      0.005    0.005     0  12:00       0.349       0.349       0.000
+  gb127                STORAGE      0.000    0.041     0  12:15           0        4.16       0.000
+  c_123                STORAGE      0.000    0.019     0  12:40           0        1.16       0.000
+  c_122                STORAGE      0.000    0.010     0  12:30           0       0.602       0.000
+  c_112                STORAGE      0.000    0.004     0  12:20           0       0.224       0.000
+  c_99                 STORAGE      0.000    0.016     0  12:50           0       0.961       0.000
+  c_119_1              STORAGE      0.000   10.000     0  00:00           0        4.51      -0.005
+  c_119_2              STORAGE      0.000   10.000     0  00:00           0        4.06      -0.008
+  c_119_3              STORAGE      0.000   10.000     0  00:00           0        4.21      -0.009
+  
+  
+  **********************
+  Node Surcharge Summary
+  **********************
+  
+  Surcharging occurs when water rises above the top of the highest conduit.
+  ---------------------------------------------------------------------
+                                               Max. Height   Min. Depth
+                                   Hours       Above Crown    Below Rim
+  Node                 Type      Surcharged         Meters       Meters
+  ---------------------------------------------------------------------
+  Nod_100              JUNCTION        0.09          1.750        0.000
+  J1                   JUNCTION       36.25          4.000        0.000
+  J119                 JUNCTION       36.25        170.837    99999828.163
+  
+  
+  *********************
+  Node Flooding Summary
+  *********************
+  
+  Flooding refers to all water that overflows a node, whether it ponds or not.
+  --------------------------------------------------------------------------
+                                                             Total   Maximum
+                                 Maximum   Time of Max       Flood    Ponded
+                        Hours       Rate    Occurrence      Volume     Depth
+  Node                 Flooded       CMS   days hr:min    10^6 ltr    Meters
+  --------------------------------------------------------------------------
+  Nod_100                 0.08     9.992      0  00:00       2.784     0.000
+  J1                      6.01     0.006      0  05:05       0.032     0.000
+  
+  
+  **********************
+  Storage Volume Summary
+  **********************
+  
+  ------------------------------------------------------------------------------------------------
+                         Average    Avg   Evap  Exfil     Maximum    Max    Time of Max    Maximum
+                          Volume   Pcnt   Pcnt   Pcnt      Volume   Pcnt     Occurrence    Outflow
+  Storage Unit           1000 m³   Full   Loss   Loss     1000 m³   Full    days hr:min        CMS
+  ------------------------------------------------------------------------------------------------
+  c_24_vr_storage_5        0.127    0.0    0.0    0.0       0.296    0.0       0  12:30      1.213
+  c_23_vr_storage_7        0.000    0.0    0.0    0.0       0.001    0.0       0  12:05      0.003
+  c_22_vr_storage_5        0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.000
+  c_21_vr_storage_7        0.000    0.0    0.0    0.0       0.001    0.0       1  12:05      0.003
+  c_12_vr_storage_8        0.001    0.0    0.0    0.0       0.003    0.0       1  12:10      0.005
+  c_20_vr_storage_13       0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.000
+  c_19_vr_storage_7        0.000    0.0    0.0    0.0       0.001    0.0       1  12:05      0.002
+  c_10_vr_storage_10       0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.000
+  c_16_vr_storage_20       0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.000
+  c_15_vr_storage_24       0.001    0.0    0.0    0.0       0.005    0.0       0  12:25      0.003
+  c_14_vr_storage_24       0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.000
+  pipe_ES                 10.522    5.3    0.0    0.0      16.781    8.5       0  14:05      0.982
+  pipe_Geldrop             0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.142
+  gb_136                   0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.043
+  c_129_vr_storage_5       0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.000
+  c_128_vr_storage_5       0.007    0.0    0.0    0.0       0.016    0.0       0  12:20      0.142
+  c_1285_vr_storage_5      0.000    0.0    0.0    0.0       0.000    0.0       1  12:05      0.001
+  c_127_vr_storage_5       0.002    0.0    0.0    0.0       0.005    0.0       0  12:15      0.041
+  c_126_vr_storage_5       0.000    0.0    0.0    0.0       0.001    0.0       0  12:10      0.025
+  c_125_vr_storage_5       0.000    0.0    0.0    0.0       0.000    0.0       0  12:05      0.001
+  c_124_storage            0.276    0.0    0.0    0.0       0.557    0.0       1  12:15      0.000
+  c_136_vr_storage_5       0.003    0.0    0.0    0.0       0.007    0.0       0  12:15      0.043
+  c_135_vr_storage_5       0.001    0.0    0.0    0.0       0.002    0.0       0  12:05      0.006
+  c_131_vr_storage_5       0.001    0.0    0.0    0.0       0.002    0.0       0  12:10      0.008
+  c_130_vr_storage_5       0.000    0.0    0.0    0.0       0.000    0.0       0  12:05      0.002
+  c_134_vr_storage_5       0.000    0.0    0.0    0.0       0.000    0.0       1  12:05      0.001
+  c_132_vr_storage_5       0.000    0.0    0.0    0.0       0.000    0.0       0  12:05      0.001
+  Aalst_gemaal             0.013    0.0    0.0    0.0       0.200    0.1       0  00:15      2.100
+  pre_ontvangstkelder      0.017    6.0    0.0    0.0       0.049   17.0       0  03:48      1.208
+  c_150_vr_storage_57      0.017    0.0    0.0    0.0       0.042    0.0       0  12:55      0.024
+  c_123_vr_storage_40      0.017    0.0    0.0    0.0       0.041    0.0       0  12:40      0.019
+  c_143_vr_storage_70      0.475    0.0    0.0    0.0       1.127    0.0       0  13:10      0.304
+  c_147_vr_storage_4       0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.000
+  c_160_vr_storage_8       0.024    0.0    0.0    0.0       0.055    0.0       0  12:10      0.102
+  c_145_vr_storage_4       0.000    0.0    0.0    0.0       0.000    0.0       0  12:05      0.001
+  c_144_vr_storage_19      0.002    0.0    0.0    0.0       0.004    0.0       0  12:20      0.003
+  c_142_vr_storage_35      0.013    0.0    0.0    0.0       0.031    0.0       0  12:35      0.016
+  c_148_vr_storage_12      0.000    0.0    0.0    0.0       0.001    0.0       1  12:10      0.002
+  c_149_vr_storage_17      0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.000
+  c_151_vr_storage_22      0.001    0.0    0.0    0.0       0.001    0.0       0  12:20      0.001
+  c_161_vr_storage_32      0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.000
+  c_138_vr_storage_22      0.005    0.0    0.0    0.0       0.012    0.0       0  12:25      0.011
+  c_139_vr_storage_8       0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.000
+  c_137_vr_storage_4       0.000    0.0    0.0    0.0       0.001    0.0       0  12:05      0.003
+  c_122_vr_storage_29      0.007    0.0    0.0    0.0       0.016    0.0       0  12:30      0.010
+  c_121_vr_storage_12      0.001    0.0    0.0    0.0       0.003    0.0       0  12:20      0.012
+  c_120_vr_storage_8       0.001    0.0    0.0    0.0       0.001    0.0       1  12:10      0.002
+  c_119_vr_storage_80      0.113    0.0    0.0    0.0       0.266    0.0       0  13:10      0.063
+  c_100_vr_storage_10      0.000    0.0    0.0    0.0       0.001    0.0       0  12:10      0.001
+  c_118_vr_storage_13      0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.000
+  c_116_vr_storage_15      0.001    0.0    0.0    0.0       0.003    0.0       0  12:25      0.004
+  c_114_vr_storage_10      0.000    0.0    0.0    0.0       0.001    0.0       0  12:10      0.001
+  c_112_vr_storage_21      0.002    0.0    0.0    0.0       0.004    0.0       0  12:20      0.004
+  c_107_vr_storage_36      0.014    0.0    0.0    0.0       0.032    0.0       0  12:50      0.146
+  c_107_2_vr_storage_12     0.000    0.0    0.0    0.0       0.000    0.0       0  12:10      0.000
+  c_106_vr_storage_13      0.001    0.0    0.0    0.0       0.003    0.0       0  12:15      0.014
+  c_99_vr_storage_41       0.014    0.0    0.0    0.0       0.034    0.0       0  12:50      0.016
+  c_103_vr_storage_8       0.000    0.0    0.0    0.0       0.001    0.0       0  12:10      0.001
+  c_98_vr_storage_20       0.003    0.0    0.0    0.0       0.006    0.0       0  12:20      0.005
+  gb127                    0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.041
+  c_123                    0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.019
+  c_122                    0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.010
+  c_112                    0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.004
+  c_99                     0.000    0.0    0.0    0.0       0.000    0.0       0  00:00      0.016
+  c_119_1                  0.141    1.4    0.0    0.0       2.934   29.3       0  00:05      0.243
+  c_119_2                  0.099    1.0    0.0    0.0       2.905   29.1       0  00:05      0.340
+  c_119_3                  0.086    0.4    0.0    0.0       2.890   14.5       0  00:05      0.389
+  
+  
+  ***********************
+  Outfall Loading Summary
+  ***********************
+  
+  -----------------------------------------------------------
+                         Flow       Avg       Max       Total
+                         Freq      Flow      Flow      Volume
+  Outfall Node           Pcnt       CMS       CMS    10^6 ltr
+  -----------------------------------------------------------
+  cso_Geldrop            0.00     0.000     0.000       0.000
+  cso_gb_136             0.00     0.000     0.000       0.000
+  cso_RZ                 0.00     0.000     0.000       0.000
+  cso_ES_1               0.00     0.000     0.000       0.000
+  cso_AALST              0.00     0.000     0.000       0.000
+  out_ES                77.43     0.697     0.982      70.412
+  out_RZ               100.00     0.574     1.208      74.958
+  cso_gb127              0.00     0.000     0.000       0.000
+  cso_c_122              0.00     0.000     0.000       0.000
+  cso_c_119_1            0.00     0.000     0.000       0.000
+  cso_c_112              0.00     0.000     0.000       0.000
+  cso_c_99               0.00     0.000     0.000       0.000
+  cso_c_123              0.00     0.000     0.000       0.000
+  cso_c_119_2            0.00     0.000     0.000       0.000
+  cso_c_119_3            0.00     0.000     0.000       0.000
+  -----------------------------------------------------------
+  System                11.83     1.271     1.699     145.370
+  
+  
+  ********************
+  Link Flow Summary
+  ********************
+  
+  -----------------------------------------------------------------------------
+                                 Maximum  Time of Max   Maximum    Max/    Max/
+                                  |Flow|   Occurrence   |Veloc|    Full    Full
+  Link                 Type          CMS  days hr:min     m/sec    Flow   Depth
+  -----------------------------------------------------------------------------
+  Con_158              CONDUIT     0.442     0  00:32      0.90    0.01    0.31
+  Con_159              CONDUIT     0.263     0  00:30      0.40    0.04    0.29
+  Con_160              CONDUIT     0.317     0  00:00      1.04    0.02    0.33
+  Con_101              CONDUIT     0.817     0  00:05      0.91    2.54    0.72
+  Con_102              CONDUIT     0.372     0  00:11      0.64    0.81    0.52
+  Con_103              CONDUIT     0.309     0  00:19      0.62    0.41    0.45
+  Con_104              CONDUIT     0.320     0  00:16      1.51    0.32    0.44
+  Con_105              CONDUIT     0.295     0  00:22      0.61    0.63    0.46
+  Con_106              CONDUIT     0.209     0  00:43      0.63    0.27    0.33
+  Con_107              CONDUIT     0.210     0  00:50      0.56    0.05    0.19
+  Con_108              CONDUIT     0.981     0  00:01      1.30    0.22    0.21
+  Con_109              CONDUIT     1.638     0  00:23      1.09    0.28    0.31
+  Con_110              CONDUIT     1.451     0  00:38      1.14    0.22    0.24
+  Con_157              CONDUIT     0.725     0  00:31      0.91    0.02    0.35
+  Con_111              CONDUIT     1.285     0  00:54      0.63    0.22    0.38
+  Con_112              CONDUIT     1.230     0  00:56      0.94    0.17    0.26
+  Con_113              CONDUIT     1.204     0  02:44      1.03    0.28    0.34
+  Con_114              CONDUIT     1.203     0  02:47      1.04    0.30    0.34
+  Con_115              CONDUIT     1.204     0  02:49      1.04    0.29    0.35
+  Con_116              CONDUIT     1.318     0  03:00      1.05    0.32    0.43
+  Con_117              CONDUIT     4.126     0  03:06      1.92    0.27    0.60
+  Con_118              CONDUIT     0.691     0  00:02      1.08    0.18    0.18
+  Con_119              CONDUIT     0.532     0  00:04      0.87    0.11    0.15
+  Con_120              CONDUIT     0.424     0  00:07      0.71    0.09    0.17
+  Con_121              CONDUIT     0.366     0  00:10      0.57    0.07    0.21
+  Con_122              CONDUIT     1.285     0  03:11      2.34    0.28    0.14
+  Con_123              CONDUIT     1.285     0  03:12      6.59    0.01    0.52
+  Con_125              CONDUIT     1.178     0  01:54      0.84    0.51    0.49
+  Con_126              CONDUIT     1.363     0  01:00      0.92    0.93    0.52
+  Con_127              CONDUIT     1.903     0  00:00      1.72    0.30    0.42
+  Con_128              CONDUIT     2.554     0  00:04      1.45    1.07    0.70
+  Con_129              CONDUIT     9.744     0  00:01      4.13    1.27    0.88
+  Con_130              CONDUIT     7.133     0  00:05      1.83    1.50    0.72
+  Con_140              CONDUIT     5.318     0  00:05      2.11    1.00    0.65
+  Con_141              CONDUIT     4.520     0  00:06      1.59    0.95    0.52
+  Con_142              CONDUIT     3.567     0  00:07      1.58    0.75    0.49
+  Con_143              CONDUIT     3.269     0  00:09      1.74    0.68    0.44
+  Con_144              CONDUIT     1.774     0  00:20      0.96    0.48    0.34
+  Con_152              CONDUIT     1.618     0  03:08      0.92    0.61    0.50
+  Con_153              CONDUIT     1.320     0  03:09      1.01    0.46    0.42
+  Con_154              CONDUIT     1.279     0  03:09      0.90    0.50    0.40
+  Con_155              CONDUIT     1.239     0  03:15      0.84    0.38    0.36
+  Con_156              CONDUIT     1.204     0  03:16      1.03    0.33    0.29
+  eeneind_out          CONDUIT     0.014     0  00:20      0.55    0.15    0.50
+  P_c_24_d_5           PUMP        1.213     0  12:30              0.12
+  P_c_23_d_7           PUMP        0.003     0  12:05              0.00
+  P_c_22_d_5           PUMP        0.000     0  00:00              0.00
+  P_c_21_d_7           PUMP        0.003     0  12:05              0.00
+  P_c_12_d_8           PUMP        0.005     0  12:10              0.00
+  P_c_20_d_13          PUMP        0.000     0  00:00              0.00
+  P_c_19_d_7           PUMP        0.002     0  12:05              0.00
+  P_c_10_d_10          PUMP        0.000     0  00:00              0.00
+  P_c_16_d_20          PUMP        0.000     0  00:00              0.00
+  P_c_15_d_24          PUMP        0.003     0  12:25              0.00
+  P_c_14_d_24          PUMP        0.000     0  00:00              0.00
+  P_c_129_d_5          PUMP        0.000     0  00:00              0.00
+  P_c_128_d_5          PUMP        0.142     0  12:20              0.01
+  P_c_1285_d_5         PUMP        0.001     0  12:05              0.00
+  P_c_127_d_5          PUMP        0.041     0  12:15              0.00
+  P_c_126_d_5          PUMP        0.025     0  12:10              0.00
+  P_c_125_d_5          PUMP        0.001     0  12:05              0.00
+  P_c_136_d_5          PUMP        0.043     0  12:15              0.00
+  P_c_135_d_5          PUMP        0.006     0  12:05              0.00
+  P_c_131_d_5          PUMP        0.008     0  12:10              0.00
+  P_c_130_d_5          PUMP        0.002     0  12:05              0.00
+  P_c_134_d_5          PUMP        0.001     0  12:05              0.00
+  P_c_132_d_5          PUMP        0.001     0  12:05              0.00
+  Con_1119.1           PUMP        0.043     0  12:15              0.23
+  P_riool_zuid_out     PUMP        1.208     0  01:31              0.26
+  P_eindhoven_out      PUMP        0.982     0  14:05              0.25
+  P_c_150_d_57         PUMP        0.024     0  12:55              0.00
+  P_c_123_d_40         PUMP        0.019     0  12:40              0.00
+  P_c_143_d_70         PUMP        0.304     0  13:45              0.03
+  P_c_147_d_4          PUMP        0.000     0  00:00              0.00
+  P_c_160_d_8          PUMP        0.102     0  12:10              0.01
+  P_c_145_d_4          PUMP        0.001     0  12:05              0.00
+  P_c_144_d_19         PUMP        0.003     0  12:20              0.00
+  P_c_142_d_35         PUMP        0.016     0  12:35              0.00
+  P_c_148_d_12         PUMP        0.002     0  12:10              0.00
+  P_c_149_d_17         PUMP        0.000     0  00:00              0.00
+  P_c_151_d_22         PUMP        0.001     0  12:20              0.00
+  P_c_161_d_32         PUMP        0.000     0  00:00              0.00
+  P_c_138_d_22         PUMP        0.011     0  12:25              0.00
+  P_c_139_d_8          PUMP        0.000     0  00:00              0.00
+  P_c_137_d_4          PUMP        0.003     0  12:05              0.00
+  P_c_122_d_29         PUMP        0.010     0  12:30              0.00
+  P_c_121_d_12         PUMP        0.012     0  12:20              0.00
+  P_c_120_d_8          PUMP        0.002     0  12:10              0.00
+  P_c_119_d_80         PUMP        0.063     0  13:30              0.01
+  P_c_100_d_10         PUMP        0.001     0  12:10              0.00
+  P_c_118_d_13         PUMP        0.000     0  00:00              0.00
+  P_c_116_d_15         PUMP        0.004     0  12:25              0.00
+  P_c_114_d_10         PUMP        0.001     0  12:10              0.00
+  P_c_112_d_21         PUMP        0.004     0  12:20              0.00
+  P_c_107_d_36         PUMP        0.146     0  12:50              0.01
+  P_c_107_2_d_12       PUMP        0.000     0  12:10              0.00
+  P_c_106_d_13         PUMP        0.014     0  12:15              0.00
+  P_c_99_d_41          PUMP        0.016     0  12:50              0.00
+  P_c_103_d_8          PUMP        0.001     0  12:10              0.00
+  P_c_98_d_20          PUMP        0.005     0  12:20              0.00
+  P_aalst_1            PUMP        0.560     0  00:05              1.00
+  P_aalst_2            PUMP        0.560     0  00:05              1.00
+  P_aalst_3            PUMP        0.490     0  00:05              1.00
+  P_aalst_4            PUMP        0.490     0  00:00              1.00
+  P_pipe_Geldrop       PUMP        0.142     0  12:20              0.18
+  P_gb127              PUMP        0.041     0  12:15              0.13
+  P_c_99               PUMP        0.016     0  12:50              0.03
+  P_c_112              PUMP        0.004     0  12:20              0.06
+  P_c_119_1            PUMP        0.243     0  00:00              1.00
+  P_c_122              PUMP        0.010     0  12:30              0.31
+  P_c_123              PUMP        0.019     0  12:40              0.07
+  P_c_119_2            PUMP        0.340     0  00:00              1.00
+  P_c_119_3            PUMP        0.389     0  00:00              1.00
+  P_c_119_fr_040       PUMP       10.000     0  00:00              1.00
+  P_c_119_fr_028       PUMP       10.000     0  00:00              1.00
+  P_c_119_fr_032       PUMP       10.000     0  00:00              1.00
+  P_geldrop_split_1    PUMP       10.000     0  00:00              1.00
+  P_geldrop_split_2    PUMP       10.000     0  00:00              1.00
+  weir_gb_136          WEIR        0.000     0  00:00                      0.00
+  Con_A*HLCMRZ1135.1   WEIR        0.000     0  00:00                      0.00
+  weir_ES              WEIR        0.000     0  00:00                      0.00
+  Aalst_weir           WEIR        0.000     0  00:00                      0.00
+  weir_gb127           WEIR        0.000     0  00:00                      0.00
+  weir_pipe_Geldrop    WEIR        0.000     0  00:00                      0.00
+  weir_c_123           WEIR        0.000     0  00:00                      0.00
+  weir_c_99            WEIR        0.000     0  00:00                      0.00
+  weir_c_112           WEIR        0.000     0  00:00                      0.00
+  weir_c_119_1         WEIR        0.000     0  00:00                      0.00
+  weir_c_122           WEIR        0.000     0  00:00                      0.00
+  weir_c_119_2         WEIR        0.000     0  00:00                      0.00
+  weir_c_119_3         WEIR        0.000     0  00:00                      0.00
+  
+  
+  ***************************
+  Flow Classification Summary
+  ***************************
+  
+  -------------------------------------------------------------------------------------
+                      Adjusted    ---------- Fraction of Time in Flow Class ---------- 
+                       /Actual         Up    Down  Sub   Sup   Up    Down  Norm  Inlet 
+  Conduit               Length    Dry  Dry   Dry   Crit  Crit  Crit  Crit  Ltd   Ctrl  
+  -------------------------------------------------------------------------------------
+  Con_158                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_159                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_160                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_101                 1.00   0.00  0.00  0.00  0.79  0.00  0.00  0.21  0.00  0.00
+  Con_102                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_103                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.47  0.00
+  Con_104                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_105                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_106                 1.00   0.00  0.00  0.00  0.00  0.00  0.00  1.00  0.00  0.00
+  Con_107                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.01  0.00
+  Con_108                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.95  0.00
+  Con_109                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_110                 1.00   0.00  0.00  0.00  0.98  0.00  0.00  0.02  0.00  0.00
+  Con_157                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_111                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_112                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.97  0.00
+  Con_113                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_114                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_115                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.77  0.00
+  Con_116                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.40  0.00
+  Con_117                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.16  0.00
+  Con_118                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.02  0.00
+  Con_119                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.90  0.00
+  Con_120                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.31  0.00
+  Con_121                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_122                 1.00   0.00  0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00
+  Con_123                 1.00   0.00  0.00  0.00  0.26  0.36  0.00  0.39  0.61  0.00
+  Con_125                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.85  0.00
+  Con_126                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_127                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  1.00  0.00
+  Con_128                 1.00   0.00  0.00  0.00  0.00  0.00  0.00  1.00  0.00  0.00
+  Con_129                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.99  0.00
+  Con_130                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.04  0.00
+  Con_140                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_141                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.22  0.00
+  Con_142                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_143                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_144                 1.00   0.00  0.00  0.00  0.72  0.00  0.00  0.28  0.00  0.00
+  Con_152                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.19  0.00
+  Con_153                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.06  0.00
+  Con_154                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_155                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.00  0.00
+  Con_156                 1.00   0.00  0.00  0.00  1.00  0.00  0.00  0.00  0.03  0.00
+  eeneind_out             1.00   0.00  0.07  0.00  0.93  0.00  0.00  0.00  0.91  0.00
+  
+  
+  *************************
+  Conduit Surcharge Summary
+  *************************
+  
+  ----------------------------------------------------------------------------
+                                                           Hours        Hours 
+                         --------- Hours Full --------   Above Full   Capacity
+  Conduit                Both Ends  Upstream  Dnstream   Normal Flow   Limited
+  ----------------------------------------------------------------------------
+  Con_101                     0.01      0.08      0.01      0.21         0.01
+  Con_123                     0.01      0.01      1.45      0.01         0.01
+  Con_128                     0.01      0.01      0.01      0.03         0.01
+  Con_129                     0.01      0.01      0.01      0.02         0.01
+  Con_130                     0.01      0.01      0.01      0.06         0.01
+  eeneind_out                 0.01      0.01     26.27      0.01         0.01
+  
+  
+  ***************
+  Pumping Summary
+  ***************
+  
+  ---------------------------------------------------------------------------------------------------------
+                                                  Min       Avg       Max     Total     Power    % Time Off
+                        Percent   Number of      Flow      Flow      Flow    Volume     Usage    Pump Curve
+  Pump                 Utilized   Start-Ups       CMS       CMS       CMS  10^6 ltr     Kw-hr    Low   High
+  ---------------------------------------------------------------------------------------------------------
+  P_c_24_d_5             100.00           1      0.00      0.65      1.21    84.575     41.93    0.0  100.0
+  P_c_23_d_7             100.00           1      0.00      0.00      0.00     0.128      0.00    0.0  100.0
+  P_c_22_d_5               0.00           0      0.00      0.00      0.00     0.000      0.00    0.0    0.0
+  P_c_21_d_7             100.00           1      0.00      0.00      0.00     0.120      0.00    0.0  100.0
+  P_c_12_d_8             100.00           1      0.00      0.00      0.00     0.199      0.00    0.0  100.0
+  P_c_20_d_13              0.00           0      0.00      0.00      0.00     0.000      0.00    0.0    0.0
+  P_c_19_d_7             100.00           1      0.00      0.00      0.00     0.096      0.00    0.0  100.0
+  P_c_10_d_10              0.00           0      0.00      0.00      0.00     0.000      0.00    0.0    0.0
+  P_c_16_d_20              0.00           0      0.00      0.00      0.00     0.000      0.00    0.0    0.0
+  P_c_15_d_24            100.00           1      0.00      0.00      0.00     0.138      0.00    0.0  100.0
+  P_c_14_d_24              0.00           0      0.00      0.00      0.00     0.000      0.00    0.0    0.0
+  P_c_129_d_5              0.00           0      0.00      0.00      0.00     0.000      0.00    0.0    0.0
+  P_c_128_d_5            100.00           1      0.00      0.11      0.14    14.463    593.07    0.0  100.0
+  P_c_1285_d_5           100.00           1      0.00      0.00      0.00     0.058      0.00    0.0  100.0
+  P_c_127_d_5            100.00           1      0.00      0.03      0.04     4.165      0.00    0.0    0.0
+  P_c_126_d_5            100.00           1      0.00      0.02      0.03     3.154      0.00    0.0  100.0
+  P_c_125_d_5            100.00           1      0.00      0.00      0.00     0.039      0.00    0.0  100.0
+  P_c_136_d_5            100.00           1      0.00      0.03      0.04     3.810    170.64    0.0  100.0
+  P_c_135_d_5            100.00           1      0.00      0.00      0.01     0.391      0.00    0.0  100.0
+  P_c_131_d_5            100.00           1      0.00      0.00      0.01     0.484      0.00    0.0  100.0
+  P_c_130_d_5            100.00           1      0.00      0.00      0.00     0.113      0.00    0.0  100.0
+  P_c_134_d_5            100.00           1      0.00      0.00      0.00     0.084      0.00    0.0  100.0
+  P_c_132_d_5            100.00           1      0.00      0.00      0.00     0.082      0.00    0.0  100.0
+  Con_1119.1             100.00           1      0.00      0.03      0.04     3.810     14.82    0.0    0.0
+  P_riool_zuid_out       100.00           1      0.00      0.57      1.21    74.958   1742.15    0.0    0.0
+  P_eindhoven_out         77.43           1      0.00      0.70      0.98    70.413     37.83    0.0    0.0
+  P_c_150_d_57           100.00           1      0.00      0.02      0.02     2.161      0.27    0.0   99.2
+  P_c_123_d_40           100.00           1      0.00      0.01      0.02     1.160      0.00    0.0    0.0
+  P_c_143_d_70           100.00           1      0.00      0.14      0.30    18.230      2.48    0.0   42.4
+  P_c_147_d_4              0.00           0      0.00      0.00      0.00     0.000      0.00    0.0    0.0
+  P_c_160_d_8            100.00           1      0.00      0.05      0.10     6.437      0.01    0.0  100.0
+  P_c_145_d_4            100.00           1      0.00      0.00      0.00     0.085      0.00    0.0  100.0
+  P_c_144_d_19           100.00           1      0.00      0.00      0.00     0.209      0.00    0.0  100.0
+  P_c_142_d_35           100.00           1      0.00      0.01      0.02     1.003      0.00    0.0  100.0
+  P_c_148_d_12           100.00           1      0.00      0.00      0.00     0.114      0.00    0.0  100.0
+  P_c_149_d_17             0.00           0      0.00      0.00      0.00     0.000      0.00    0.0    0.0
+  P_c_151_d_22           100.00           1      0.00      0.00      0.00     0.085      0.00    0.0  100.0
+  P_c_161_d_32             0.00           0      0.00      0.00      0.00     0.000      0.00    0.0    0.0
+  P_c_138_d_22           100.00           1      0.00      0.01      0.01     0.686      0.00    0.0  100.0
+  P_c_139_d_8              0.00           0      0.00      0.00      0.00     0.000      0.00    0.0    0.0
+  P_c_137_d_4            100.00           1      0.00      0.00      0.00     0.217      0.00    0.0  100.0
+  P_c_122_d_29           100.00           1      0.00      0.00      0.01     0.602      0.00    0.0    0.0
+  P_c_121_d_12           100.00           1      0.00      0.01      0.01     1.185      0.14    0.0   99.2
+  P_c_120_d_8            100.00           1      0.00      0.00      0.00     0.150      0.00    0.0  100.0
+  P_c_119_d_80           100.00           1      0.00      0.03      0.06     3.784   1019.93    0.0   77.7
+  P_c_100_d_10           100.00           1      0.00      0.00      0.00     0.083      0.00    0.0  100.0
+  P_c_118_d_13             0.00           0      0.00      0.00      0.00     0.000      0.00    0.0    0.0
+  P_c_116_d_15           100.00           1      0.00      0.00      0.00     0.258      0.03    0.0   99.2
+  P_c_114_d_10           100.00           1      0.00      0.00      0.00     0.090      0.00    0.0  100.0
+  P_c_112_d_21           100.00           1      0.00      0.00      0.00     0.224      0.00    0.0    0.0
+  P_c_107_d_36           100.00           1      0.00      0.14      0.15    17.842      2.13    0.0   99.2
+  P_c_107_2_d_12         100.00           1      0.00      0.00      0.00     0.036      0.00    0.0  100.0
+  P_c_106_d_13           100.00           1      0.00      0.01      0.01     1.552      0.00    0.0  100.0
+  P_c_99_d_41            100.00           1      0.00      0.01      0.02     0.961      0.00    0.0    0.0
+  P_c_103_d_8            100.00           1      0.00      0.00      0.00     0.078      0.00    0.0  100.0
+  P_c_98_d_20            100.00           1      0.00      0.00      0.01     0.343      0.04    0.0   99.2
+  P_aalst_1                4.83          21      0.00      0.51      0.56     3.182    161.78    0.0   84.7
+  P_aalst_2                3.22          14      0.00      0.49      0.56     2.053    104.70    0.0   87.2
+  P_aalst_3                2.99          13      0.00      0.44      0.49     1.701     86.80    0.0   87.0
+  P_aalst_4              100.00           1      0.00      0.38      0.49    48.994   2473.25    0.0   99.2
+  P_pipe_Geldrop         100.00           1      0.00      0.11      0.14    14.463     92.72    0.0    0.0
+  P_gb127                100.00           1      0.00      0.03      0.04     4.165      0.00    0.0    0.0
+  P_c_99                 100.00           1      0.00      0.01      0.02     0.961      0.13    0.0    0.0
+  P_c_112                100.00           1      0.00      0.00      0.00     0.224      0.03    0.0    0.0
+  P_c_119_1              100.00           2      0.00      0.03      0.24     4.515     10.63    0.0  100.0
+  P_c_122                100.00           1      0.00      0.00      0.01     0.602      0.08    0.0    0.0
+  P_c_123                100.00           1      0.00      0.01      0.02     1.160      0.16    0.0    0.0
+  P_c_119_2              100.00           2      0.00      0.03      0.34     4.063     10.02    0.0  100.0
+  P_c_119_3              100.00           2      0.00      0.03      0.39     4.214     10.03    0.0  100.0
+  P_c_119_fr_040         100.00           1      0.00      0.03     10.00     4.507    419.15    0.0   22.3
+  P_c_119_fr_028         100.00           1      0.00      0.03     10.00     4.055    296.86    0.0   22.3
+  P_c_119_fr_032         100.00           1      0.00      0.03     10.00     4.206    337.50    0.0   22.3
+  P_geldrop_split_1      100.00           1      0.00      0.08     10.00    10.211     58.24    0.0   44.3
+  P_geldrop_split_2      100.00           1      0.00      0.08     10.00    10.211     66.65    0.0    4.6
+  
+
+  Analysis begun on:  Sun Jun  1 18:07:24 2025
+  Analysis ended on:  Sun Jun  1 18:07:35 2025
+  Total elapsed time: 00:00:11

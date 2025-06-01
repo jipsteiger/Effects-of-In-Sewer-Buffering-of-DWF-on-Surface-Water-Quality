@@ -160,13 +160,40 @@ class Q_95_norm_ES:
     H_23 = 1.06
 
 
+class Q_95_norm_ES_adjusted:
+    H_0 = 0.39
+    H_1 = 0.39
+    H_2 = 0.39
+    H_3 = 0.46
+    H_4 = 0.68
+    H_5 = 0.93
+    H_6 = 1.11
+    H_7 = 1.27
+    H_8 = 1.29
+    H_9 = 1.36
+    H_10 = 1.51
+    H_11 = 1.68
+    H_12 = 1.85
+    H_13 = 1.74
+    H_14 = 1.44
+    H_15 = 1.24
+    H_16 = 1.14
+    H_17 = 1.13
+    H_18 = 1.14
+    H_19 = 1.20
+    H_20 = 1.08
+    H_21 = 0.84
+    H_22 = 0.53
+    H_23 = 0.41
+
+
 concentration_dict_ES = {
     "COD": COD_conc_ES,
     "CODs": CODs_conc_ES,
     "TSS": TSS_conc_ES,
     "NH4": NH4_conc_ES,
     "PO4": PO4_conc_ES,
-    "Q_95_norm": Q_95_norm_ES,
+    "Q_95_norm": Q_95_norm_ES_adjusted,
 }
 
 
@@ -332,11 +359,38 @@ class Q_95_norm_RZ:
     H_23 = 1.06
 
 
+class Q_95_norm_RZ_adjusted:
+    H_0 = 0.84
+    H_1 = 0.73
+    H_2 = 0.66
+    H_3 = 0.63
+    H_4 = 0.63
+    H_5 = 0.66
+    H_6 = 0.73
+    H_7 = 0.87
+    H_8 = 1.02
+    H_9 = 1.13
+    H_10 = 1.20
+    H_11 = 1.25
+    H_12 = 1.31
+    H_13 = 1.42
+    H_14 = 1.50
+    H_15 = 1.49
+    H_16 = 1.40
+    H_17 = 1.25
+    H_18 = 1.15
+    H_19 = 1.11
+    H_20 = 1.10
+    H_21 = 1.10
+    H_22 = 1.07
+    H_23 = 0.97
+
+
 concentration_dict_RZ = {
     "COD": COD_conc_RZ,
     "CODs": CODs_conc_RZ,
     "TSS": TSS_conc_RZ,
     "NH4": NH4_conc_RZ,
     "PO4": PO4_conc_RZ,
-    "Q_95_norm": Q_95_norm_RZ,
+    "Q_95_norm": Q_95_norm_RZ_adjusted,
 }

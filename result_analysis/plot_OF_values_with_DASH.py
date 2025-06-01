@@ -174,9 +174,9 @@ def update_heatmap(catchment, of_col):
         z_values,
         x=z_data.columns,
         y=z_data.index,
-        labels=dict(x="Certainty Threshold", y="Rain Threshold", color="Normalized"),
+        labels=dict(x="Confidence Level", y="Rain Threshold [mm]", color="Normalized"),
         color_continuous_scale="Blues",
-        text_auto=True,
+        text_auto=".4f",
         aspect="auto",
     )
 

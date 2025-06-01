@@ -5,11 +5,6 @@ import datetime as dt
 
 
 MODEL_NAME = "model_jip"
-# MODEL_NAME = "model_jip_no_rtc"
-
-# MODEL_NAME = "model_jip_with_pump_curve"
-
-
 SUFFIX = "RTC"
 simulation = RealTimeControl(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",

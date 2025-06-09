@@ -309,9 +309,6 @@ class RealTimeControl(Simulation):
     def create_OF_values(
         self, ES_dwf, ES_transition_to_wwf, ES_wwf, RZ_dwf, RZ_transition_to_wwf, RZ_wwf
     ):
-        logging.debug("----------------")
-        logging.debug(self.sim.current_time)
-
         self.ES_flow_OF_always.append(
             (self.links["P_eindhoven_out"].flow - self.ES_out_ideal) ** 2
             / self.ES_out_ideal
@@ -320,18 +317,12 @@ class RealTimeControl(Simulation):
             ES_transition_to_wwf
             and not (self.nodes["pipe_ES"].total_inflow > self.ES_out_ideal * 2)
         ):
-            logging.debug(
-                f'DWF, ES OF={((self.links["P_eindhoven_out"].flow - self.ES_out_ideal) ** 2 / self.ES_out_ideal):.3f})'
-            )
-            # OF 1
             self.ES_flow_OF.append(
                 (self.links["P_eindhoven_out"].flow - self.ES_out_ideal) ** 2
                 / self.ES_out_ideal
             )
             self.ES_first_WWF_noted = False
         elif (ES_wwf or self.ES_wwf_linger) and not self.ES_first_WWF_noted:
-            logging.debug(f"RAINSTART, ES OF = {self.ES_storage.FD():.3f}")
-            # OF 2
             self.ES_FD_OF.append(self.ES_storage.FD())
             self.ES_first_WWF_noted = True
 
@@ -349,14 +340,12 @@ class RealTimeControl(Simulation):
                 > self.RZ_out_ideal * 2
             )
         ):
-            # OF 3
             self.RZ_flow_OF.append(
                 (self.links["P_riool_zuid_out"].flow - self.RZ_out_ideal) ** 2
                 / self.RZ_out_ideal
             )
             self.RZ_first_WWF_noted = False
         elif (RZ_wwf or self.RZ_wwf_linger) and not self.RZ_first_WWF_noted:
-            # OF 4
             self.RZ_FD_OF.append(self.RZ_storage.FD())
             self.RZ_first_WWF_noted = True
 

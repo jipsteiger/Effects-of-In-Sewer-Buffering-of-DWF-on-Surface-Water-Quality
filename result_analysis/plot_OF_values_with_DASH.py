@@ -23,7 +23,7 @@ OF_columns = [col for col in ES_df.columns if "OF" in col]
 titles = {
     "OF_1_outflow": "Var MSE of ideal outflow (lower is better)",
     "OF_1_FD": "Mean FD at start storm-event (lower is better)",
-    "OF_1_outflow_2": "VAR of ideal outflow is inflow < 2x ideal and not WWF afterwards (lower is better)",
+    "OF_1_outflow_2": "VAR of ideal outflow is inflow < 2x ideal and not WWF afterwards (lower is better)",  # Gets variance when
     "OF_2_cso": "Total CSO volume (lower is better)",
     "OF_3_margin_025": "Time of ideal outflow with 2.5 % margin (lower is better)",
     "OF_3_margin_05": "Time of ideal outflow with 5 % margin (lower is better)",

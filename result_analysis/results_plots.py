@@ -40,6 +40,10 @@ def nash_sutcliff(observed, modelled):
     return NSE
 
 
+def rmse(y_true, y_pred):
+    return np.sqrt(np.mean((y_true - y_pred) ** 2))
+
+
 def plot(
     x_list: List[pd.Series],
     y_list: List[pd.Series],
@@ -183,7 +187,7 @@ def model_setup_dwf():
     RZ_Q_swmm_aligned, RZ_Q_west_aligned = RZ_Q_swmm.align(RZ_Q_west, join="inner")
 
     # Crop to analysis period
-    start, end = "2024-06-27", "2024-06-27"
+    start, end = "2024-06-27", "2024-06-29"
     ES_Q_swmm = ES_Q_swmm_aligned.loc[start:end]
     ES_Q_west = ES_Q_west_aligned.loc[start:end]
     RZ_Q_swmm = RZ_Q_swmm_aligned.loc[start:end]
@@ -192,6 +196,7 @@ def model_setup_dwf():
 
     # Plot ES
     nash_sutcliff(ES_Q_west.values, ES_Q_swmm.values)
+    rmse(ES_Q_west.values, ES_Q_swmm.values)
     plot(
         x_list=[ES_Q_swmm, ES_Q_west, ES_Q_swmm_in],
         y_list=[ES_Q_swmm, ES_Q_west, ES_Q_swmm_in],
@@ -202,6 +207,7 @@ def model_setup_dwf():
 
     # Plot RZ
     nash_sutcliff(RZ_Q_west.values, RZ_Q_swmm.values)
+    rmse(RZ_Q_west.values, RZ_Q_swmm.values)
     plot(
         x_list=[RZ_Q_swmm, RZ_Q_west],
         y_list=[RZ_Q_swmm, RZ_Q_west],
@@ -218,6 +224,7 @@ def model_setup_dwf():
 
     # Plot shifted
     nash_sutcliff(RZ_Q_west_aligned.values, RZ_Q_swmm_aligned.values)
+    rmse(RZ_Q_west_aligned.values, RZ_Q_swmm_aligned.values)
     plot(
         x_list=[RZ_Q_swmm_aligned, RZ_Q_west_aligned],
         y_list=[RZ_Q_swmm_aligned, RZ_Q_west_aligned],
@@ -379,6 +386,8 @@ def model_creation_csos():
             swmm_values += output.node[swmm_cso].total_inflow.values * 3600
 
         west_values = df_west[west_csos[key][:]].astype(float).sum(axis=1)
+
+        print(f"swmm {key} sum={sum(swmm_values)}, west {key} sum={sum(west_values)}")
         fig.add_trace(
             go.Scatter(
                 x=output.index,
@@ -430,17 +439,17 @@ def wq_model():
     df_west = df_west.loc["2024-04-15":"2024-10-15", :]
 
     model_result_ES = pd.read_csv(
-        "output_effluent/compare_ES.Effluent.csv", index_col=0
+        "output_effluent/compare_ES1.Effluent.csv", index_col=0
     )
     model_result_ES.index = df_west.index
 
     model_result_RZ = pd.read_csv(
-        "output_effluent/compare_RZ.Effluent.csv", index_col=0
+        "output_effluent/compare_RZ1.Effluent.csv", index_col=0
     )
     model_result_RZ.index = df_west.index
 
-    df_west = df_west.loc["2024-09-05":"2024-09-08"]
-    model_result_ES = model_result_ES.loc["2024-09-05":"2024-09-08"]
+    df_west = df_west.loc["2024-04-15":"2024-10-15"]
+    model_result_ES = model_result_ES.loc["2024-04-15":"2024-10-15"]
 
     xlist = []
     ylist = []
@@ -491,6 +500,27 @@ def wq_model():
         abs(model_result_ES["PO4_sew"].astype(float)),
     )
     NSE_TSS = nash_sutcliff(
+        abs(df_west[".ES_out.Outflow(X_TSS_sew)"].astype(float)),
+        abs(model_result_ES["X_TSS_sew"].astype(float)),
+    )
+
+    RMSE_COD_p = rmse(
+        abs(df_west[".ES_out.Outflow(COD_part)"].astype(float)),
+        abs(model_result_ES["COD_part"].astype(float)),
+    )
+    RMSE_COD_s = rmse(
+        abs(df_west[".ES_out.Outflow(COD_sol)"].astype(float)),
+        abs(model_result_ES["COD_sol"].astype(float)),
+    )
+    RMSE_NH4 = rmse(
+        abs(df_west[".ES_out.Outflow(NH4_sew)"].astype(float)),
+        abs(model_result_ES["NH4_sew"].astype(float)),
+    )
+    RMSE_PO4 = rmse(
+        abs(df_west[".ES_out.Outflow(PO4_sew)"].astype(float)),
+        abs(model_result_ES["PO4_sew"].astype(float)),
+    )
+    RMSE_TSS = rmse(
         abs(df_west[".ES_out.Outflow(X_TSS_sew)"].astype(float)),
         abs(model_result_ES["X_TSS_sew"].astype(float)),
     )
@@ -1166,8 +1196,8 @@ def precipitation_data_forecast():
         lambda s: [float(x) for x in s.strip("[]").split()]
     )
 
-    start_time = "2024-04-15 18:00:00"
-    end_time = "2024-04-17 18:00:00"
+    start_time = "2024-05-13 12:00:00"
+    end_time = "2024-05-14 00:00:00"
     current_time = pd.to_datetime(start_time)  # 6-hour intervals
     upperbound = 48  # hours
     upperbound_time = current_time + dt.timedelta(hours=upperbound)
@@ -1187,9 +1217,9 @@ def precipitation_data_forecast():
         parse_dates=True,
     )
     precipitation = precipitation.resample("h").sum()
-    precipitation = precipitation.loc[start_time:end_time, "ES"]
+    precipitation = precipitation.loc[start_time:end_time, 'RZ2']
 
-    ES = grouped["ES"].reset_index()
+    ES = grouped["RZ2"].reset_index()
     ES["timestamp"] = pd.to_datetime(ES["date_of_forecast"])
     ES = ES.sort_values("timestamp")
 
@@ -1230,25 +1260,26 @@ def precipitation_data_forecast():
 
 
 def system_character():
+    catchment='RZ'
     labels = {
         "H2O_sew": "Discharge [g/d]",
         "NH4_sew": "NH4 Load [g/d]",
-        "PO4_sew": "PO4 Load [g/d]",
-        "COD_sol": "Dissolved COD Load [g/d]",
-        "X_TSS_sew": "Total Suspended Solids Load [g/d]",
-        "COD_part": "Particulate COD Load [g/d]",
+        # "PO4_sew": "PO4 Load [g/d]",
+        # "COD_sol": "Dissolved COD Load [g/d]",
+        # "X_TSS_sew": "Total Suspended Solids Load [g/d]",
+        # "COD_part": "Particulate COD Load [g/d]",
     }
     labels_conc = {
         "H2O_sew": "Discharge [g/d]",
         "NH4_sew": "NH4 Concentration [g/g]",
-        "PO4_sew": "PO4 Concentration [g/g]",
-        "COD_sol": "Dissolved COD Concentration [g/g]",
-        "X_TSS_sew": "Total Suspended Solids Concentration [g/g]",
-        "COD_part": "Particulate COD Concentration [g/g]",
+        # "PO4_sew": "PO4 Concentration [g/g]",
+        # "COD_sol": "Dissolved COD Concentration [g/g]",
+        # "X_TSS_sew": "Total Suspended Solids Concentration [g/g]",
+        # "COD_part": "Particulate COD Concentration [g/g]",
     }
     start_date = pd.Timestamp("2024-01-01")
     normal = pd.read_csv(
-        rf"output_swmm\06-01_16-25_out_RZ_No_RTC.csv",
+        rf"output_swmm\06-01_16-25_out_{catchment}_No_RTC.csv",
         decimal=",",
         delimiter=";",
         index_col=0,
@@ -1260,7 +1291,7 @@ def system_character():
     normal.index = normal.index.round("15min")
 
     dry = pd.read_csv(
-        rf"output_swmm\06-01_16-46_out_RZ_No_RTC_no_rain.csv",
+        rf"output_swmm\06-01_16-46_out_{catchment}_No_RTC_no_rain.csv",
         decimal=",",
         delimiter=";",
         index_col=0,
@@ -1270,7 +1301,7 @@ def system_character():
     dry.index = dry.index.round("15min")
 
     constant = pd.read_csv(
-        rf"output_swmm\06-01_15-22_out_RZ_No_RTC_no_rain_constant.csv",
+        rf"output_swmm\06-01_15-22_out_{catchment}_No_RTC_no_rain_constant.csv",
         decimal=",",
         delimiter=";",
         index_col=0,
@@ -1288,8 +1319,9 @@ def system_character():
     }
 
     # Define your time window
-    start_date = pd.Timestamp("2024-04-21")
-    end_date = pd.Timestamp("2024-04-30")
+    # start_date = pd.Timestamp("2024-05-16")
+    # end_date = pd.Timestamp("2024-06-01")
+
 
     for key in list(dry.keys()):
         if not ("FD" in key or "Q_out" in key):
@@ -1904,7 +1936,7 @@ def research_question_2():
 def research_question_3():
     start_date = pd.Timestamp("2024-01-01")
     normal = pd.read_csv(
-        rf"output_swmm\outflow_and_pollutant\05-29_17-45_out_ES_No_RTC.csv",
+        rf"output_swmm\06-01_16-25_out_RZ_No_RTC.csv",
         decimal=",",
         delimiter=";",
         index_col=0,
@@ -1915,7 +1947,7 @@ def research_question_3():
     normal.set_index("timestamp", inplace=True)
     normal.index = normal.index.round("5min")
     RTC = pd.read_csv(
-        rf"output_swmm\outflow_and_pollutant\05-29_18-51_out_ES_RTC.csv",
+        rf"output_swmm\06-04_11-40_out_RZ_RTC.csv",
         decimal=",",
         delimiter=";",
         index_col=0,
@@ -1925,7 +1957,7 @@ def research_question_3():
     RTC.index = RTC.index.round("5min")
 
     ENSEMBLE = pd.read_csv(
-        rf"output_swmm\outflow_and_pollutant\05-29_19-25_out_ES_Ensemble_RTC.csv",
+        rf"output_swmm\06-04_12-10_out_RZ_Ensemble_RTC.csv",
         decimal=",",
         delimiter=";",
         index_col=0,
@@ -1936,17 +1968,25 @@ def research_question_3():
     ENSEMBLE.set_index("timestamp", inplace=True)
     ENSEMBLE.index = ENSEMBLE.index.round("5min")
 
-    start_date = pd.Timestamp("2024-05-07")
-    end_date = pd.Timestamp("2024-05-15")
+    start_date = pd.Timestamp("2024-05-11")
+    end_date = pd.Timestamp("2024-05-17")
 
     normal_dry = normal.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
     RTC_dry = RTC.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
     ENSEMBLE = ENSEMBLE.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
+    
 
-    plt.figure()
-    abs(normal_dry["H2O_sew"]).plot()
-    abs(RTC_dry["H2O_sew"]).plot()
-    abs(ENSEMBLE["H2O_sew"]).plot()
+    plot(
+        [normal_dry["H2O_sew"], RTC_dry["H2O_sew"], ENSEMBLE['H2O_sew']],
+        [abs(normal_dry["H2O_sew"]), abs(RTC_dry["H2O_sew"]), abs(ENSEMBLE['H2O_sew'])],
+        ["Regular flow", "Controlled flow", "Ensemble controlled flow"],
+        "Date and time",
+        "Flow [m3/s]",
+    )
+    
+    
+    states = pd.read_csv(rf'simulation_states_systems.csv', index_col=0, parse_dates=True)
+    filtered_states = states.loc[start_date:end_date, ['RZ_RTC', 'RZ_Ensemble_RTC']]
 
     normal_dry.std()
     RTC_dry.std()
@@ -1985,10 +2025,175 @@ def research_question_3():
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+    
+def analyse_ensemble_flipper():
+    start_date = pd.Timestamp("2024-01-01")
+    RTC = pd.read_csv(
+        rf"output_swmm\06-04_11-40_out_RZ_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("5min")
+
+    ENSEMBLE = pd.read_csv(
+        rf"output_swmm\06-04_12-10_out_RZ_Ensemble_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    ENSEMBLE["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE.index.astype(float), unit="D"
+    )
+    ENSEMBLE.set_index("timestamp", inplace=True)
+    ENSEMBLE.index = ENSEMBLE.index.round("5min")
+    
+    normal = pd.read_csv(
+        rf"output_swmm\06-01_16-25_out_RZ_No_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    normal["timestamp"] = start_date + pd.to_timedelta(
+        normal.index.astype(float), unit="D"
+    )
+    normal.set_index("timestamp", inplace=True)
+    normal.index = normal.index.round("5min")
+
+    start_date = pd.Timestamp("2024-05-11")
+    end_date = pd.Timestamp("2024-05-16")
+    
+    swmm = sa.read_out_file(rf'data\SWMM\model_jip_ENSEMBLE.out').to_frame()
+    
+    RTC_select = RTC.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
+    ENSEMBLE_select = ENSEMBLE.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
+    normal_select = normal.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
+    
+    states = pd.read_csv(rf'simulation_states_systems.csv', index_col=0, parse_dates=True)
+    filtered_states = states.loc[start_date:end_date, ['RZ_RTC', 'RZ_Ensemble_RTC']]
+    
+    # Collect all unique states
+    rz_states = filtered_states['RZ_RTC'].unique()
+    ens_states = filtered_states['RZ_Ensemble_RTC'].unique()
+
+    # Assign different colormaps to each catchment
+    rz_cmap = plt.cm.get_cmap('Blues', len(rz_states))
+    ens_cmap = plt.cm.get_cmap('Oranges', len(ens_states))
+
+    rz_colors = {state: rz_cmap(i) for i, state in enumerate(rz_states)}
+    ens_colors = {state: ens_cmap(i) for i, state in enumerate(ens_states)}
+
+    # Initialize one-time labels
+    label_once = {f"RZ_{s}": True for s in rz_states}
+    label_once.update({f"ENS_{s}": True for s in ens_states})
+    
+    precipitation = pd.read_csv(
+        r"data\precipitation\csv_selected_area_euradclim\2024_5_min_precipitation_data.csv",
+        index_col=0,
+        parse_dates=True,
+    )
+    precipitation = precipitation.resample("h").sum()
+    precipitation = precipitation.loc[start_date:end_date, ['GE', 'RZ1', 'RZ2']]
+    precipitation = precipitation.sum(axis=1)
+    
+
+    # Create main figure and primary axis
+    fig, ax = plt.subplots(figsize=(12, 5))
+
+    # Primary axis: flow plots
+    ax.plot(RTC_select.index, abs(RTC_select['H2O_sew'].values), label='Controlled flow', zorder=3)
+    ax.plot(ENSEMBLE_select.index, abs(ENSEMBLE_select['H2O_sew'].values), label='Ensemble controlled flow', zorder=3)
+    ax.plot(normal_select.index, abs(normal_select['H2O_sew'].values), label='Regular flow', zorder=3)
+
+    # Secondary axis: precipitation
+    ax2 = ax.twinx()
+    ax2.plot(precipitation.index, precipitation.values, color='tab:blue', linestyle='--', label='Precipitation [mm/h]', zorder=2)
+    ax2.set_ylabel("Precipitation [mm/h]", fontsize=10, color='tab:blue')
+    ax2.tick_params(axis='y', labelcolor='tab:blue')
+
+    # Get y-limits for flow shading
+    ymin, ymax = ax.get_ylim()
+
+    # --- Shade RZ_RTC states (top half)
+    prev_state = None
+    start_time = None
+    for time, state in filtered_states['RZ_RTC'].items():
+        if state != prev_state:
+            if prev_state is not None:
+                ax.axvspan(start_time, time, ymin=0.5, ymax=1.0,
+                        color=rz_colors[prev_state], alpha=0.2,
+                        label=f"RZ: {prev_state}" if label_once[f"RZ_{prev_state}"] else "")
+                label_once[f"RZ_{prev_state}"] = False
+            start_time = time
+            prev_state = state
+    if prev_state is not None:
+        ax.axvspan(start_time, filtered_states.index[-1], ymin=0.5, ymax=1.0,
+                color=rz_colors[prev_state], alpha=0.2,
+                label=f"RZ: {prev_state}" if label_once[f"RZ_{prev_state}"] else "")
+
+    # --- Shade RZ_Ensemble_RTC states (bottom half)
+    prev_state = None
+    start_time = None
+    for time, state in filtered_states['RZ_Ensemble_RTC'].items():
+        if state != prev_state:
+            if prev_state is not None:
+                ax.axvspan(start_time, time, ymin=0.0, ymax=0.5,
+                        color=ens_colors[prev_state], alpha=0.2,
+                        label=f"Ensemble: {prev_state}" if label_once[f"ENS_{prev_state}"] else "")
+                label_once[f"ENS_{prev_state}"] = False
+            start_time = time
+            prev_state = state
+    if prev_state is not None:
+        ax.axvspan(start_time, filtered_states.index[-1], ymin=0.0, ymax=0.5,
+                color=ens_colors[prev_state], alpha=0.2,
+                label=f"Ensemble: {prev_state}" if label_once[f"ENS_{prev_state}"] else "")
+
+    # Final formatting
+    ax.set_xlabel('Date and Time', fontsize=10)
+    ax.set_ylabel('Flow [m³/s]', fontsize=10)
+    ax.grid(True, linestyle="--", alpha=0.5)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d\n%H:%M"))
+
+    # Combine legends from both axes
+    lines1, labels1 = ax.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax.legend(lines1 + lines2, labels1 + labels2, fontsize=9, loc='upper left')
+    
+    from matplotlib.patches import Patch
+
+    # Custom legend entries for state shading
+    state_patches = []
+
+    # # RZ states
+    # for state, color in rz_colors.items():
+    #     patch = Patch(facecolor=color, alpha=0.2, label=f"RZ: {state}")
+    #     state_patches.append(patch)
+
+    # # Ensemble states
+    # for state, color in ens_colors.items():
+    #     patch = Patch(facecolor=color, alpha=0.2, label=f"Ensemble: {state}")
+    #     state_patches.append(patch)
+
+    # # Combine all legends
+    # lines1, labels1 = ax.get_legend_handles_labels()
+    # lines2, labels2 = ax2.get_legend_handles_labels()
+
+    # # Combine and add to legend
+    # all_handles = lines1 + lines2 + state_patches
+    # all_labels = labels1 + labels2 + [p.get_label() for p in state_patches]
+    # ax.legend(all_handles, all_labels, fontsize=9, loc='upper left')
+
+
+    plt.tight_layout()
+    plt.show()
+
+
 
 
 def research_2_3_combined():
-    catchment = "RZ"
+    catchment = "ES"
     start_date = pd.Timestamp("2024-01-01")
     NORMAL = pd.read_csv(
         rf"output_swmm\06-01_16-25_out_{catchment}_No_RTC.csv",
@@ -2040,34 +2245,34 @@ def research_2_3_combined():
     normal_wet = NORMAL.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
     RTC_wet = RTC.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
     ENSEMBLE_wet = ENSEMBLE.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
-    plot(
-        [normal_wet["H2O_sew"], RTC_wet["H2O_sew"], ENSEMBLE_wet["H2O_sew"]],
-        [
-            abs(normal_wet["H2O_sew"]),
-            abs(RTC_wet["H2O_sew"]),
-            abs(ENSEMBLE_wet["H2O_sew"]),
-        ],
-        ["Regular flow", "Controlled flow", "Ensemble controlled flow"],
-        "Date and time",
-        "Flow [m3/s]",
-    )
+    # plot(
+    #     [normal_wet["H2O_sew"], RTC_wet["H2O_sew"], ENSEMBLE_wet["H2O_sew"]],
+    #     [
+    #         abs(normal_wet["H2O_sew"]),
+    #         abs(RTC_wet["H2O_sew"]),
+    #         abs(ENSEMBLE_wet["H2O_sew"]),
+    #     ],
+    #     ["Regular flow", "Controlled flow", "Ensemble controlled flow"],
+    #     "Date and time",
+    #     "Flow [m3/s]",
+    # )
 
     start_date = pd.Timestamp("2024-05-09")
     end_date = pd.Timestamp("2024-05-20")
     normal_dry = NORMAL.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
     RTC_dry = RTC.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
     ENSEMBLE_dry = ENSEMBLE.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
-    plot(
-        [normal_dry["H2O_sew"], RTC_dry["H2O_sew"], ENSEMBLE_dry["H2O_sew"]],
-        [
-            abs(normal_dry["H2O_sew"]),
-            abs(RTC_dry["H2O_sew"]),
-            abs(ENSEMBLE_dry["H2O_sew"]),
-        ],
-        ["Regular flow", "Controlled flow", "Ensemble controlled flow"],
-        "Date and time",
-        "Flow [m3/s]",
-    )
+    # plot(
+    #     [normal_dry["H2O_sew"], RTC_dry["H2O_sew"], ENSEMBLE_dry["H2O_sew"]],
+    #     [
+    #         abs(normal_dry["H2O_sew"]),
+    #         abs(RTC_dry["H2O_sew"]),
+    #         abs(ENSEMBLE_dry["H2O_sew"]),
+    #     ],
+    #     ["Regular flow", "Controlled flow", "Ensemble controlled flow"],
+    #     "Date and time",
+    #     "Flow [m3/s]",
+    # )
 
     ################# WWTP INFLUENT ##################
     labels = {
@@ -2088,8 +2293,8 @@ def research_2_3_combined():
     }
     # Define your time window
     # DWF
-    start_date = pd.Timestamp("2024-06-02")
-    end_date = pd.Timestamp("2024-06-09")
+    start_date = pd.Timestamp("2024-05-13")
+    end_date = pd.Timestamp("2024-06-01")
     # WWF
     # start_date = pd.Timestamp("2024-05-01")
     # end_date = pd.Timestamp("2024-05-15")
@@ -2396,3 +2601,373 @@ def research_2_3_combined():
             records.append(record)
     summary_df = pd.DataFrame(records)
     summary_df.to_csv("WWTPEffluentWWF.csv")
+
+
+def OF_all(catchment="ES", start="2024-04-15", end="2045-10-15"):
+    start_date = pd.Timestamp("2024-01-01")
+    normal = pd.read_csv(
+        rf"output_swmm\06-01_16-25_out_{catchment}_No_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    normal["timestamp"] = start_date + pd.to_timedelta(
+        normal.index.astype(float), unit="D"
+    )
+    normal.set_index("timestamp", inplace=True)
+    normal.index = normal.index.round("15min")
+    normal_swmm = sa.read_out_file(rf"data\SWMM\model_jip_no_rtc.out").to_frame()
+    normal_west = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    normal_west["timestamp"] = start_date + pd.to_timedelta(
+        normal_west.index.astype(float), unit="D"
+    )
+    normal_west.set_index("timestamp", inplace=True)
+    normal_west.index = normal_west.index.round("15min")
+
+    dry = pd.read_csv(
+        rf"output_swmm\06-01_16-46_out_{catchment}_No_RTC_no_rain.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    dry["timestamp"] = start_date + pd.to_timedelta(dry.index.astype(float), unit="D")
+    dry.set_index("timestamp", inplace=True)
+    dry.index = dry.index.round("15min")
+    dry_swmm = sa.read_out_file(rf"data\SWMM\model_jip_no_rtc_no_rain.out").to_frame()
+    dry_west = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC_no_rain\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    dry_west["timestamp"] = start_date + pd.to_timedelta(
+        dry_west.index.astype(float), unit="D"
+    )
+    dry_west.set_index("timestamp", inplace=True)
+    dry_west.index = dry_west.index.round("15min")
+
+    constant = pd.read_csv(
+        rf"output_swmm\06-01_15-22_out_{catchment}_No_RTC_no_rain_constant.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    constant["timestamp"] = start_date + pd.to_timedelta(
+        constant.index.astype(float), unit="D"
+    )
+    constant.set_index("timestamp", inplace=True)
+    constant.index = constant.index.round("15min")
+    constant_swmm = sa.read_out_file(
+        rf"data\SWMM\model_jip_no_rtc_no_rain_constant.out"
+    ).to_frame()
+    constant_west = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC_no_rain_constant\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    constant_west["timestamp"] = start_date + pd.to_timedelta(
+        constant_west.index.astype(float), unit="D"
+    )
+    constant_west.set_index("timestamp", inplace=True)
+    constant_west.index = constant_west.index.round("15min")
+
+    RTC = pd.read_csv(
+        rf"output_swmm\06-04_11-40_out_{catchment}_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("15min")
+    RTC_swmm = sa.read_out_file(rf"data\SWMM\model_jip.out").to_frame()
+    RTC_west = pd.read_csv(
+        f"data\WEST\Pollutant_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    RTC_west["timestamp"] = start_date + pd.to_timedelta(
+        RTC_west.index.astype(float), unit="D"
+    )
+    RTC_west.set_index("timestamp", inplace=True)
+    RTC_west.index = RTC_west.index.round("15min")
+
+    ENSEMBLE = pd.read_csv(
+        rf"output_swmm\06-04_12-10_out_{catchment}_Ensemble_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    ENSEMBLE["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE.index.astype(float), unit="D"
+    )
+    ENSEMBLE.set_index("timestamp", inplace=True)
+    ENSEMBLE.index = ENSEMBLE.index.round("15min")
+    ENSEMBLE_swmm = sa.read_out_file(rf"data\SWMM\model_jip_ENSEMBLE.out").to_frame()
+    ENSEMBLE_west = pd.read_csv(
+        f"data\WEST\Pollutant_RTC_ensemble\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    ENSEMBLE_west["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE_west.index.astype(float), unit="D"
+    )
+    ENSEMBLE_west.set_index("timestamp", inplace=True)
+    ENSEMBLE_west.index = ENSEMBLE_west.index.round("15min")
+
+    states = pd.read_csv(
+        rf"simulation_states_systems.csv", index_col=0, parse_dates=True
+    )
+
+    scenarios = {
+        # "Dry weather flow only": {
+        #     "out": dry,
+        #     "swmm": dry_swmm,
+        #     "west": dry_west,
+        # },
+        # "Constant dry weather flow only": {
+        #     "out": constant,
+        #     "swmm": constant_swmm,
+        #     "west": constant_west,
+        # },
+        "Dry and wet weather flow": {
+            "out": normal,
+            "swmm": normal_swmm,
+            "west": normal_west,
+        },
+        "RTC": {
+            "out": RTC,
+            "swmm": RTC_swmm,
+            "states": states[["ES_RTC", "RZ_RTC"]],
+            "west": RTC_west,
+        },
+        "ENSEMBLE": {
+            "out": ENSEMBLE,
+            "swmm": ENSEMBLE_swmm,
+            "states": states[["ES_Ensemble_RTC", "RZ_Ensemble_RTC"]],
+            "west": ENSEMBLE_west,
+        },
+    }
+
+    OF_values = {}
+
+    start_ts = pd.Timestamp(start)
+    end_ts = pd.Timestamp(end)
+    for k, i in scenarios.items():
+        outflow = i["out"]
+        swmm = i["swmm"]
+        states = i.get("states")
+        west = i["west"]
+
+        outflow = outflow.loc[start_ts:end_ts]
+        west = west.loc[start_ts:end_ts]
+        if states is not None:
+            states = states.loc[start_ts:end_ts]
+
+        flow, FD, state, ideal_flow, loads, concs = get_values(
+            outflow, catchment, states
+        )
+        effluent_loads, effluent_concs = get_west_values(west)
+        if states is not None:
+            FD_start_WWF, var_DWF_trans = objective_function_1(
+                flow, FD, state, None, None
+            )
+        else:
+            FD_start_WWF, var_DWF_trans = None, None
+        CSO_vol = objective_function_2(swmm, catchment, start_ts, end_ts)
+        steps_within_5_perc = objective_function_3(flow, ideal_flow, margin=1.05)
+        steps_within_15_perc = objective_function_3(flow, ideal_flow, margin=1.15)
+        pollutants = objective_function_4(loads, concs)
+        pollutants_effluent = objective_function_4(effluent_loads, effluent_concs)
+
+        OF_values[k] = {
+            "FD": FD_start_WWF,  # float or None
+            "DWF_var": var_DWF_trans,  # float or None
+            "CSO": CSO_vol,  # float
+            "5_perc_steps": steps_within_5_perc,  # float
+            "15_perc_steps": steps_within_15_perc,  # float
+            "pollutants": pollutants,  # dict
+            "pollutants_effluent": pollutants_effluent,  # dict
+        }
+
+    df = pd.json_normalize(OF_values, sep=".")
+    df = df.T.reset_index()
+    df.columns = ["full_key", "value"]
+
+    # Split the key into up to 4 parts: scenario, group, pollutant (possibly with dot), metric
+    def custom_split(key):
+        parts = key.split(".")
+        scenario = parts[0]
+        group = parts[1] if len(parts) > 1 else None
+        # The pollutant could include dots, so join all until the last one
+        pollutant = (
+            ".".join(parts[2:-1])
+            if len(parts) > 3
+            else parts[2] if len(parts) > 2 else None
+        )
+        metric = parts[-1] if len(parts) > 2 else None
+        return pd.Series([scenario, group, pollutant, metric])
+
+    df[["scenario", "group", "pollutant", "metric"]] = df["full_key"].apply(
+        custom_split
+    )
+
+    # Final clean DataFrame
+    df = df[["scenario", "group", "pollutant", "metric", "value"]]
+
+    return df
+
+
+def get_values(output, catchment, states):
+    if catchment == "ES":
+        ideal = 0.663
+    else:
+        ideal = 0.5218
+
+    flow = output["H2O_sew"] / 1e6 / 24 / 3600  # g/d to cms
+    FD = output["FD"]
+
+    if states is not None:
+        key = next((k for k in states.keys() if catchment in k), None)
+        state = states[key]
+    else:
+        state = None
+
+    loads = (
+        output[["NH4_sew", "PO4_sew", "COD_sol", "X_TSS_sew", "COD_part"]]
+        / 24
+        / 3600
+        * 1000
+    )  # g/d to mg/s
+
+    concs = {}
+    for key in ["NH4_sew", "PO4_sew", "COD_sol", "X_TSS_sew", "COD_part"]:
+        concs[key] = (
+            output[key].astype(float) / output["H2O_sew"].astype(float) * 1e6
+        )  # from g/d, to g/g, to mg/L
+    concs = pd.DataFrame(concs)
+
+    return abs(flow), FD, state, ideal, abs(loads), abs(concs)
+
+
+def get_west_values(west):
+    effluent_keys = [
+        key for key in west.keys() if (".effluent." in key) and ("y_Q" not in key)
+    ]
+    # all keys in g/m3 except for .Q which is m3/h
+    flow = west[".effluent.y_Q"].astype(float) / 3600  # from m3/h to cm/s
+
+    concs = west[effluent_keys].astype(float)  # g/m3 === mg/L
+
+    loads = {}
+    for key in effluent_keys:
+        loads[key] = abs(west[key].astype(float) * flow * 1000)
+
+    return loads, abs(concs)
+
+
+def objective_function_1(outflow, FD, state, outflow_ideal, output):
+    wanted_state_outflow = np.logical_or(
+        state.values == "dwf", state.values == "transition"
+    )
+    wanted_state_FD = get_first_wwf_state(state)
+
+    initial_wwf_FD = FD[wanted_state_FD]
+    inital_wwf_FD_mean = np.mean(initial_wwf_FD)
+
+    # mask = filted_high_inflows(output, outflow_ideal, outflow, wanted_state_outflow)
+    filtered = outflow[wanted_state_outflow]
+
+    return inital_wwf_FD_mean, filtered.var()
+
+
+def get_first_wwf_state(state):
+    # Identify the condition for 'wwf'
+    wwf_condition = state.values == "wwf"
+
+    # Create a mask for the first 'wwf' in a consecutive sequence
+    first_wwf = np.zeros_like(wwf_condition, dtype=bool)
+
+    # Mark the first occurrence of 'wwf' in the sequence
+    for i in range(1, len(wwf_condition)):
+        if wwf_condition[i] and not wwf_condition[i - 1]:
+            first_wwf[i] = True
+
+    # If the first element is 'wwf', mark it as True as well
+    first_wwf[0] = wwf_condition[0]
+    return first_wwf
+
+
+def objective_function_2(output, location, start_ts, end_ts):
+    swmm_csos = {
+        "ES": "cso_ES_1",
+        "RZ": [
+            "cso_gb_136",
+            "cso_Geldrop",
+            "cso_gb127",
+            "cso_RZ",
+            "cso_AALST",
+            "cso_c_123",
+            "cso_c_122",
+            "cso_c_119_1",
+            "cso_c_119_2",
+            "cso_c_119_3",
+            "cso_c_112",
+            "cso_c_99",
+        ],
+    }
+    csos = swmm_csos[location]
+    # Check if 'csos' is a list or a string and sum accordingly
+    if isinstance(csos, list):  # For RZ
+        total_inflow = sum(
+            output.node[cso]["total_inflow"].loc[start_ts:end_ts].values.sum()
+            for cso in csos
+        )
+    else:  # For ES (single CSO)
+        total_inflow = (
+            output.node[csos]["total_inflow"].loc[start_ts:end_ts].values.sum()
+        )
+
+    return total_inflow
+
+
+def objective_function_3(flow, ideal_flow, margin=1.1):
+    lower_bound = ideal_flow / margin
+    upper_bound = ideal_flow * margin
+
+    within_margin = (flow >= lower_bound) & (flow <= upper_bound)
+
+    ratio_within = within_margin.sum() / len(flow)
+    return 1 / ratio_within if ratio_within != 0 else float("inf")
+
+
+def objective_function_4(loads, concs):
+    summary_stats = {}
+
+    for key in loads.keys():
+        load = loads[key]
+        conc = concs[key]
+        daily_max_load = load.resample("D").max()
+        daily_max_conc = conc.resample("D").max()
+
+        # Store average of daily stats
+        summary_stats[key] = {
+            "avg_daily_load": load.mean(),
+            "avg_max_daily_load": daily_max_load.mean(),
+            "avg_concentration": conc.mean(),
+            "avg_max_daily_concentration": daily_max_conc.mean(),
+        }
+    return summary_stats

@@ -3,7 +3,7 @@ from emprical_sewer_wq import EmpericalSewerWQ
 import plotly.graph_objects as go
 import plotly.offline as pyo
 import plotly.io as pio
-from data.concentration_curves import concentration_dict_ES, concentration_dict_RZ
+from data.concentration_curves import *
 
 """
 This file compares the copied Sewer quality model to the one made in WEST. 
@@ -30,6 +30,23 @@ FDs_ES = df_west[".ES_out.FD"].values.astype(float)
 H2O_inflows_ES = df_west[".ES_out.Inflow(H2O_sew)"].values.astype(float)
 FDs_RZ = df_west[".RZ_out.FD"].values.astype(float)
 H2O_inflows_RZ = df_west[".RZ_out.Inflow(H2O_sew)"].values.astype(float)
+
+concentration_dict_ES = {
+    "COD": COD_conc_ES,
+    "CODs": CODs_conc_ES,
+    "TSS": TSS_conc_ES,
+    "NH4": NH4_conc_ES,
+    "PO4": PO4_conc_ES,
+    "Q_95_norm": Q_95_norm_ES,
+}
+concentration_dict_RZ = {
+    "COD": COD_conc_RZ,
+    "CODs": CODs_conc_RZ,
+    "TSS": TSS_conc_RZ,
+    "NH4": NH4_conc_RZ,
+    "PO4": PO4_conc_RZ,
+    "Q_95_norm": Q_95_norm_RZ,
+}
 
 WQ_ES = EmpericalSewerWQ(
     concentration_dict=concentration_dict_ES,
@@ -88,13 +105,13 @@ for time, FD_ES, H2O_inflow_ES, FD_RZ, H2O_inflow_RZ in zip(
 ):
     WQ_ES.update(time, H2O_inflow_ES / 1_000_000, FD_ES)
     WQ_RZ.update(time, H2O_inflow_RZ / 1_000_000, FD_RZ)
-WQ_ES.write_output_log("compare_ES")
-WQ_RZ.write_output_log("compare_RZ")
+WQ_ES.write_output_log("compare_ES1")
+WQ_RZ.write_output_log("compare_RZ1")
 
 
 fig = go.Figure()
 for key in df_west.keys():
-    if "_out.Outflow" in key:
+    if ("_out.Outflow" in key) and not (".NS_out" in key):
         fig.add_trace(
             go.Scatter(
                 x=df_west.index,
@@ -104,8 +121,8 @@ for key in df_west.keys():
             )
         )
 
-model_result_ES = pd.read_csv("output_effluent/compare_ES.Effluent.csv", index_col=0)
-model_result_RZ = pd.read_csv("output_effluent/compare_RZ.Effluent.csv", index_col=0)
+model_result_ES = pd.read_csv("output_effluent/compare_ES1.Effluent.csv", index_col=0)
+model_result_RZ = pd.read_csv("output_effluent/compare_RZ1.Effluent.csv", index_col=0)
 
 for key in model_result_ES.keys():
     fig.add_trace(

@@ -19,13 +19,10 @@ def main():
         "location": [],
         "rain_threshold": [],
         "certainty_threshold": [],
-        "OF_1_outflow": [],
         "OF_1_FD": [],
         "OF_1_outflow_2": [],
         "OF_2_cso": [],
-        "OF_3_margin_025": [],
         "OF_3_margin_05": [],
-        "OF_3_margin_10": [],
         "OF_3_margin_15": [],
         "OF_4_COD_part": [],
         "OF_4_COD_sol": [],
@@ -42,6 +39,7 @@ def main():
         results["certainty_threshold"].append(certainty)
 
         output = sa.read_out_file(os.path.join(path, filename)).to_frame()
+        break
 
         state = states.loc[:, find_collumn_name_from_filename(filename)]
         output, state = output.align(
@@ -51,23 +49,18 @@ def main():
         outflow, FD, outflow_ideal = get_catchment_specific_flow_and_FD(
             output, location
         )
-        OF_1_outflow, OF_1_FD, OF_1_outflow_2 = objective_function_1(
+        OF_1_FD, OF_1_outflow_2 = objective_function_1(
             outflow, FD, state, outflow_ideal, output
         )
-        results["OF_1_outflow"].append(OF_1_outflow)
         results["OF_1_FD"].append(OF_1_FD)
         results["OF_1_outflow_2"].append(OF_1_outflow_2)
 
         OF_2_cso = objective_function_2(output, location)
         results["OF_2_cso"].append(OF_2_cso)
 
-        OF_3_margin_025 = objective_function_3(outflow, outflow_ideal, margin=1.025)
         OF_3_margin_05 = objective_function_3(outflow, outflow_ideal, margin=1.05)
-        OF_3_margin_10 = objective_function_3(outflow, outflow_ideal, margin=1.1)
         OF_3_margin_15 = objective_function_3(outflow, outflow_ideal, margin=1.5)
-        results["OF_3_margin_025"].append(OF_3_margin_025)
         results["OF_3_margin_05"].append(OF_3_margin_05)
-        results["OF_3_margin_10"].append(OF_3_margin_10)
         results["OF_3_margin_15"].append(OF_3_margin_15)
 
         OF_4_avg_load = objective_function_4(output, FD, location)
@@ -92,15 +85,12 @@ def objective_function_1(outflow, FD, state, outflow_ideal, output):
     )
     wanted_state_FD = get_first_wwf_state(state)
 
-    dwf_transition_outflow = outflow[wanted_state_outflow]
     initial_wwf_FD = FD[wanted_state_FD]
-
-    OF_outflow = (dwf_transition_outflow - outflow_ideal) ** 2 / outflow_ideal
 
     mask = filted_high_inflows(output, outflow_ideal, outflow, wanted_state_outflow)
     filtered = outflow[mask]
 
-    return OF_outflow.var(), np.mean(initial_wwf_FD), filtered.var()
+    return np.mean(initial_wwf_FD), filtered.var()
 
 
 def objective_function_2(output, location):
@@ -321,8 +311,8 @@ def get_location_rain_threshold_certainty_threshold(filename):
     return location, threshold, certainty
 
 
-if __name__ == "__main__":
-    start = time.time()
-    main()
-    end = time.time()
-    print(f"Total duration = {(end-start) / 60}")
+# if __name__ == "__main__":
+# start = time.time()
+# main()
+# end = time.time()
+# print(f"Total duration = {(end-start) / 60}")

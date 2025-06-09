@@ -2,7 +2,9 @@ from simulation import Simulation
 from realtimecontrol import RealTimeControl
 from postprocess import PostProcess
 import datetime as dt
+import pandas as pd
 
+all_results = {}
 
 MODEL_NAME = "model_jip"
 SUFFIX = "RTC"
@@ -15,6 +17,12 @@ simulation = RealTimeControl(
     virtual_pump_max=10,
 )
 simulation.start_simulation()
+
+timesteps, ES_states, RZ_states = simulation.get_state()
+all_results[f"ES_{SUFFIX}"] = ES_states
+all_results[f"RZ_{SUFFIX}"] = RZ_states
+
+
 postprocess = PostProcess(model_name=MODEL_NAME)
 postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="RTC")
 
@@ -34,6 +42,10 @@ simulation = RealTimeControl(
     RZ_certainty_threshold=0.925,
 )
 simulation.start_simulation()
+timesteps, ES_states, RZ_states = simulation.get_state()
+all_results[f"ES_{SUFFIX}"] = ES_states
+all_results[f"RZ_{SUFFIX}"] = RZ_states
+
 postprocess = PostProcess(model_name=MODEL_NAME)
 postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="RTC")
 
@@ -48,6 +60,10 @@ simulation = Simulation(
     virtual_pump_max=10,
 )
 simulation.start_simulation()
+# timesteps, ES_states, RZ_states = simulation.get_state()
+# all_results[f"ES_{SUFFIX}"] = ES_states
+# all_results[f"RZ_{SUFFIX}"] = RZ_states
+
 postprocess = PostProcess(model_name=MODEL_NAME)
 postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")
 
@@ -64,6 +80,10 @@ simulation = Simulation(
     virtual_pump_max=10,
 )
 simulation.start_simulation()
+# timesteps, ES_states, RZ_states = simulation.get_state()
+# all_results[f"ES_{SUFFIX}"] = ES_states
+# all_results[f"RZ_{SUFFIX}"] = RZ_states
+
 postprocess = PostProcess(model_name=MODEL_NAME)
 postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")
 
@@ -79,5 +99,13 @@ simulation = Simulation(
     constant_outflow=True,
 )
 simulation.start_simulation()
+timesteps, ES_states, RZ_states = simulation.get_state()
+all_results[f"ES_{SUFFIX}"] = ES_states
+all_results[f"RZ_{SUFFIX}"] = RZ_states
+
 postprocess = PostProcess(model_name=MODEL_NAME)
 postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")
+
+
+df = pd.DataFrame(all_results, index=timesteps)
+df.to_csv("simulation_states_systems.csv")

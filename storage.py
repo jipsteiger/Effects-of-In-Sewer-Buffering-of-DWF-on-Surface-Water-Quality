@@ -72,6 +72,9 @@ class ConcentrationStorage:
             ) / (self.V + V_in)
         self.V += V_in
 
+    def get_current_state(self):
+        return self.V, self.storage_concentrations  # m3, g/m3
+
     def update_out(self, Q, FD, timestep=300):
         V_out = Q * timestep  # CMS to CM
         load_out = {
@@ -79,5 +82,11 @@ class ConcentrationStorage:
         }  # g/m3 to g/d
         load_out["H2O_sew"] = Q * 86400 * 1e6  # CMS to g/d
         load_out["FD"] = FD
+        load_out["V"] = self.V
         self.V -= V_out
+
+        if self.V < 0:
+            self.V = 0
+            for k, i in self.storage_concentrations.items():
+                self.storage_concentrations[k] = 0
         return load_out

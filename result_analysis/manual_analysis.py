@@ -8,9 +8,82 @@ import plotly.io as pio
 from sklearn.metrics import r2_score
 
 
+def check_load():
+    df_west = pd.read_csv(
+        r"output_swmm\latest_out_ES_out.csv",
+        # rf'data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt',
+        delimiter=";",
+        decimal=",",
+        index_col=0,
+        parse_dates=True,
+    )
+
+    fig = go.Figure()
+
+    for key in df_west.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=df_west.index,
+                y=df_west[key].astype(float),
+                mode="lines",
+                name=f"WEST {key}",
+            )
+        )
+
+    df_west = pd.read_csv(
+        r"output_swmm\06-04_11-40_out_ES_RTC.txt",
+        # rf'data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt',
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west["timestamp"] = start_date + pd.to_timedelta(
+        df_west.index.astype(float), unit="D"
+    )
+    df_west.set_index("timestamp", inplace=True)
+
+    for key in df_west.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=df_west.index,
+                y=df_west[key].astype(float),
+                mode="lines",
+                name=f"RTC base {key}",
+            )
+        )
+
+    df_west = pd.read_csv(
+        r"output_swmm\06-01_16-25_out_ES_No_RTC.txt",
+        # rf'data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt',
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west["timestamp"] = start_date + pd.to_timedelta(
+        df_west.index.astype(float), unit="D"
+    )
+    df_west.set_index("timestamp", inplace=True)
+
+    for key in df_west.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=df_west.index,
+                y=df_west[key].astype(float),
+                mode="lines",
+                name=f"NO RTC base {key}",
+            )
+        )
+
+    pio.show(fig, renderer="browser")
+
+
 def check_any_west_results():
     df_west = pd.read_csv(
-        f"data\WEST\Pollutant_input_uncontrolled_backup2\wwtp_control.out.txt",
+        f"data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt",
         # rf'data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt',
         delimiter="\t",
         header=0,
@@ -42,6 +115,7 @@ def check_any_west_results():
                 name=f"WEST {key}",
             )
         )
+
     # fig.add_trace(
     #     go.Scatter(
     #         x=df.index,

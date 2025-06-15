@@ -1,307 +1,431 @@
-import pandas as pd
-import datetime as dt
-
-import pandas as pd
-
-import matplotlib.pyplot as plt
-
-precipitaiton = pd.read_csv(
-    rf"data\precipitation\csv_selected_area_euradclim\2024_5_min_precipitation_data.csv",
-    index_col=0,
-    parse_dates=True,
+from data.concentration_curves import (
+    NH4_conc_ES,
+    Q_95_norm_ES_adjusted,
+    NH4_conc_RZ,
+    Q_95_norm_RZ_adjusted,
 )
-
-data = {
-    "Region": ["Aa", "B", "A", "B"],
-    "datetime_of_creation": [
-        "2024-01-01 00:00:00",
-        "2024-01-01 00:00:00",
-        "2024-01-01 00:00:00",
-        "2024-01-01 00:00:00",
-    ],
-    "datetime_of_forecast": [
-        "2024-01-01 00:00:00",
-        "2024-01-01 00:00:00",
-        "2024-01-01 01:00:00",
-        "2024-01-01 00:00:00",
-    ],
-    "forecast": [
-        [0, 0, 2, 2, 3, 1, 0],
-        [5, 1, 2, 2, 0, 1, 0],
-        [0, 5, 2, 0, 0, 1, 1],
-        [2, 1, 2, 2, 4, 1, 0],
-    ],
-}
-
-df = pd.DataFrame(data)
-df["datetime_of_creation"] = pd.to_datetime(df["datetime_of_creation"])
-df["datetime_of_forecast"] = pd.to_datetime(df["datetime_of_forecast"])
-
-# Expand each forecast into 1 row per forecast hour
-df_expanded = df.explode("forecast").reset_index(drop=True)
-
-# Add a column indicating the forecast horizon in hours
-df_expanded["forecast_hour"] = df_expanded.groupby(
-    ["Region", "datetime_of_creation", "datetime_of_forecast"]
-).cumcount()
-
-# Calculate the actual forecasted datetime
-df_expanded["forecasted_time"] = df_expanded["datetime_of_forecast"] + pd.to_timedelta(
-    df_expanded["forecast_hour"], unit="h"
-)
-
-# Example current time in the simulation
-current_time = pd.Timestamp("2024-01-01 00:00:00")
-
-# Filter: only keep forecasts that were created at the current time
-# and that forecast for the next 12 hours
-valid_forecasts = df_expanded[
-    (df_expanded["datetime_of_creation"] == current_time)
-    & (df_expanded["forecasted_time"] <= current_time + pd.Timedelta(hours=12))
-]
-
-# -----------------------------
-
-
-forecasts = pd.read_csv(
-    rf"data\precipitation\csv_forecasts\forecast_data.csv", index_col=0
-)
-forecasts["date"] = pd.to_datetime(forecasts["date"])
-forecasts["date_of_forecast"] = pd.to_datetime(forecasts["date_of_forecast"])
-forecasts["ensembles"] = forecasts["ensembles"].apply(
-    lambda s: [float(x) for x in s.strip("[]").split()]
-)
-
-
-current_time = pd.to_datetime(
-    "2024-04-15 18:00:00"
-)  # Keep in mind thate only forecasts are made at intervals of 6 hours
-upperbound = 48
-upperbound_time = current_time + dt.timedelta(hours=upperbound)
-filtered_forecast = forecasts[
-    (forecasts.date == current_time) & (forecasts.date_of_forecast <= upperbound_time)
-]
-
-
-grouped = filtered_forecast.groupby(["region", "date_of_forecast"])["ensembles"].apply(
-    list
-)
-
-
-def should_activate_pump_avg_confidence(
-    region,
-    forecast_dict,
-    current_time,
-    hours_ahead=6,
-    rain_threshold_per_hour=1.0,
-    required_confidence=0.95,
-):
-    """
-    Decide whether to activate a pump based on average rainfall per hour over forecast horizon.
-    """
-    forecast_times = [current_time + pd.Timedelta(hours=i) for i in range(hours_ahead)]
-    print(forecast_times)
-    # Collect ensembles across the forecast window
-    ensemble_matrix = []
-
-    for t in forecast_times:
-        try:
-            ensemble_matrix.append(forecast_dict[region][t])
-        except KeyError:
-            continue
-    print(ensemble_matrix)
-    # Transpose to get ensemble-wise aggregation: one row per ensemble member
-    ensemble_matrix = list(zip(*ensemble_matrix))  # shape: (n_members, hours)
-    print(ensemble_matrix)
-    # Compute average rain per hour for each ensemble member
-    avg_rains = [
-        sum(member_forecast) / hours_ahead for member_forecast in ensemble_matrix
-    ]
-    print(avg_rains)
-    # Compute proportion above threshold
-    passing_members = sum(avg > rain_threshold_per_hour for avg in avg_rains)
-    print(passing_members)
-    confidence = passing_members / len(avg_rains)
-    print(confidence)
-
-    return confidence >= required_confidence
-
-
-result = should_activate_pump_avg_confidence("ES", grouped, current_time)
-
-
-forecast_times = [current_time + pd.Timedelta(hours=i) for i in range(6)]
-ensemble_matrix = []
-
-ensemble_matrix = [grouped["ES"][t][0] for t in forecast_times if t in grouped["ES"]]
-
-# Transpose to get per-member forecasts over time
-ensemble_matrix = list(zip(*ensemble_matrix))  # shape: (n_members, hours)
-
-# Now compute averages correctly
-avg_rains = [sum(member_forecast) / 6 for member_forecast in ensemble_matrix]
-
-
-time = pd.to_datetime(
-    "2024-07-22 18:00:00"
-)  # Keep in mind thate only forecasts are made at intervals of 6 hours
-upperbound = 48
-upperbound_time = time + dt.timedelta(hours=upperbound)
-current_forecast = forecasts[
-    (forecasts.date == time) & (forecasts.date_of_forecast <= upperbound_time)
-]
-
-current_forecast = current_forecast.groupby(["region", "date_of_forecast"])[
-    "ensembles"
-].apply(lambda x: [item for sublist in x for item in sublist])
-
-
-precipitation = precipitaiton.resample("h").sum()
-precipitation = precipitation.loc["2024-04-15 20:00:00":"2024-04-17 18:00:00", "ES"]
-
-ES = grouped["ES"]
-df = pd.DataFrame(ES)
-data = df["ensembles"]
-labels = df["label"].tolist() if "label" in df.columns else [str(i) for i in df.index]
-plt.figure(figsize=(20, 8))
-plt.boxplot(data, labels=labels)
-plt.plot(precipitation.index, precipitation.values, "r")
-plt.xlabel("Group")
-plt.xticks(rotation=90)
-plt.ylabel("Values")
-plt.title("Boxplots of Ensemble Data")
-plt.grid(True)
-plt.tight_layout()
-plt.show()
-
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-
-# 1. Prepare and sort the forecast data
-ES = grouped["ES"].reset_index()
-ES["timestamp"] = pd.to_datetime(ES["date_of_forecast"])
-ES = ES.sort_values("timestamp")
-
-data = ES["ensembles"]
-positions = mdates.date2num(
-    ES["timestamp"]
-)  # Convert datetime to numeric format for plotting
-
-# 2. Create figure and axis
-fig, ax = plt.subplots(figsize=(20, 8))
-
-# 3. Plot boxplots with datetime-based positions
-ax.boxplot(data, positions=positions, widths=0.1)
-
-# 4. Plot precipitation (make sure index is datetime and aligns with same time range)
-ax.plot(precipitation.index, precipitation.values, "r-", label="Precipitation")
-
-# 5. Formatting
-ax.xaxis_date()
-ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d %H:%M"))
-plt.xticks(rotation=90)
-ax.set_xlabel("Time")
-ax.set_ylabel("Values (Shared Axis)")
-ax.set_title("Ensemble Forecasts and Precipitation (Shared Y-axis)")
-ax.grid(True)
-ax.legend()
-fig.tight_layout()
-plt.show()
-
-
-######################
-
-
-forecasts = pd.read_csv(
-    rf"data\precipitation\csv_forecasts\forecast_data.csv", index_col=0
-)
-forecasts["date"] = pd.to_datetime(forecasts["date"])
-forecasts["date_of_forecast"] = pd.to_datetime(forecasts["date_of_forecast"])
-forecasts["ensembles"] = forecasts["ensembles"].apply(
-    lambda s: [float(x) for x in s.strip("[]").split()]
-)
-
-time = pd.to_datetime(
-    "2024-07-29 12:00:00"
-)  # Keep in mind thate only forecasts are made at intervals of 6 hours
-upperbound = 48
-upperbound_time = time + dt.timedelta(hours=upperbound)
-current_forecast = forecasts[
-    (forecasts.date == time) & (forecasts.date_of_forecast <= upperbound_time)
-]
-
-current_forecast = current_forecast.groupby(["region", "date_of_forecast"])[
-    "ensembles"
-].apply(lambda x: [item for sublist in x for item in sublist])
-
-time_lb = 2
-time_ub = 8
-
-start_time = time + dt.timedelta(hours=time_lb)
-end_time = time + dt.timedelta(hours=time_ub)
-
-current_forecast_window = current_forecast.loc[
-    (current_forecast.index.get_level_values("date_of_forecast") >= start_time)
-    & (current_forecast.index.get_level_values("date_of_forecast") <= end_time)
-]
-print(current_forecast_window)
-
-rain_threshold = 1
-confidence = 0.9
-
-import matplotlib.pyplot as plt
+from storage import ConcentrationStorage
 import numpy as np
-from scipy.interpolate import interp1d
+import pandas as pd
+from datetime import timedelta
 
-quantile_values_by_region = {}
+# --- 1. SETUP & PARAMETER CALCULATION ---
 
-for region_name in current_forecast_window.index.get_level_values("region").unique():
-    region_forecast_series = current_forecast_window.loc[region_name]
-    quantile_values_by_region[region_name] = []
+# Collect the 24-hour profile data first
+hourly_inflow_rates = []
+hourly_nh4_concs = []
+for i in range(24):
+    hour_key = f"H_{i}"
+    hourly_inflow_rates.append(getattr(Q_95_norm_ES_adjusted, hour_key))
+    # Assuming NH4_conc_ES is in g/m3. The original comment "g/d" is likely a typo for concentration.
+    hourly_nh4_concs.append(getattr(NH4_conc_ES, hour_key))
 
-    for forecast_time, ensemble_values in region_forecast_series.items():
-        ensemble_array = np.array(ensemble_values)
+# Convert to numpy arrays for vectorized calculations
+hourly_inflow_rates = np.array(hourly_inflow_rates) * 0.663  # units: m3/s
+hourly_nh4_concs = np.array(hourly_nh4_concs) * 44  # units: g/m3
 
-        if len(ensemble_array) == 0 or np.all(ensemble_array == 0):
-            quantile_values_by_region[region_name].append(0.0)
-            continue
+# Calculate the true average inflow rate and average incoming load
+avg_inflow_rate = np.mean(hourly_inflow_rates)  # m3/s
+hourly_loads = hourly_inflow_rates * hourly_nh4_concs  # (m3/s) * (g/m3) = g/s
+avg_incoming_load = np.mean(hourly_loads)  # g/s
 
-        sorted_values = np.sort(ensemble_array)
-        empirical_probabilities = np.linspace(0, 1, len(sorted_values))
+print(f"Average Inflow Rate: {avg_inflow_rate:.4f} m3/s")
+print(f"Average Incoming NH4 Load: {avg_incoming_load:.4f} g/s")
 
-        # Interpolate inverse CDF (quantile function)
-        quantile_function = interp1d(
-            empirical_probabilities,
-            sorted_values,
-            bounds_error=False,
-            fill_value=(sorted_values[0], sorted_values[-1]),
+# --- 2. CONTROL PARAMETERS for the Storage Tank ---
+
+# Our target is to have a constant outgoing load equal to the average incoming load.
+target_outflow_load_NH4 = avg_incoming_load  # g/s
+
+# Define the storage tank's operational parameters
+V_target = (
+    10000  # m3. The desired average volume in the tank. Choose a reasonable size.
+)
+Kp = 0.0001  # Proportional gain. A small value to start. Units are (m3/s) / m3 -> 1/s.
+
+# --- 3. SIMULATION SETUP ---
+
+# Total number of 5-minute steps in 7 days
+num_steps = int((7 * 24 * 60) / 5)  # 2016 steps
+timestep_seconds = 300  # 5 minutes in seconds
+
+concentrationStorage = ConcentrationStorage()
+
+# Dataframe to store results
+outflow_list = []
+V_list = []
+load_out_list = []  # To check if our load is constant
+concentration_df = pd.DataFrame(columns=["COD", "CODs", "TSS", "NH4", "PO4"])
+
+# --- 4. SIMULATION LOOP ---
+
+for step in range(num_steps):
+    # Determine hour of day to index the 24-hour curves
+    hour_of_day = (step * 5) // 60 % 24
+
+    # Get inflow and concentration for the current time step
+    flow_in = hourly_inflow_rates[hour_of_day]  # m3/s
+    NH4_in_conc = hourly_nh4_concs[hour_of_day]  # g/m3
+
+    inflow_concentrations = {
+        "COD_part": 0,
+        "COD_sol": 0,
+        "X_TSS_sew": 0,
+        "NH4_sew": NH4_in_conc,  # g/m3
+        "PO4_sew": 0,
+    }
+    concentrationStorage.update_in(flow_in, inflow_concentrations, timestep_seconds)
+
+    # Get the current state of the tank AFTER adding the inflow
+    V, conc_state = (
+        concentrationStorage.get_current_state()
+    )  # V in m3, conc_state in g/m3
+    V_list.append(V)
+
+    # --- THIS IS THE CORRECTED CONTROL LOGIC ---
+
+    current_NH4_conc = conc_state["NH4_sew"]
+
+    # Avoid division by zero if tank is clean
+    if current_NH4_conc > 0.1:
+        # 1. Calculate the ideal outflow to meet the load target
+        Q_for_load_target = (
+            target_outflow_load_NH4 / current_NH4_conc
+        )  # (g/s) / (g/m3) = m3/s
+    else:
+        Q_for_load_target = (
+            avg_inflow_rate  # Fallback to average flow if concentration is zero
         )
 
-        # Append the rainfall value at the given confidence level
-        # Here you calculate that with a certain confidence level, there will less rain that.
-        # Thus: With 90% confidence, the rainfall will be less than X mm.
-        quantile_values_by_region[region_name].append(
-            float(quantile_function(confidence))
+    # 2. Calculate the volume correction flow (Proportional Controller)
+    volume_error = V - V_target  # m3
+    Q_volume_correction = Kp * volume_error  # (1/s) * m3 = m3/s
+
+    # 3. Combine them to get the final outflow
+    outflow = Q_for_load_target + Q_volume_correction
+    # outflow = avg_inflow_rate
+
+    # 4. Add a safety check: outflow cannot be negative
+    outflow = max(0, outflow)
+
+    # --- END OF CORRECTED LOGIC ---
+
+    # Update storage with the calculated outflow
+    # Assume update_out returns a dict of pollutant loads in g/s (if timestep_seconds is used internally for conversion from g/d)
+    # or g/d (as per original comment). Let's calculate the load ourselves for clarity.
+    output_loads_per_day = concentrationStorage.update_out(
+        outflow, 0, timestep_seconds
+    )  # Original call
+
+    # For plotting, let's calculate the outgoing load in g/s to verify our controller
+    actual_outgoing_load = outflow * current_NH4_conc  # (m3/s) * (g/m3) = g/s
+    load_out_list.append(actual_outgoing_load)
+
+    # Store results
+    timestamp = pd.Timestamp("2025-01-01") + timedelta(minutes=5 * step)
+    row_df = pd.DataFrame([output_loads_per_day], index=[timestamp])
+    concentration_df = pd.concat([concentration_df, row_df])
+    outflow_list.append(outflow)
+
+
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
+import plotly.io as pio
+
+# Ensure the plot opens in the default browser
+pio.renderers.default = "browser"
+
+# Combine volume and outflow with concentration_df
+concentration_df["Outflow"] = outflow_list
+concentration_df["Volume"] = V_list
+
+# Create subplots: 3 rows, shared x-axis
+fig = make_subplots(
+    rows=4,
+    cols=1,
+    shared_xaxes=True,
+    subplot_titles=("NH4 Load", "Outflow", "NH4 Concentration", "Storage Volume"),
+    vertical_spacing=0.1,
+)
+
+# --- Row 1: NH4 Concentration ---
+fig.add_trace(
+    go.Scatter(
+        x=concentration_df.index,
+        y=concentration_df["NH4_sew"],
+        mode="lines",
+        name="NH4 Concentration",
+        line=dict(color="blue"),
+    ),
+    row=1,
+    col=1,
+)
+
+fig.add_trace(
+    go.Scatter(
+        x=concentration_df.index,
+        y=concentration_df["NH4_sew"] / concentration_df["Outflow"],
+        mode="lines",
+        name="NH4 Load",
+        line=dict(color="red"),
+    ),
+    row=3,
+    col=1,
+)
+
+
+# --- Row 2: Outflow ---
+fig.add_trace(
+    go.Scatter(
+        x=concentration_df.index,
+        y=concentration_df["Outflow"],
+        mode="lines",
+        name="Outflow",
+        line=dict(color="green"),
+    ),
+    row=2,
+    col=1,
+)
+
+# --- Row 3: Storage Volume ---
+fig.add_trace(
+    go.Scatter(
+        x=concentration_df.index,
+        y=concentration_df["Volume"],
+        mode="lines",
+        name="Volume",
+        line=dict(color="orange"),
+    ),
+    row=4,
+    col=1,
+)
+
+# Layout settings
+fig.update_layout(
+    height=900,
+    title_text="NH4 Concentration, Outflow, and Storage Volume Over Time",
+    xaxis_title="Time",
+    template="plotly_white",
+)
+
+# Show plot in default web browser
+fig.show()
+
+
+#####################################################################################################
+
+from data.concentration_curves import NH4_conc_ES, Q_95_norm_ES_adjusted
+from storage import ConcentrationStorage
+import numpy as np
+import pandas as pd
+from datetime import timedelta
+
+# --- 1. SETUP & PARAMETER CALCULATION ---
+
+# Collect the 24-hour profile data first
+hourly_inflow_rates = []
+hourly_nh4_concs = []
+for i in range(24):
+    hour_key = f"H_{i}"
+    hourly_inflow_rates.append(getattr(Q_95_norm_RZ_adjusted, hour_key))
+    # Assuming NH4_conc_ES is in g/m3. The original comment "g/d" is likely a typo for concentration.
+    hourly_nh4_concs.append(getattr(NH4_conc_RZ, hour_key))
+
+# Convert to numpy arrays for vectorized calculations
+hourly_inflow_rates = np.array(hourly_inflow_rates) * 0.5218  # units: m3/s
+hourly_nh4_concs = np.array(hourly_nh4_concs) * 44  # units: g/m3
+
+# Calculate the true average inflow rate and average incoming load
+avg_inflow_rate = np.mean(hourly_inflow_rates)  # m3/s
+hourly_loads = hourly_inflow_rates * hourly_nh4_concs  # (m3/s) * (g/m3) = g/s
+avg_incoming_load = np.mean(hourly_loads)  # g/s
+
+print(f"Average Inflow Rate: {avg_inflow_rate:.4f} m3/s")
+print(f"Average Incoming NH4 Load: {avg_incoming_load:.4f} g/s")
+
+# --- 2. CONTROL PARAMETERS for the Storage Tank ---
+
+# Our target is to have a constant outgoing load equal to the average incoming load.
+target_outflow_load_NH4 = avg_incoming_load  # g/s
+
+# Define the storage tank's operational parameters
+V_target = 5000  # m3. The desired average volume in the tank. Choose a reasonable size.
+Kp = 0.0001  # Proportional gain. A small value to start. Units are (m3/s) / m3 -> 1/s.
+
+# --- 3. SIMULATION SETUP ---
+
+# Total number of 5-minute steps in 7 days
+num_steps = int((7 * 24 * 60) / 5)  # 2016 steps
+timestep_seconds = 300  # 5 minutes in seconds
+
+# Initialize the storage with the target volume and average concentration
+# This prevents wild fluctuations at the start of the simulation.
+avg_incoming_conc = avg_incoming_load / avg_inflow_rate  # g/m3
+initial_concentrations = {
+    "COD_part": 0,
+    "COD_sol": 0,
+    "X_TSS_sew": 0,
+    "NH4_sew": avg_incoming_conc,
+    "PO4_sew": 0,
+}
+concentrationStorage = ConcentrationStorage()
+
+# Dataframe to store results
+outflow_list = []
+V_list = []
+load_out_list = []  # To check if our load is constant
+concentration_df = pd.DataFrame(columns=["COD", "CODs", "TSS", "NH4", "PO4"])
+
+# --- 4. SIMULATION LOOP ---
+
+for step in range(num_steps):
+    # Determine hour of day to index the 24-hour curves
+    hour_of_day = (step * 5) // 60 % 24
+
+    # Get inflow and concentration for the current time step
+    flow_in = hourly_inflow_rates[hour_of_day]  # m3/s
+    NH4_in_conc = hourly_nh4_concs[hour_of_day]  # g/m3
+
+    inflow_concentrations = {
+        "COD_part": 0,
+        "COD_sol": 0,
+        "X_TSS_sew": 0,
+        "NH4_sew": NH4_in_conc,  # g/m3
+        "PO4_sew": 0,
+    }
+    concentrationStorage.update_in(flow_in, inflow_concentrations, timestep_seconds)
+
+    # Get the current state of the tank AFTER adding the inflow
+    V, conc_state = (
+        concentrationStorage.get_current_state()
+    )  # V in m3, conc_state in g/m3
+    V_list.append(V)
+
+    # --- THIS IS THE CORRECTED CONTROL LOGIC ---
+
+    current_NH4_conc = conc_state["NH4_sew"]
+
+    # Avoid division by zero if tank is clean
+    if current_NH4_conc > 0.1:
+        # 1. Calculate the ideal outflow to meet the load target
+        Q_for_load_target = (
+            target_outflow_load_NH4 / current_NH4_conc
+        )  # (g/s) / (g/m3) = m3/s
+    else:
+        Q_for_load_target = (
+            avg_inflow_rate  # Fallback to average flow if concentration is zero
         )
 
-ES_predicted = np.mean(quantile_values_by_region["ES"]) > rain_threshold
+    # 2. Calculate the volume correction flow (Proportional Controller)
+    volume_error = V - V_target  # m3
+    Q_volume_correction = Kp * volume_error  # (1/s) * m3 = m3/s
 
-RZ_totals = [
-    np.mean(quantile_values_by_region[region]) for region in ["RZ1", "RZ2", "GE"]
-]
-RZ_predicted = any(total > 3 for total in RZ_totals) or np.mean(RZ_totals) > 1
+    # 3. Combine them to get the final outflow
+    outflow = Q_for_load_target + Q_volume_correction
+    # outflow = avg_inflow_rate
+
+    # 4. Add a safety check: outflow cannot be negative
+    outflow = max(0, outflow)
+
+    # --- END OF CORRECTED LOGIC ---
+
+    # Update storage with the calculated outflow
+    # Assume update_out returns a dict of pollutant loads in g/s (if timestep_seconds is used internally for conversion from g/d)
+    # or g/d (as per original comment). Let's calculate the load ourselves for clarity.
+    output_loads_per_day = concentrationStorage.update_out(
+        outflow, 0, timestep_seconds
+    )  # Original call
+
+    # For plotting, let's calculate the outgoing load in g/s to verify our controller
+    actual_outgoing_load = outflow * current_NH4_conc  # (m3/s) * (g/m3) = g/s
+    load_out_list.append(actual_outgoing_load)
+
+    # Store results
+    timestamp = pd.Timestamp("2025-01-01") + timedelta(minutes=5 * step)
+    row_df = pd.DataFrame([output_loads_per_day], index=[timestamp])
+    concentration_df = pd.concat([concentration_df, row_df])
+    outflow_list.append(outflow)
 
 
-import matplotlib.pyplot as plt
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
+import plotly.io as pio
 
-# Plot individual region quantiles over time
-for region_name, quantiles in quantile_values_by_region.items():
-    plt.figure(figsize=(10, 4))
-    plt.plot(
-        quantiles,
-        marker="o",
-        linestyle="-",
-        label=f"{region_name} ({confidence*100:.0f}th percentile)",
-    )
+# Ensure the plot opens in the default browser
+pio.renderers.default = "browser"
+
+# Combine volume and outflow with concentration_df
+concentration_df["Outflow"] = outflow_list
+concentration_df["Volume"] = V_list
+
+# Create subplots: 3 rows, shared x-axis
+fig = make_subplots(
+    rows=4,
+    cols=1,
+    shared_xaxes=True,
+    subplot_titles=("NH4 Load", "Outflow", "NH4 Concentration", "Storage Volume"),
+    vertical_spacing=0.1,
+)
+
+# --- Row 1: NH4 Concentration ---
+fig.add_trace(
+    go.Scatter(
+        x=concentration_df.index,
+        y=concentration_df["NH4_sew"],
+        mode="lines",
+        name="NH4 Concentration",
+        line=dict(color="blue"),
+    ),
+    row=1,
+    col=1,
+)
+
+fig.add_trace(
+    go.Scatter(
+        x=concentration_df.index,
+        y=concentration_df["NH4_sew"] / concentration_df["Outflow"],
+        mode="lines",
+        name="NH4 Load",
+        line=dict(color="red"),
+    ),
+    row=3,
+    col=1,
+)
+
+
+# --- Row 2: Outflow ---
+fig.add_trace(
+    go.Scatter(
+        x=concentration_df.index,
+        y=concentration_df["Outflow"],
+        mode="lines",
+        name="Outflow",
+        line=dict(color="green"),
+    ),
+    row=2,
+    col=1,
+)
+
+# --- Row 3: Storage Volume ---
+fig.add_trace(
+    go.Scatter(
+        x=concentration_df.index,
+        y=concentration_df["Volume"],
+        mode="lines",
+        name="Volume",
+        line=dict(color="orange"),
+    ),
+    row=4,
+    col=1,
+)
+
+# Layout settings
+fig.update_layout(
+    height=900,
+    title_text="NH4 Concentration, Outflow, and Storage Volume Over Time",
+    xaxis_title="Time",
+    template="plotly_white",
+)
+
+# Show plot in default web browser
+fig.show()

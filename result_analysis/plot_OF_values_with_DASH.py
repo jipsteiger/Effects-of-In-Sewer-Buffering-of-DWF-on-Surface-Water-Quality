@@ -34,7 +34,7 @@ titles = {
     "OF_4_X_TSS_sew": "Var X TSS sew load to WWTP (lower is better)",
     "OF_4_NH4_sew": "Var NH4 sew load to WWTP (lower is better)",
     "OF_4_PO4_sew": "Var PO4 sew load to WWTP (lower is better)",
-    "score": "Mean score of selected components (higher is better)",
+    "score": "Mean score of selected components (lower is better)",
 }
 
 # Normalize and pivot

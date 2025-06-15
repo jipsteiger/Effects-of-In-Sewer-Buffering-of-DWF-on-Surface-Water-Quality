@@ -1,5 +1,4 @@
 import pandas as pd
-import logging
 
 
 class EmpericalSewerWQ:
@@ -252,7 +251,6 @@ class EmpericalSewerWQ:
             event = 0
         self.state["event"] = event
 
-        logging.debug(f'{Qsw=}, previous NH4={self.previous_state["proc4_NH4"]}')
         # Event8_h logic
         event8_h = int(
             (Qsw > self.Qsw_event8)
@@ -285,8 +283,6 @@ class EmpericalSewerWQ:
             self.state["t_end_event8_h"] = t
         else:
             self.state["t_end_event8_h"] = self.previous_state.get("t_end_event8_h", t)
-
-        logging.debug(f"{event=}, {event8_h=}, {event8=}, ")
 
         # NH4 Processes
         proc1_NH4 = self.NH4_av * getattr(self.concentration_dict["NH4"], hour_key)
@@ -717,10 +713,6 @@ class EmpericalSewerWQ:
             self.state["proc7_COD_h"] = 0
         self.state["proc7_COD"] = max(self.state["proc7_COD_h"], 0)
 
-        logging.debug("WQ")
-        logging.debug(
-            f'{self.state["proc1_COD"]=},{self.state["proc2_COD"]=},{self.state["proc3_COD"]},{self.state["proc4_COD"]=}, {self.state["proc6_COD"]=}, {self.state["proc7_COD"]=}'
-        )
         # COD Final Calculation
         self.state["COD"] = (
             self.state["proc1_COD"]

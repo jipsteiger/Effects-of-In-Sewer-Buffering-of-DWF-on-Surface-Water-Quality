@@ -30,6 +30,7 @@ class RealTimeControl(Simulation):
         virtual_pump_max=10,
         constant_outflow=False,
         use_ensemble_forecast=False,
+        do_load_averaging=False,
         ES_threshold=1,
         RZ_threshold=3,
         ES_certainty_threshold=0.9,
@@ -38,6 +39,11 @@ class RealTimeControl(Simulation):
         ES_out_ideal: float = 0.663,
         RZ_out_max: float = 4.7222,
         RZ_out_ideal: float = 0.5218,
+        ES_V_avg_target=8000,
+        RZ_V_avg_target=5000,
+        ES_target_avg_load=33.80,
+        RZ_target_avg_load=24.2,
+        Kp=0.0001,
     ):
         super().__init__(
             model_path,
@@ -51,6 +57,7 @@ class RealTimeControl(Simulation):
         self.current_forecast = None
         self.last_forecast_time = None
         self.use_ensemble_forecast = use_ensemble_forecast
+        self.do_load_averaging = do_load_averaging
         self.ES_threshold = ES_threshold
         self.RZ_threshold = RZ_threshold
         self.ES_certainty_threshold = ES_certainty_threshold
@@ -93,6 +100,12 @@ class RealTimeControl(Simulation):
         self.RZ_state = None
         self.ES_states = []
         self.RZ_states = []
+
+        self.ES_V_avg_target = ES_V_avg_target
+        self.RZ_V_avg_target = RZ_V_avg_target
+        self.ES_target_avg_load = ES_target_avg_load
+        self.RZ_target_avg_load = RZ_target_avg_load
+        self.Kp = Kp
 
         self.forecasts = read_forecasts()
 
@@ -206,16 +219,19 @@ class RealTimeControl(Simulation):
         RZ_wwf = RZ_raining or self.RZ_predicted
 
         if ES_dwf and not self.ES_wwf_linger:
-            self.ES_dwf_logic()
+            if not self.do_load_averaging:
+                self.ES_dwf_logic_flow()
+            else:
+                self.ES_dwf_logic_load()
             self.ES_state = "dwf"
         elif ES_transition_to_wwf and not (
             self.nodes["pipe_ES"].total_inflow > self.ES_out_ideal * 2
         ):
-            self.ES_transition_to_wwf_logic()
+            self.ES_transition_to_wwf_logic_flow()
             self.ES_state = "transition"
         elif ES_wwf or self.ES_wwf_linger:
             self.ES_wwf_linger = True
-            self.ES_wwf_logic()
+            self.ES_wwf_logic_flow()
             self.ES_state = "wwf"
         if ((self.ES_storage.stored_volume / self.ES_storage.V_max) < 1.25) and not (
             ES_wwf
@@ -223,7 +239,10 @@ class RealTimeControl(Simulation):
             self.ES_wwf_linger = False
 
         if RZ_dwf and not self.RZ_wwf_linger:
-            self.RZ_dwf_logic()
+            if not self.do_load_averaging:
+                self.RZ_dwf_logic_flow()
+            else:
+                self.RZ_dwf_logic_load()
             self.RZ_state = "dwf"
         elif (
             RZ_transition_to_wwf
@@ -232,11 +251,11 @@ class RealTimeControl(Simulation):
             )
             > self.RZ_out_ideal * 2
         ):
-            self.RZ_transition_to_wwf_logic()
+            self.RZ_transition_to_wwf_logic_flow()
             self.RZ_state = "transition"
         elif RZ_wwf or self.RZ_wwf_linger:
             self.RZ_wwf_linger = True
-            self.RZ_wwf_logic()
+            self.RZ_wwf_logic_flow()
             self.RZ_state = "wwf"
 
         if (
@@ -248,19 +267,54 @@ class RealTimeControl(Simulation):
             ES_dwf, ES_transition_to_wwf, ES_wwf, RZ_dwf, RZ_transition_to_wwf, RZ_wwf
         )
 
-    def ES_dwf_logic(self):
+    def ES_dwf_logic_flow(self):
         multiplier = max(self.ES_storage.stored_volume / self.ES_storage.V_max, 1)
         self.links["P_eindhoven_out"].target_setting = (
             self.ES_out_ideal / self.ES_out_max * multiplier
         )
 
-    def RZ_dwf_logic(self):
+    def ES_dwf_logic_load(self):
+        V, concentrations = self.ESConcentrationStorage.get_current_state()
+        logging.debug("##############################")
+        logging.debug(self.sim.current_time)
+
+        NH4_conc = concentrations["NH4_sew"]
+        if NH4_conc > 0.1:
+            Q_target = self.ES_target_avg_load / NH4_conc  # g/s / g/m3 = m3/s
+            logging.debug(f"{Q_target=}")
+        else:
+            Q_target = self.ES_out_ideal
+        logging.debug(f"{NH4_conc=}")
+        volume_error = V - self.ES_V_avg_target
+        logging.debug(f"{volume_error=}")
+        Q_target_correction = self.Kp * volume_error
+        Q_target_corrected = Q_target + Q_target_correction
+        logging.debug(f"{Q_target_corrected=}")
+        self.links["P_eindhoven_out"].target_setting = (
+            max(0, Q_target_corrected) / self.ES_out_max
+        )
+
+    def RZ_dwf_logic_flow(self):
         multiplier = max(self.RZ_storage.stored_volume / self.RZ_storage.V_max, 1)
         self.links["P_riool_zuid_out"].target_setting = (
             self.RZ_out_ideal / self.RZ_out_max * multiplier
         )
 
-    def ES_transition_to_wwf_logic(self):
+    def RZ_dwf_logic_load(self):
+        V, concentrations = self.RZConcentrationStorage.get_current_state()
+        NH4_conc = concentrations["NH4_sew"]
+        if NH4_conc > 0.1:
+            Q_target = self.RZ_target_avg_load / NH4_conc
+        else:
+            Q_target = self.RZ_out_ideal
+        volume_error = V - self.RZ_V_avg_target
+        Q_target_correction = self.Kp * volume_error
+        Q_target_corrected = Q_target + Q_target_correction
+        self.links["P_riool_zuid_out"].target_setting = (
+            max(0, Q_target_corrected) / self.RZ_out_max
+        )
+
+    def ES_transition_to_wwf_logic_flow(self):
         inflow = self.nodes["pipe_ES"].total_inflow
         setting = max(self.ES_out_ideal, inflow)
         if (
@@ -270,7 +324,7 @@ class RealTimeControl(Simulation):
         else:
             self.links["P_eindhoven_out"].target_setting = setting / self.ES_out_max
 
-    def RZ_transition_to_wwf_logic(self):
+    def RZ_transition_to_wwf_logic_flow(self):
         inflow = self.nodes["Nod_112"].total_inflow + self.nodes["Nod_104"].total_inflow
         setting = max(self.RZ_out_ideal, inflow)
         if (setting / self.RZ_out_max) / self.RZ_last_setting > 1.025:
@@ -280,7 +334,7 @@ class RealTimeControl(Simulation):
         else:
             self.links["P_riool_zuid_out"].target_setting = setting / self.RZ_out_max
 
-    def ES_wwf_logic(self):
+    def ES_wwf_logic_flow(self):
         current_ratio = (
             EsPumpCurve.interpolated_curve(self.nodes["pipe_ES"].depth)
             / self.ES_out_max
@@ -293,7 +347,7 @@ class RealTimeControl(Simulation):
         else:
             self.links["P_eindhoven_out"].target_setting = current_ratio
 
-    def RZ_wwf_logic(self):
+    def RZ_wwf_logic_flow(self):
         current_ratio = (
             RzPumpCurve.interpolated_curve(self.nodes["pre_ontvangstkelder"].depth)
             / self.RZ_out_max
@@ -508,11 +562,106 @@ if __name__ == "__main__":
         step_size=300,
         report_start=dt.datetime(year=2024, month=7, day=1),
         start_time=dt.datetime(year=2024, month=7, day=1),
-        end_time=dt.datetime(year=2024, month=7, day=31),
+        end_time=dt.datetime(year=2024, month=7, day=10),
         virtual_pump_max=10,
         use_ensemble_forecast=True,
-        ES_threshold=2.25,
-        RZ_threshold=4,
-        certainty_threshold=0.75,
+        do_load_averaging=True,
+        ES_threshold=0.75,
+        RZ_threshold=2.5,
+        ES_certainty_threshold=0.7,
+        RZ_certainty_threshold=0.925,
     )
     simulation.start_simulation()
+    # timesteps, ES_states, RZ_states = simulation.get_state()
+    from postprocess import PostProcess
+
+    SUFFIX = "RTC_load"
+    postprocess = PostProcess(model_name=MODEL_NAME)
+    postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="RTC")
+
+    import pandas as pd
+    import numpy as np
+    import plotly.graph_objects as go
+    import plotly.io as pio
+
+    df_west = pd.read_csv(
+        r"output_swmm\latest_out_ES_out.csv",
+        # rf'data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt',
+        delimiter=";",
+        decimal=",",
+        index_col=0,
+        parse_dates=True,
+    )
+
+    fig = go.Figure()
+
+    for key in df_west.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=df_west.index,
+                y=df_west[key].astype(float),
+                mode="lines",
+                name=f"WEST {key}",
+            )
+        )
+
+    df_west2 = pd.read_csv(
+        r"output_swmm\06-04_11-40_out_ES_RTC.txt",
+        # rf'data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt',
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west2["timestamp"] = start_date + pd.to_timedelta(
+        df_west2.index.astype(float), unit="D"
+    )
+    df_west2.set_index("timestamp", inplace=True)
+
+    for key in df_west2.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=df_west2.index,
+                y=df_west2[key].astype(float),
+                mode="lines",
+                name=f"RTC base {key}",
+            )
+        )
+
+    df_west3 = pd.read_csv(
+        r"output_swmm\06-01_16-25_out_ES_No_RTC.txt",
+        # rf'data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt',
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west3["timestamp"] = start_date + pd.to_timedelta(
+        df_west3.index.astype(float), unit="D"
+    )
+    df_west3.set_index("timestamp", inplace=True)
+
+    for key in df_west3.keys():
+        fig.add_trace(
+            go.Scatter(
+                x=df_west3.index,
+                y=df_west3[key].astype(float),
+                mode="lines",
+                name=f"NO RTC base {key}",
+            )
+        )
+
+    pio.show(fig, renderer="browser")
+
+    a = np.mean(
+        abs(df_west.loc["2024-07-08":"2024-07-09", "NH4_sew"].values.astype(float))
+    ) / (24 * 60 * 60)
+    b = np.mean(
+        abs(df_west2.loc["2024-07-08":"2024-07-09", "NH4_sew"].values.astype(float))
+    ) / (24 * 60 * 60)
+    c = np.mean(
+        abs(df_west3.loc["2024-07-08":"2024-07-09", "NH4_sew"].values.astype(float))
+    ) / (24 * 60 * 60)
+    print(a, b, c)

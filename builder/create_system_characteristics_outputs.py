@@ -7,7 +7,7 @@ import pandas as pd
 all_results = {}
 
 MODEL_NAME = "model_jip"
-SUFFIX = "RTC"
+SUFFIX = "RTC_new_rain"
 simulation = RealTimeControl(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",
     step_size=300,
@@ -26,7 +26,7 @@ all_results[f"RZ_{SUFFIX}"] = RZ_states
 postprocess = PostProcess(model_name=MODEL_NAME)
 postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="RTC")
 
-SUFFIX = "Ensemble_RTC"
+SUFFIX = "Ensemble_RTC_new_rain"
 MODEL_NAME = "model_jip_ENSEMBLE"
 simulation = RealTimeControl(
     model_path=rf"data\SWMM\{MODEL_NAME}.inp",
@@ -37,7 +37,7 @@ simulation = RealTimeControl(
     virtual_pump_max=10,
     use_ensemble_forecast=True,
     ES_threshold=0.75,
-    RZ_threshold=2.5,
+    RZ_threshold=1,
     ES_certainty_threshold=0.7,
     RZ_certainty_threshold=0.925,
 )

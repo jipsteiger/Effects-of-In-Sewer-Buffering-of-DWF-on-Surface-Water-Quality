@@ -1217,7 +1217,7 @@ def precipitation_data_forecast():
         parse_dates=True,
     )
     precipitation = precipitation.resample("h").sum()
-    precipitation = precipitation.loc[start_time:end_time, 'RZ2']
+    precipitation = precipitation.loc[start_time:end_time, "RZ2"]
 
     ES = grouped["RZ2"].reset_index()
     ES["timestamp"] = pd.to_datetime(ES["date_of_forecast"])
@@ -1260,7 +1260,7 @@ def precipitation_data_forecast():
 
 
 def system_character():
-    catchment='RZ'
+    catchment = "RZ"
     labels = {
         "H2O_sew": "Discharge [g/d]",
         "NH4_sew": "NH4 Load [g/d]",
@@ -1321,7 +1321,6 @@ def system_character():
     # Define your time window
     # start_date = pd.Timestamp("2024-05-16")
     # end_date = pd.Timestamp("2024-06-01")
-
 
     for key in list(dry.keys()):
         if not ("FD" in key or "Q_out" in key):
@@ -1974,19 +1973,19 @@ def research_question_3():
     normal_dry = normal.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
     RTC_dry = RTC.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
     ENSEMBLE = ENSEMBLE.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
-    
 
     plot(
-        [normal_dry["H2O_sew"], RTC_dry["H2O_sew"], ENSEMBLE['H2O_sew']],
-        [abs(normal_dry["H2O_sew"]), abs(RTC_dry["H2O_sew"]), abs(ENSEMBLE['H2O_sew'])],
+        [normal_dry["H2O_sew"], RTC_dry["H2O_sew"], ENSEMBLE["H2O_sew"]],
+        [abs(normal_dry["H2O_sew"]), abs(RTC_dry["H2O_sew"]), abs(ENSEMBLE["H2O_sew"])],
         ["Regular flow", "Controlled flow", "Ensemble controlled flow"],
         "Date and time",
         "Flow [m3/s]",
     )
-    
-    
-    states = pd.read_csv(rf'simulation_states_systems.csv', index_col=0, parse_dates=True)
-    filtered_states = states.loc[start_date:end_date, ['RZ_RTC', 'RZ_Ensemble_RTC']]
+
+    states = pd.read_csv(
+        rf"simulation_states_systems.csv", index_col=0, parse_dates=True
+    )
+    filtered_states = states.loc[start_date:end_date, ["RZ_RTC", "RZ_Ensemble_RTC"]]
 
     normal_dry.std()
     RTC_dry.std()
@@ -2025,7 +2024,8 @@ def research_question_3():
     plt.grid(True)
     plt.tight_layout()
     plt.show()
-    
+
+
 def analyse_ensemble_flipper():
     start_date = pd.Timestamp("2024-01-01")
     RTC = pd.read_csv(
@@ -2038,6 +2038,18 @@ def analyse_ensemble_flipper():
     RTC.set_index("timestamp", inplace=True)
     RTC.index = RTC.index.round("5min")
 
+    ENSEMBLE2 = pd.read_csv(
+        rf"output_swmm\06-16_21-33_out_RZ_Ensemble_RTC_new_rain.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    ENSEMBLE2["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE2.index.astype(float), unit="D"
+    )
+    ENSEMBLE2.set_index("timestamp", inplace=True)
+    ENSEMBLE2.index = ENSEMBLE2.index.round("5min")
+
     ENSEMBLE = pd.read_csv(
         rf"output_swmm\06-04_12-10_out_RZ_Ensemble_RTC.csv",
         decimal=",",
@@ -2049,7 +2061,7 @@ def analyse_ensemble_flipper():
     )
     ENSEMBLE.set_index("timestamp", inplace=True)
     ENSEMBLE.index = ENSEMBLE.index.round("5min")
-    
+
     normal = pd.read_csv(
         rf"output_swmm\06-01_16-25_out_RZ_No_RTC.csv",
         decimal=",",
@@ -2064,23 +2076,26 @@ def analyse_ensemble_flipper():
 
     start_date = pd.Timestamp("2024-05-11")
     end_date = pd.Timestamp("2024-05-16")
-    
-    swmm = sa.read_out_file(rf'data\SWMM\model_jip_ENSEMBLE.out').to_frame()
-    
+
+    swmm = sa.read_out_file(rf"data\SWMM\model_jip_ENSEMBLE.out").to_frame()
+
     RTC_select = RTC.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
     ENSEMBLE_select = ENSEMBLE.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
+    ENSEMBLE2_select = ENSEMBLE2.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
     normal_select = normal.loc[start_date:end_date] / 1_000_000 / (24 * 3600)
-    
-    states = pd.read_csv(rf'simulation_states_systems.csv', index_col=0, parse_dates=True)
-    filtered_states = states.loc[start_date:end_date, ['RZ_RTC', 'RZ_Ensemble_RTC']]
-    
+
+    states = pd.read_csv(
+        rf"simulation_states_systems.csv", index_col=0, parse_dates=True
+    )
+    filtered_states = states.loc[start_date:end_date, ["RZ_RTC", "RZ_Ensemble_RTC"]]
+
     # Collect all unique states
-    rz_states = filtered_states['RZ_RTC'].unique()
-    ens_states = filtered_states['RZ_Ensemble_RTC'].unique()
+    rz_states = filtered_states["RZ_RTC"].unique()
+    ens_states = filtered_states["RZ_Ensemble_RTC"].unique()
 
     # Assign different colormaps to each catchment
-    rz_cmap = plt.cm.get_cmap('Blues', len(rz_states))
-    ens_cmap = plt.cm.get_cmap('Oranges', len(ens_states))
+    rz_cmap = plt.cm.get_cmap("Blues", len(rz_states))
+    ens_cmap = plt.cm.get_cmap("Oranges", len(ens_states))
 
     rz_colors = {state: rz_cmap(i) for i, state in enumerate(rz_states)}
     ens_colors = {state: ens_cmap(i) for i, state in enumerate(ens_states)}
@@ -2088,30 +2103,57 @@ def analyse_ensemble_flipper():
     # Initialize one-time labels
     label_once = {f"RZ_{s}": True for s in rz_states}
     label_once.update({f"ENS_{s}": True for s in ens_states})
-    
+
     precipitation = pd.read_csv(
         r"data\precipitation\csv_selected_area_euradclim\2024_5_min_precipitation_data.csv",
         index_col=0,
         parse_dates=True,
     )
     precipitation = precipitation.resample("h").sum()
-    precipitation = precipitation.loc[start_date:end_date, ['GE', 'RZ1', 'RZ2']]
+    precipitation = precipitation.loc[start_date:end_date, ["GE", "RZ1", "RZ2"]]
     precipitation = precipitation.sum(axis=1)
-    
 
     # Create main figure and primary axis
     fig, ax = plt.subplots(figsize=(12, 5))
 
     # Primary axis: flow plots
-    ax.plot(RTC_select.index, abs(RTC_select['H2O_sew'].values), label='Controlled flow', zorder=3)
-    ax.plot(ENSEMBLE_select.index, abs(ENSEMBLE_select['H2O_sew'].values), label='Ensemble controlled flow', zorder=3)
-    ax.plot(normal_select.index, abs(normal_select['H2O_sew'].values), label='Regular flow', zorder=3)
+    ax.plot(
+        RTC_select.index,
+        abs(RTC_select["H2O_sew"].values),
+        label="Controlled flow",
+        zorder=3,
+    )
+    ax.plot(
+        ENSEMBLE_select.index,
+        abs(ENSEMBLE_select["H2O_sew"].values),
+        label="Ensemble controlled flow",
+        zorder=3,
+    )
+    ax.plot(
+        ENSEMBLE2_select.index,
+        abs(ENSEMBLE2_select["H2O_sew"].values),
+        label="Ensemble2 controlled flow",
+        zorder=3,
+    )
+    ax.plot(
+        normal_select.index,
+        abs(normal_select["H2O_sew"].values),
+        label="Regular flow",
+        zorder=3,
+    )
 
     # Secondary axis: precipitation
     ax2 = ax.twinx()
-    ax2.plot(precipitation.index, precipitation.values, color='tab:blue', linestyle='--', label='Precipitation [mm/h]', zorder=2)
-    ax2.set_ylabel("Precipitation [mm/h]", fontsize=10, color='tab:blue')
-    ax2.tick_params(axis='y', labelcolor='tab:blue')
+    ax2.plot(
+        precipitation.index,
+        precipitation.values,
+        color="tab:blue",
+        linestyle="--",
+        label="Precipitation [mm/h]",
+        zorder=2,
+    )
+    ax2.set_ylabel("Precipitation [mm/h]", fontsize=10, color="tab:blue")
+    ax2.tick_params(axis="y", labelcolor="tab:blue")
 
     # Get y-limits for flow shading
     ymin, ymax = ax.get_ylim()
@@ -2119,48 +2161,76 @@ def analyse_ensemble_flipper():
     # --- Shade RZ_RTC states (top half)
     prev_state = None
     start_time = None
-    for time, state in filtered_states['RZ_RTC'].items():
+    for time, state in filtered_states["RZ_RTC"].items():
         if state != prev_state:
             if prev_state is not None:
-                ax.axvspan(start_time, time, ymin=0.5, ymax=1.0,
-                        color=rz_colors[prev_state], alpha=0.2,
-                        label=f"RZ: {prev_state}" if label_once[f"RZ_{prev_state}"] else "")
+                ax.axvspan(
+                    start_time,
+                    time,
+                    ymin=0.5,
+                    ymax=1.0,
+                    color=rz_colors[prev_state],
+                    alpha=0.2,
+                    label=f"RZ: {prev_state}" if label_once[f"RZ_{prev_state}"] else "",
+                )
                 label_once[f"RZ_{prev_state}"] = False
             start_time = time
             prev_state = state
     if prev_state is not None:
-        ax.axvspan(start_time, filtered_states.index[-1], ymin=0.5, ymax=1.0,
-                color=rz_colors[prev_state], alpha=0.2,
-                label=f"RZ: {prev_state}" if label_once[f"RZ_{prev_state}"] else "")
+        ax.axvspan(
+            start_time,
+            filtered_states.index[-1],
+            ymin=0.5,
+            ymax=1.0,
+            color=rz_colors[prev_state],
+            alpha=0.2,
+            label=f"RZ: {prev_state}" if label_once[f"RZ_{prev_state}"] else "",
+        )
 
     # --- Shade RZ_Ensemble_RTC states (bottom half)
     prev_state = None
     start_time = None
-    for time, state in filtered_states['RZ_Ensemble_RTC'].items():
+    for time, state in filtered_states["RZ_Ensemble_RTC"].items():
         if state != prev_state:
             if prev_state is not None:
-                ax.axvspan(start_time, time, ymin=0.0, ymax=0.5,
-                        color=ens_colors[prev_state], alpha=0.2,
-                        label=f"Ensemble: {prev_state}" if label_once[f"ENS_{prev_state}"] else "")
+                ax.axvspan(
+                    start_time,
+                    time,
+                    ymin=0.0,
+                    ymax=0.5,
+                    color=ens_colors[prev_state],
+                    alpha=0.2,
+                    label=(
+                        f"Ensemble: {prev_state}"
+                        if label_once[f"ENS_{prev_state}"]
+                        else ""
+                    ),
+                )
                 label_once[f"ENS_{prev_state}"] = False
             start_time = time
             prev_state = state
     if prev_state is not None:
-        ax.axvspan(start_time, filtered_states.index[-1], ymin=0.0, ymax=0.5,
-                color=ens_colors[prev_state], alpha=0.2,
-                label=f"Ensemble: {prev_state}" if label_once[f"ENS_{prev_state}"] else "")
+        ax.axvspan(
+            start_time,
+            filtered_states.index[-1],
+            ymin=0.0,
+            ymax=0.5,
+            color=ens_colors[prev_state],
+            alpha=0.2,
+            label=f"Ensemble: {prev_state}" if label_once[f"ENS_{prev_state}"] else "",
+        )
 
     # Final formatting
-    ax.set_xlabel('Date and Time', fontsize=10)
-    ax.set_ylabel('Flow [m³/s]', fontsize=10)
+    ax.set_xlabel("Date and Time", fontsize=10)
+    ax.set_ylabel("Flow [m³/s]", fontsize=10)
     ax.grid(True, linestyle="--", alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d\n%H:%M"))
 
     # Combine legends from both axes
     lines1, labels1 = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax.legend(lines1 + lines2, labels1 + labels2, fontsize=9, loc='upper left')
-    
+    ax.legend(lines1 + lines2, labels1 + labels2, fontsize=9, loc="upper left")
+
     from matplotlib.patches import Patch
 
     # Custom legend entries for state shading
@@ -2178,18 +2248,15 @@ def analyse_ensemble_flipper():
 
     # # Combine all legends
     # lines1, labels1 = ax.get_legend_handles_labels()
-    # lines2, labels2 = ax2.get_legend_handles_labels()
+    # lines2, labels2 = ax2.get_legend_handles_labels()s
 
     # # Combine and add to legend
     # all_handles = lines1 + lines2 + state_patches
     # all_labels = labels1 + labels2 + [p.get_label() for p in state_patches]
     # ax.legend(all_handles, all_labels, fontsize=9, loc='upper left')
 
-
     plt.tight_layout()
     plt.show()
-
-
 
 
 def research_2_3_combined():

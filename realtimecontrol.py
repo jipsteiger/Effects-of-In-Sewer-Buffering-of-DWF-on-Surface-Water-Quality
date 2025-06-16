@@ -31,8 +31,10 @@ class RealTimeControl(Simulation):
         constant_outflow=False,
         use_ensemble_forecast=False,
         do_load_averaging=False,
+        ES_rain_threshold=1,
+        RZ_rain_threshold=1,
         ES_threshold=1,
-        RZ_threshold=3,
+        RZ_threshold=1,
         ES_certainty_threshold=0.9,
         RZ_certainty_threshold=0.9,
         ES_out_max: float = 3.888,
@@ -164,8 +166,8 @@ class RealTimeControl(Simulation):
                 st_ub=6,
                 lt_lb=6,
                 lt_up=12,
-                ES_threshold=1,
-                RZ_threshold=3,
+                ES_threshold=self.ES_threshold,
+                RZ_threshold=self.RZ_threshold,
             )
 
         self.orchestrate_rtc()
@@ -446,13 +448,31 @@ class RealTimeControl(Simulation):
         start_time = time + dt.timedelta(hours=start_horizon)
         end_time = time + dt.timedelta(hours=end_horizon)
 
-        ES_forecast = self.current_forecast.loc[start_time:end_time, "ES"].mean()
-        RZ_forecast = (
-            self.current_forecast.loc[start_time:end_time, ["GE", "RZ1", "RZ2"]]
-            .sum()
-            .mean()
+        # Area weights (make sure these sum to 1.0)
+        area_factors = {"GE": 0.25, "RZ1": 0.375, "RZ2": 0.375}
+
+        # Get mean forecast for each catchment
+        rz_forecasts = self.current_forecast.loc[
+            start_time:end_time, ["GE", "RZ1", "RZ2"]
+        ].mean()
+
+        # Check 1: Any individual catchment has intense rain
+        per_catchment_check = any(
+            (forecast / area_factors[cat]) > rz_threshold
+            for cat, forecast in rz_forecasts.items()
         )
-        return ES_forecast > es_threshold, RZ_forecast > rz_threshold
+
+        # Check 2: Weighted sum of forecasts exceeds threshold
+        weighted_sum = sum(
+            area_factors[cat] * forecast for cat, forecast in rz_forecasts.items()
+        )
+        combined_rz_check = weighted_sum > rz_threshold
+
+        # ES forecast as before
+        ES_forecast = self.current_forecast.loc[start_time:end_time, "ES"].mean()
+        es_check = ES_forecast > es_threshold
+
+        return es_check, (combined_rz_check or per_catchment_check)
 
     def rain_predicted_by_ensembles(self, time_lb, time_ub, ES_threshold, RZ_threshold):
         time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
@@ -488,8 +508,6 @@ class RealTimeControl(Simulation):
 
                 sorted_values = np.sort(ensemble_array)
                 empirical_probabilities = np.linspace(0, 1, len(sorted_values))
-
-                # Interpolate inverse CDF (quantile function)
                 quantile_function = interp1d(
                     empirical_probabilities,
                     sorted_values,
@@ -509,27 +527,50 @@ class RealTimeControl(Simulation):
                 )
 
         ES_predicted = np.mean(quantile_values_by_region["ES"]) > ES_threshold
-
-        RZ_totals = [
-            np.mean(quantile_values_by_region[region])
-            for region in ["RZ1", "RZ2", "GE"]
-        ]
-        RZ_predicted = any(total > RZ_threshold for total in RZ_totals) or np.mean(
-            RZ_totals
-        ) > (RZ_threshold / 3)
+        area_factors = {"GE": 0.25, "RZ1": 0.375, "RZ2": 0.375}
+        # RZ: Compute area-weighted average
+        weighted_sum = sum(
+            area_factors[region] * np.mean(quantile_values_by_region[region])
+            for region in ["GE", "RZ1", "RZ2"]
+        )
+        per_catchment_check = any(
+            (np.mean(quantile_values_by_region[region]) / area_factors[region])
+            > RZ_threshold
+            for region in ["GE", "RZ1", "RZ2"]
+        )
+        RZ_predicted = (weighted_sum > RZ_threshold) or per_catchment_check
 
         return ES_predicted, RZ_predicted
 
     def is_raining(self, es_threshold, rz_threshold):
         time = self.sim.current_time.replace(minute=0, second=0, microsecond=0)
         end_time = time + dt.timedelta(minutes=10)
+
+        # Area contributions
+        area_factors = {"GE": 0.25, "RZ1": 0.375, "RZ2": 0.375}
+
+        # ES check
         ES_raining = self.precipitation_forecast.loc[time:end_time, "ES"].mean()
-        RZ_raining = (
-            self.precipitation_forecast.loc[time:end_time, ["GE", "RZ1", "RZ2"]]
-            .sum()
-            .mean()
+        es_check = ES_raining > es_threshold
+
+        # Mean forecast over time for each catchment
+        rz_means = self.precipitation_forecast.loc[
+            time:end_time, ["GE", "RZ1", "RZ2"]
+        ].mean()
+
+        # Check 1: Individual catchment exceeds normalized threshold
+        per_catchment_check = any(
+            (forecast / area_factors[cat]) > rz_threshold
+            for cat, forecast in rz_means.items()
         )
-        return ES_raining > es_threshold, RZ_raining > rz_threshold
+
+        # Check 2: Weighted sum of all catchments
+        weighted_sum = sum(
+            area_factors[cat] * forecast for cat, forecast in rz_means.items()
+        )
+        combined_rz_check = (weighted_sum > rz_threshold) or per_catchment_check
+
+        return es_check, combined_rz_check
 
     def save_settings(self):
         df = pd.DataFrame(

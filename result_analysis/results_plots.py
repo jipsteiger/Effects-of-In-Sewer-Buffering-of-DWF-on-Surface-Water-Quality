@@ -439,17 +439,18 @@ def wq_model():
     df_west = df_west.loc["2024-04-15":"2024-10-15", :]
 
     model_result_ES = pd.read_csv(
-        "output_effluent/compare_ES1.Effluent.csv", index_col=0
+        "output_effluent\compare_ES_WQ_model_check.Effluent.csv", index_col=0
     )
     model_result_ES.index = df_west.index
 
     model_result_RZ = pd.read_csv(
-        "output_effluent/compare_RZ1.Effluent.csv", index_col=0
+        "output_effluent\compare_rz_WQ_model_check.Effluent.csv", index_col=0
     )
     model_result_RZ.index = df_west.index
 
-    df_west = df_west.loc["2024-04-15":"2024-10-15"]
-    model_result_ES = model_result_ES.loc["2024-04-15":"2024-10-15"]
+    df_west = df_west.loc["2024-07-10":"2024-07-24"]
+    model_result_ES = model_result_ES.loc["2024-07-10":"2024-07-24"]
+    model_result_RZ = model_result_RZ.loc["2024-07-10":"2024-07-24"]
 
     xlist = []
     ylist = []
@@ -472,13 +473,14 @@ def wq_model():
             and not ".NS" in key
             and "ES" in key
             and not "H2O" in key
+            and ('NH4' in key or 'PO4' in key)
         ):
             xlist.append(df_west)
             ylist.append(abs(df_west[key].astype(float)))
             # labels.append(f"Original model {key}")
 
     for key in model_result_ES.keys():
-        if not "H2O" in key:
+        if (not "H2O" in key and ('NH4' in key or 'PO4' in key)):
             xlist.append(model_result_ES)
             ylist.append(abs(model_result_ES[key].astype(float)))
             # labels.append(f"Script model {key}")
@@ -529,23 +531,21 @@ def wq_model():
     # plot(xlist, ylist, labels, "Date and time", "Catchment effluent load [g/d]")
     xlist1 = xlist
     ylist1 = ylist
-    df_west = df_west.loc["2024-09-05":"2024-09-08"]
-    model_result_RZ = model_result_RZ.loc["2024-09-05":"2024-09-08"]
 
     xlist = []
     ylist = []
     labels = []
     labels = [
-        "Original COD particulate",
-        "Original COD soluable",
+        # "Original COD particulate",
+        # "Original COD soluable",
         "Original NH4",
         "Original PO4",
-        "Original # TSS",
-        "Recreated COD particulate",
-        "Recreated COD soluable",
+        # "Original # TSS",
+        # "Recreated COD particulate",
+        # "Recreated COD soluable",
         "Recreated NH4",
         "Recreated PO4",
-        "Recreated # TSS",
+        # "Recreated # TSS",
     ]
     for key in df_west.keys():
         if (
@@ -553,13 +553,14 @@ def wq_model():
             and not ".NS" in key
             and "RZ" in key
             and not "H2O" in key
+            and ('NH4' in key or 'PO4' in key)
         ):
             xlist.append(df_west)
             ylist.append(abs(df_west[key].astype(float)))
             # labels.append(f"Original model {key}")
 
     for key in model_result_RZ.keys():
-        if not "H2O" in key:
+        if (not "H2O" in key and ('NH4' in key or 'PO4' in key)):
             xlist.append(model_result_RZ)
             ylist.append(abs(model_result_RZ[key].astype(float)))
             # labels.append(f"Script model {key}")
@@ -586,7 +587,7 @@ def wq_model():
     )
 
     plt.figure()
-    # plot(xlist1, ylist, labels, "Date and time", "Catchment effluent load [g/d]")
+    plot(xlist1, ylist, labels, "Date and time", "Catchment effluent load [g/d]")
     plot_two_regions_side_by_side(
         xlist1,
         ylist1,
@@ -1260,7 +1261,7 @@ def precipitation_data_forecast():
 
 
 def system_character():
-    catchment = "RZ"
+    catchment = "ES"
     labels = {
         "H2O_sew": "Discharge [g/d]",
         "NH4_sew": "NH4 Load [g/d]",
@@ -1494,8 +1495,8 @@ def system_character():
         "Dry and wet weather flow": abs(normal.astype(float)),
     }
     # Define your time window
-    start_date = pd.Timestamp("2024-08-02")
-    end_date = pd.Timestamp("2024-08-09")
+    start_date = pd.Timestamp("2024-05-16")
+    end_date = pd.Timestamp("2024-06-01")
 
     for key in list(dry.keys()):
         if "WWTP2river" in key:
@@ -1506,8 +1507,9 @@ def system_character():
 
             include_conc = "H2O" not in key
 
+            # Create figure and axes
             if include_conc:
-                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5), sharex=False)
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), sharex=True)
             else:
                 fig, ax1 = plt.subplots(figsize=(14, 6))
 
@@ -1601,6 +1603,123 @@ def system_character():
             record = {"Key": key, "Scenario": scenario, **metrics}
             records.append(record)
     summary_df = pd.DataFrame(records)
+
+    labels = {
+        ".Well_35.Outflow(H2O_sew)": "Discharge [g/d]",
+        ".Well_35.Outflow(NH4_sew)": "NH4 Load [g/d]",
+        ".Well_35.Outflow(PO4_sew)": "PO4 Load [g/d]",
+        ".Well_35.Outflow(COD_sol)": "Dissolved COD Load [g/d]",
+        ".Well_35.Outflow(X_TSS_sew)": "Total Suspended Solids Load [g/d]",
+        ".Well_35.Outflow(COD_part)": "Particulate COD Load [g/d]",
+    }
+    labels_conc = {
+        ".Well_35.Outflow(H2O_sew)": "Discharge [g/d]",
+        ".Well_35.Outflow(NH4_sew)": "NH4 Concentration [g/g]",
+        ".Well_35.Outflow(PO4_sew)": "PO4 Concentration [g/g]",
+        ".Well_35.Outflow(COD_sol)": "Dissolved COD Concentration [g/g]",
+        ".Well_35.Outflow(X_TSS_sew)": "Total Suspended Solids Concentration [g/g]",
+        ".Well_35.Outflow(COD_part)": "Particulate COD Concentration [g/g]",
+    }
+    start_date = pd.Timestamp("2024-01-01")
+    normal = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    normal["timestamp"] = start_date + pd.to_timedelta(
+        normal.index.astype(float), unit="D"
+    )
+    normal.set_index("timestamp", inplace=True)
+    normal.index = normal.index.round("15min")
+
+    constant = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC_no_rain_constant\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    constant["timestamp"] = start_date + pd.to_timedelta(
+        constant.index.astype(float), unit="D"
+    )
+    constant.set_index("timestamp", inplace=True)
+    constant.index = constant.index.round("15min")
+
+    dry = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC_no_rain\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    dry["timestamp"] = start_date + pd.to_timedelta(dry.index.astype(float), unit="D")
+    dry.set_index("timestamp", inplace=True)
+    dry.index = dry.index.round("15min")
+    scenarios = {
+        "Dry weather flow only": abs(dry.astype(float)),
+        "Constant dry weather flow only": abs(constant.astype(float)),
+        "Dry and wet weather flow": abs(normal.astype(float)),
+    }
+    # Define your time window
+    start_date = pd.Timestamp("2024-05-16")
+    end_date = pd.Timestamp("2024-06-01")
+
+    for key in list(dry.keys()):
+        if "Well" in key:
+            # Filter by time window and store filtered versions
+            filtered_scenarios = {
+                key: df.loc[start_date:end_date] for key, df in scenarios.items()
+            }
+
+            include_conc = "H2O" not in key
+
+            # Create figure and axes
+            if include_conc:
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), sharex=True)
+            else:
+                fig, ax1 = plt.subplots(figsize=(14, 6))
+
+            # --- Absolute values plot ---
+            for label, df in filtered_scenarios.items():
+                if key in df.columns:
+                    ax1.plot(df.index, df[key].astype(float), label=label)
+                else:
+                    print(f"Column '{key}' not found in scenario '{label}'")
+
+            ax1.set_xlabel("Date")
+            ax1.set_ylabel(labels[key])
+            ax1.grid(True)
+            ax1.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+            ax1.tick_params(axis="x", rotation=45)
+
+            # --- Concentration plot (if applicable) ---
+            if include_conc:
+                for label, df in filtered_scenarios.items():
+                    df = df.loc[start_date:end_date]
+                    if key in df.columns and ".Well_35.Outflow(H2O_sew)" in df.columns:
+                        ax2.plot(
+                            df.index,
+                            df[key].astype(float)
+                            / df[".Well_35.Outflow(H2O_sew)"].astype(float),
+                            label=label,
+                        )
+                    else:
+                        print(
+                            f"Column '{key}' or '.Well_35.Outflow(H2O_sew)' not found in '{label}'"
+                        )
+
+                ax2.set_xlabel("Date")
+                ax2.set_ylabel(labels_conc[key])
+                ax2.grid(True)
+                ax2.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+                ax2.tick_params(axis="x", rotation=45)
+
+            # Final formatting
+            fig.tight_layout()
+            # fig.savefig(f"{key}.png")
+            plt.show()
 
 
 def time_to_empty():
@@ -2557,12 +2676,12 @@ def research_2_3_combined():
     scenarios = {
         "RTC with ensembles": abs(ENSEMBLE.astype(float)),
         "No RTC": abs(NORMAL.astype(float)),
-        "Dry and wet weather flow": abs(RTC.astype(float)),
+        "RTC": abs(RTC.astype(float)),
         # "Constant flow": abs(IDEAL.astype(float))
     }
     # Define your time window
-    start_date = pd.Timestamp("2024-07-05")
-    end_date = pd.Timestamp("2024-07-15")
+    start_date = pd.Timestamp("2024-05-10")
+    end_date = pd.Timestamp("2024-06-01")
 
     for key in list(NORMAL.keys()):
         if "WWTP2river" in key:
@@ -2668,6 +2787,137 @@ def research_2_3_combined():
             records.append(record)
     summary_df = pd.DataFrame(records)
     summary_df.to_csv("WWTPEffluentWWF.csv")
+
+    labels = {
+        ".Well_35.Outflow(H2O_sew)": "Discharge [g/d]",
+        ".Well_35.Outflow(NH4_sew)": "NH4 Load [g/d]",
+        ".Well_35.Outflow(PO4_sew)": "PO4 Load [g/d]",
+        ".Well_35.Outflow(COD_sol)": "Dissolved COD Load [g/d]",
+        ".Well_35.Outflow(X_TSS_sew)": "Total Suspended Solids Load [g/d]",
+        ".Well_35.Outflow(COD_part)": "Particulate COD Load [g/d]",
+    }
+    labels_conc = {
+        ".Well_35.Outflow(H2O_sew)": "Discharge [g/d]",
+        ".Well_35.Outflow(NH4_sew)": "NH4 Concentration [g/g]",
+        ".Well_35.Outflow(PO4_sew)": "PO4 Concentration [g/g]",
+        ".Well_35.Outflow(COD_sol)": "Dissolved COD Concentration [g/g]",
+        ".Well_35.Outflow(X_TSS_sew)": "Total Suspended Solids Concentration [g/g]",
+        ".Well_35.Outflow(COD_part)": "Particulate COD Concentration [g/g]",
+    }
+    start_date = pd.Timestamp("2024-01-01")
+    NORMAL = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    NORMAL["timestamp"] = start_date + pd.to_timedelta(
+        NORMAL.index.astype(float), unit="D"
+    )
+    NORMAL.set_index("timestamp", inplace=True)
+    NORMAL.index = NORMAL.index.round("15min")
+
+    RTC = pd.read_csv(
+        f"data\WEST\Pollutant_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("15min")
+
+    ENSEMBLE = pd.read_csv(
+        f"data\WEST\Pollutant_RTC_ensemble\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    ENSEMBLE["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE.index.astype(float), unit="D"
+    )
+    ENSEMBLE.set_index("timestamp", inplace=True)
+    ENSEMBLE.index = ENSEMBLE.index.round("15min")
+
+    IDEAL = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC_no_rain_constant\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    IDEAL["timestamp"] = start_date + pd.to_timedelta(
+        IDEAL.index.astype(float), unit="D"
+    )
+    IDEAL.set_index("timestamp", inplace=True)
+    IDEAL.index = IDEAL.index.round("15min")
+
+    scenarios = {
+        "RTC with ensembles": abs(ENSEMBLE.astype(float)),
+        "No RTC": abs(NORMAL.astype(float)),
+        "RTC": abs(RTC.astype(float)),
+        # "Constant flow": abs(IDEAL.astype(float))
+    }
+    # Define your time window
+    start_date = pd.Timestamp("2024-05-10")
+    end_date = pd.Timestamp("2024-06-01")
+
+    for key in list(NORMAL.keys()):
+        if "Well" in key:
+            # Filter by time window and store filtered versions
+            filtered_scenarios = {
+                key: df.loc[start_date:end_date] for key, df in scenarios.items()
+            }
+
+            include_conc = "H2O" not in key
+
+            if include_conc:
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5), sharex=False)
+            else:
+                fig, ax1 = plt.subplots(figsize=(14, 6))
+
+            # --- Absolute values plot ---
+            for label, df in filtered_scenarios.items():
+                if key in df.columns:
+                    ax1.plot(df.index, df[key].astype(float), label=label)
+                else:
+                    print(f"Column '{key}' not found in scenario '{label}'")
+
+            ax1.set_xlabel("Date")
+            ax1.set_ylabel(labels[key])
+            ax1.grid(True)
+            ax1.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+            ax1.tick_params(axis="x", rotation=45)
+
+            # --- Concentration plot (if applicable) ---
+            if include_conc:
+                for label, df in filtered_scenarios.items():
+                    df = df.loc[start_date:end_date]
+                    if key in df.columns and ".Well_35.Outflow(H2O_sew)" in df.columns:
+                        ax2.plot(
+                            df.index,
+                            df[key].astype(float)
+                            / df[".Well_35.Outflow(H2O_sew)"].astype(float),
+                            label=label,
+                        )
+                    else:
+                        print(
+                            f"Column '{key}' or '.Well_35.Outflow(H2O_sew)' not found in '{label}'"
+                        )
+
+                ax2.set_xlabel("Date")
+                ax2.set_ylabel(labels_conc[key])
+                ax2.grid(True)
+                ax2.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+                ax2.tick_params(axis="x", rotation=45)
+
+            # Final formatting
+            fig.tight_layout()
+            fig.savefig(f"{key}WWTPeffluentWWF.png")
+            plt.show()
 
 
 def OF_all(catchment="ES", start="2024-04-15", end="2045-10-15"):

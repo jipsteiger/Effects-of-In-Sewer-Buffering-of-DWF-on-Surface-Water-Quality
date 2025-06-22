@@ -683,15 +683,6 @@ class EmpericalSewerWQ:
             )
         self.state["proc6_COD"] = max(proc6_COD_h, 0)
 
-        if (
-            self.previous_state["event"] == 3 or self.previous_state["event"] == 9
-        ) and self.state["event"] < 3:
-            self.state["t_end_event39"] = t
-        else:
-            self.state["t_end_event39"] = self.previous_state.get("t_end_event39", t)
-
-        self.state["t_event39"] = t - self.state.get("t_end_event39", t)
-
         # proc7_COD_h
         if (
             self.state["event"] in [3, 9]

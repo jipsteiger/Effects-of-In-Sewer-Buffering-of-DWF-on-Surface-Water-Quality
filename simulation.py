@@ -190,7 +190,7 @@ class Simulation:
             proc7_slope1_COD=23040,
             proc7_slope1_TSS=23040,
             proc7_slope2_COD=5760,
-            proc4_slope2_TSS=5760,
+            proc7_slope2_TSS=5760,
         )
         self.WQ_ES = EmpericalSewerWQ(
             concentration_dict=concentration_dict_ES,

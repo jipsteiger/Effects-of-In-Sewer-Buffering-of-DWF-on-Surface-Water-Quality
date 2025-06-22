@@ -24,19 +24,19 @@ df_west["timestamp"] = (
 ).astype("O")
 df_west.set_index("timestamp", inplace=True)
 df_west = df_west.loc["2024-04-15":"2024-10-15", :]
-model_states = df_west[
-    [
-        ".ES_out.Inflow(H2O_sew)",
-        ".ES_out.Q_DWF_UB",
-        ".ES_out.Q_in",
-        ".ES_out.Qsw",
-        ".ES_out.event",
-        ".ES_out.event8",
-        ".ES_out.event8_h",
-        ".ES_out.t_end_event8_h",
-        ".ES_out.t_start_event8",
-    ]
-]
+# model_states = df_west[
+#     [
+#         ".ES_out.Inflow(H2O_sew)",
+#         ".ES_out.Q_DWF_UB",
+#         ".ES_out.Q_in",
+#         ".ES_out.Qsw",
+#         ".ES_out.event",
+#         ".ES_out.event8",
+#         ".ES_out.event8_h",
+#         ".ES_out.t_end_event8_h",
+#         ".ES_out.t_start_event8",
+#     ]
+# ]
 
 times = df_west.index
 FDs_ES = df_west[".ES_out.FD"].values.astype(float)
@@ -110,16 +110,16 @@ WQ_RZ = EmpericalSewerWQ(
     proc7_slope1_COD=23040,
     proc7_slope1_TSS=23040,
     proc7_slope2_COD=5760,
-    proc4_slope2_TSS=5760,
+    proc7_slope2_TSS=5760,
 )
 
 for time, FD_ES, H2O_inflow_ES, FD_RZ, H2O_inflow_RZ in zip(
     times, FDs_ES, H2O_inflows_ES, FDs_RZ, H2O_inflows_RZ
 ):
     WQ_ES.update(time, H2O_inflow_ES / 1_000_000, FD_ES)
-    # WQ_RZ.update(time, H2O_inflow_RZ / 1_000_000, FD_RZ)
+    WQ_RZ.update(time, H2O_inflow_RZ / 1_000_000, FD_RZ)
 WQ_ES.write_output_log("compare_ES_WQ_model_check")
-# WQ_RZ.write_output_log("compare_RZ_WQ_model_check")
+WQ_RZ.write_output_log("compare_RZ_WQ_model_check")
 
 
 fig = go.Figure()
@@ -137,9 +137,9 @@ for key in df_west.keys():
 model_result_ES = pd.read_csv(
     "output_effluent\compare_ES_WQ_model_check.Effluent.csv", index_col=0
 )
-# model_result_RZ = pd.read_csv(
-#     "output_effluent/compare_RZ_WQ_model_check.Effluent.csv", index_col=0
-# )
+model_result_RZ = pd.read_csv(
+    "output_effluent/compare_RZ_WQ_model_check.Effluent.csv", index_col=0
+)
 
 for key in model_result_ES.keys():
     fig.add_trace(
@@ -150,14 +150,14 @@ for key in model_result_ES.keys():
             name=f"Jip Model ES {key}",
         )
     )
-    # fig.add_trace(
-    #     go.Scatter(
-    #         x=df_west.index,
-    #         y=abs(model_result_RZ[key].astype(float)),
-    #         mode="lines",
-    #         name=f"Jip Model RZ {key}",
-    #     )
-    # )
+    fig.add_trace(
+        go.Scatter(
+            x=df_west.index,
+            y=abs(model_result_RZ[key].astype(float)),
+            mode="lines",
+            name=f"Jip Model RZ {key}",
+        )
+    )
 
 pio.show(fig, renderer="browser")
 

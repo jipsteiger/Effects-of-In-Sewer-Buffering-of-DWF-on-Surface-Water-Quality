@@ -295,7 +295,7 @@ class Simulation:
                 self.links["P_riool_zuid_out"].flow, self.RZ_storage_FD.FD()
             )
         else:
-            RZconcentration_out = self.ES_inflow
+            RZconcentration_out = self.RZ_inflow
         RZrow_df = pd.DataFrame([RZconcentration_out], index=[self.sim.current_time])
         if self.RZconcentration_df.empty:
             self.RZconcentration_df = RZrow_df.copy()

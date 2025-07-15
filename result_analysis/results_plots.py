@@ -18,6 +18,7 @@ import datetime as dt
 import matplotlib.dates as mdates
 import numpy as np
 import logging
+from collections import defaultdict
 
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
@@ -448,9 +449,9 @@ def wq_model():
     )
     model_result_RZ.index = df_west.index
 
-    df_west = df_west.loc["2024-07-10":"2024-07-24"]
-    model_result_ES = model_result_ES.loc["2024-07-10":"2024-07-24"]
-    model_result_RZ = model_result_RZ.loc["2024-07-10":"2024-07-24"]
+    df_west = df_west.loc["2024-06-27":"2024-06-30"]
+    model_result_ES = model_result_ES.loc["2024-06-27":"2024-06-30"]
+    model_result_RZ = model_result_RZ.loc["2024-06-27":"2024-06-30"]
 
     xlist = []
     ylist = []
@@ -473,59 +474,59 @@ def wq_model():
             and not ".NS" in key
             and "ES" in key
             and not "H2O" in key
-            and ('NH4' in key or 'PO4' in key)
+            and ("NH4" in key or "PO4" in key)
         ):
             xlist.append(df_west)
             ylist.append(abs(df_west[key].astype(float)))
             # labels.append(f"Original model {key}")
 
     for key in model_result_ES.keys():
-        if (not "H2O" in key and ('NH4' in key or 'PO4' in key)):
+        if not "H2O" in key and ("NH4" in key or "PO4" in key):
             xlist.append(model_result_ES)
             ylist.append(abs(model_result_ES[key].astype(float)))
             # labels.append(f"Script model {key}")
 
     NSE_COD_p = nash_sutcliff(
-        abs(df_west[".ES_out.Outflow(COD_part)"].astype(float)),
-        abs(model_result_ES["COD_part"].astype(float)),
+        abs(df_west[".RZ_out.Outflow(COD_part)"].astype(float)),
+        abs(model_result_RZ["COD_part"].astype(float)),
     )
     NSE_COD_s = nash_sutcliff(
-        abs(df_west[".ES_out.Outflow(COD_sol)"].astype(float)),
-        abs(model_result_ES["COD_sol"].astype(float)),
+        abs(df_west[".RZ_out.Outflow(COD_sol)"].astype(float)),
+        abs(model_result_RZ["COD_sol"].astype(float)),
     )
     NSE_NH4 = nash_sutcliff(
-        abs(df_west[".ES_out.Outflow(NH4_sew)"].astype(float)),
-        abs(model_result_ES["NH4_sew"].astype(float)),
+        abs(df_west[".RZ_out.Outflow(NH4_sew)"].astype(float)),
+        abs(model_result_RZ["NH4_sew"].astype(float)),
     )
     NSE_PO4 = nash_sutcliff(
-        abs(df_west[".ES_out.Outflow(PO4_sew)"].astype(float)),
-        abs(model_result_ES["PO4_sew"].astype(float)),
+        abs(df_west[".RZ_out.Outflow(PO4_sew)"].astype(float)),
+        abs(model_result_RZ["PO4_sew"].astype(float)),
     )
     NSE_TSS = nash_sutcliff(
-        abs(df_west[".ES_out.Outflow(X_TSS_sew)"].astype(float)),
-        abs(model_result_ES["X_TSS_sew"].astype(float)),
+        abs(df_west[".RZ_out.Outflow(X_TSS_sew)"].astype(float)),
+        abs(model_result_RZ["X_TSS_sew"].astype(float)),
     )
 
-    RMSE_COD_p = rmse(
-        abs(df_west[".ES_out.Outflow(COD_part)"].astype(float)),
-        abs(model_result_ES["COD_part"].astype(float)),
-    )
-    RMSE_COD_s = rmse(
-        abs(df_west[".ES_out.Outflow(COD_sol)"].astype(float)),
-        abs(model_result_ES["COD_sol"].astype(float)),
-    )
-    RMSE_NH4 = rmse(
-        abs(df_west[".ES_out.Outflow(NH4_sew)"].astype(float)),
-        abs(model_result_ES["NH4_sew"].astype(float)),
-    )
-    RMSE_PO4 = rmse(
-        abs(df_west[".ES_out.Outflow(PO4_sew)"].astype(float)),
-        abs(model_result_ES["PO4_sew"].astype(float)),
-    )
-    RMSE_TSS = rmse(
-        abs(df_west[".ES_out.Outflow(X_TSS_sew)"].astype(float)),
-        abs(model_result_ES["X_TSS_sew"].astype(float)),
-    )
+    # RMSE_COD_p = rmse(
+    #     abs(df_west[".ES_out.Outflow(COD_part)"].astype(float)),
+    #     abs(model_result_ES["COD_part"].astype(float)),
+    # )
+    # RMSE_COD_s = rmse(
+    #     abs(df_west[".ES_out.Outflow(COD_sol)"].astype(float)),
+    #     abs(model_result_ES["COD_sol"].astype(float)),
+    # )
+    # RMSE_NH4 = rmse(
+    #     abs(df_west[".ES_out.Outflow(NH4_sew)"].astype(float)),
+    #     abs(model_result_ES["NH4_sew"].astype(float)),
+    # )
+    # RMSE_PO4 = rmse(
+    #     abs(df_west[".ES_out.Outflow(PO4_sew)"].astype(float)),
+    #     abs(model_result_ES["PO4_sew"].astype(float)),
+    # )
+    # RMSE_TSS = rmse(
+    #     abs(df_west[".ES_out.Outflow(X_TSS_sew)"].astype(float)),
+    #     abs(model_result_ES["X_TSS_sew"].astype(float)),
+    # )
 
     # plt.figure(figsize=(15, 8))
     # plot(xlist, ylist, labels, "Date and time", "Catchment effluent load [g/d]")
@@ -553,14 +554,14 @@ def wq_model():
             and not ".NS" in key
             and "RZ" in key
             and not "H2O" in key
-            and ('NH4' in key or 'PO4' in key)
+            and ("NH4" in key or "PO4" in key)
         ):
             xlist.append(df_west)
             ylist.append(abs(df_west[key].astype(float)))
             # labels.append(f"Original model {key}")
 
     for key in model_result_RZ.keys():
-        if (not "H2O" in key and ('NH4' in key or 'PO4' in key)):
+        if not "H2O" in key and ("NH4" in key or "PO4" in key):
             xlist.append(model_result_RZ)
             ylist.append(abs(model_result_RZ[key].astype(float)))
             # labels.append(f"Script model {key}")
@@ -641,25 +642,13 @@ def wq_model_flow_param():
 
     # Plot
     plt.figure(figsize=(10, 5))
-    plt.scatter(hours, values_ES, color="blue", label="WEST Q95 Hourly Average Oatterb")
-    plt.plot(hours, inflow_ES, color="orange", label="SWMM Tank Inflow")
+    plt.scatter(hours, values_ES, color="blue", label="Original DWF inflow threshold")
+    plt.plot(hours, inflow_ES, color="orange", label="Relocated model inflow")
     plt.scatter(
         hours,
         transformed_ES * inflow_ES.mean(),
         color="green",
-        label="Adjusted Hourly Pattern",
-    )
-    plt.axhline(
-        average_flow_ES,
-        color="k",
-        linestyle="--",
-        label=f"Daily Average Q95 Flow = {average_flow_ES:.2f}",
-    )
-    plt.axhline(
-        inflow_ES.mean(),
-        color="k",
-        linestyle="-.",
-        label=f"Average SWMM Tank Inflow = {inflow_ES.mean():.2f}",
+        label="New DWF inflow threshold",
     )
     plt.xticks(hours)
     plt.xlabel("Hour of Day")
@@ -710,25 +699,13 @@ def wq_model_flow_param():
 
     # Plot
     plt.figure(figsize=(10, 5))
-    plt.scatter(hours, values_RZ, color="blue", label="WEST Q95 Hourly Average Pattern")
-    plt.plot(hours, inflow_RZ, color="orange", label="SWMM Tank Inflow")
+    plt.scatter(hours, values_RZ, color="blue", label="Original DWF inflow threshold")
+    plt.plot(hours, inflow_RZ, color="orange", label="Relocated model inflow")
     plt.scatter(
         hours,
         transformed_RZ * inflow_RZ.mean(),
         color="green",
-        label="Adjusted Hourly Pattern",
-    )
-    plt.axhline(
-        average_flow_RZ,
-        color="k",
-        linestyle="--",
-        label=f"Daily Average Q95 Flow = {average_flow_RZ:.2f}",
-    )
-    plt.axhline(
-        inflow_RZ.mean(),
-        color="k",
-        linestyle="-.",
-        label=f"Average SWMM Tank Inflow = {inflow_RZ.mean():.2f}",
+        label="New DWF inflow threshold",
     )
     plt.xticks(hours)
     plt.xlabel("Hour of Day")
@@ -1034,25 +1011,25 @@ def WQ_model_location2():
     postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")
 
     labels = {
-        "H2O_sew": "Discharge [g/d]",
-        "NH4_sew": "NH4 Load [g/d]",
-        "PO4_sew": "PO4 Load [g/d]",
-        "COD_sol": "Solluable COD Load [g/d]",
-        "X_TSS_sew": "Total Suspended Solids Load [g/d]",
-        "COD_part": "Particulate COD Load [g/d]",
+        "H2O_sew": "Discharge [kg/d]",
+        "NH4_sew": "NH4 Load [kg/d]",
+        "PO4_sew": "PO4 Load [kg/d]",
+        "COD_sol": "Solluable COD Load [kg/d]",
+        "X_TSS_sew": "Total Suspended Solids Load [kg/d]",
+        "COD_part": "Particulate COD Load [kg/d]",
     }
     labels_conc = {
-        "H2O_sew": "Discharge [g/d]",
-        "NH4_sew": "NH4 Concentration [g/g]",
-        "PO4_sew": "PO4 Concentration [g/g]",
-        "COD_sol": "Solluable COD Concentration [g/g]",
-        "X_TSS_sew": "Total Suspended Solids Concentration [g/g]",
-        "COD_part": "Particulate COD Concentration [g/g]",
+        "H2O_sew": "Discharge [mg/s]",
+        "NH4_sew": "NH4 Concentration [mg/s]",
+        "PO4_sew": "PO4 Concentration [mg/s]",
+        "COD_sol": "Solluable COD Concentration [mg/s]",
+        "X_TSS_sew": "Total Suspended Solids Concentration [mg/s]",
+        "COD_part": "Particulate COD Concentration [mg/s]",
     }
 
     start_date = pd.Timestamp("2024-01-01")
     beforestorage = pd.read_csv(
-        rf"output_swmm\06-01_15-48_out_RZ_No_RTC_no_rain_WQ_wrong_loc.csv",
+        rf"output_swmm\06-01_15-48_out_ES_No_RTC_no_rain_WQ_wrong_loc.csv",
         decimal=",",
         delimiter=";",
         index_col=0,
@@ -1064,7 +1041,7 @@ def WQ_model_location2():
     beforestorage.index = beforestorage.index.round("15min")
 
     afterstorage = pd.read_csv(
-        rf"output_swmm\06-01_16-46_out_RZ_No_RTC_no_rain.csv",
+        rf"output_swmm\07-03_16-01_out_ES_No_RTC_no_rain.csv",
         decimal=",",
         delimiter=";",
         index_col=0,
@@ -1103,7 +1080,7 @@ def WQ_model_location2():
             # --- Absolute values plot ---
             for label, df in filtered_scenarios.items():
                 if key in df.columns:
-                    ax1.plot(df.index, abs(df[key]), label=label)
+                    ax1.plot(df.index, abs(df[key]) / 1000, label=label)
                 else:
                     print(f"Column '{key}' not found in scenario '{label}'")
 
@@ -1115,7 +1092,7 @@ def WQ_model_location2():
             if include_conc:
                 for label, df in filtered_scenarios.items():
                     if key in df.columns and "H2O_sew" in df.columns:
-                        ax2.plot(df.index, df[key] / df["H2O_sew"], label=label)
+                        ax2.plot(df.index, df[key] / df["H2O_sew"] * 1e6, label=label)
                     else:
                         print(
                             f"Column '{key}' or 'H2O_sew' not found in scenario '{label}'"
@@ -1431,26 +1408,51 @@ def system_character():
             records.append(record)
     summary_df_inflow = pd.DataFrame(records)
 
-    labels = {
-        ".WWTP2river.Outflow(rH2O)": "Discharge [g/d]",
-        ".WWTP2river.Outflow(rBOD1)": "BOD1 Load [g/d]",
-        ".WWTP2river.Outflow(rBOD1p)": "BOD1 Particulate Load [g/d]",
-        ".WWTP2river.Outflow(rBOD2)": "BOD2 Load [g/d]",
-        ".WWTP2river.Outflow(rBOD2p)": "BOD2 Particulate Load [g/d]",
-        ".WWTP2river.Outflow(rBODs)": "BOD Solluable Load [g/d]",
-        ".WWTP2river.Outflow(rNH4)": "NH4 Load [g/d]",
-        ".WWTP2river.Outflow(rO2)": "O2 Load [g/d]",
+    # labels = {
+    #     ".WWTP2river.Outflow(rH2O)": "Discharge [g/d]",
+    #     ".WWTP2river.Outflow(rBOD1)": "BOD1 Load [g/d]",
+    #     ".WWTP2river.Outflow(rBOD1p)": "BOD1 Particulate Load [g/d]",
+    #     ".WWTP2river.Outflow(rBOD2)": "BOD2 Load [g/d]",
+    #     ".WWTP2river.Outflow(rBOD2p)": "BOD2 Particulate Load [g/d]",
+    #     ".WWTP2river.Outflow(rBODs)": "BOD Solluable Load [g/d]",
+    #     ".WWTP2river.Outflow(rNH4)": "NH4 Load [g/d]",
+    #     ".WWTP2river.Outflow(rO2)": "O2 Load [g/d]",
+    # }
+
+    # labels_conc = {
+    #     ".WWTP2river.Outflow(rH2O)": "Discharge [g/d]",
+    #     ".WWTP2river.Outflow(rBOD1)": "BOD1 Concentration [g/g]",
+    #     ".WWTP2river.Outflow(rBOD1p)": "BOD1 Particulate Concentration [g/g]",
+    #     ".WWTP2river.Outflow(rBOD2)": "BOD2 Concentration [g/g]",
+    #     ".WWTP2river.Outflow(rBOD2p)": "BOD2 Particulate Concentration [g/g]",
+    #     ".WWTP2river.Outflow(rBODs)": "BOD Solluable Concentration [g/g]",
+    #     ".WWTP2river.Outflow(rNH4)": "NH4 Concentration [g/g]",
+    #     ".WWTP2river.Outflow(rO2)": "O2 Concentration [g/g]",
+    # }
+    labels3 = {
+        ".effluent.y_TN": "Total Nitrogen [g/d]",
+        ".effluent.y_TP": "Total  phosphorus [g/d]",
     }
 
-    labels_conc = {
-        ".WWTP2river.Outflow(rH2O)": "Discharge [g/d]",
-        ".WWTP2river.Outflow(rBOD1)": "BOD1 Concentration [g/g]",
-        ".WWTP2river.Outflow(rBOD1p)": "BOD1 Particulate Concentration [g/g]",
-        ".WWTP2river.Outflow(rBOD2)": "BOD2 Concentration [g/g]",
-        ".WWTP2river.Outflow(rBOD2p)": "BOD2 Particulate Concentration [g/g]",
-        ".WWTP2river.Outflow(rBODs)": "BOD Solluable Concentration [g/g]",
-        ".WWTP2river.Outflow(rNH4)": "NH4 Concentration [g/g]",
-        ".WWTP2river.Outflow(rO2)": "O2 Concentration [g/g]",
+    labels_conc3 = {
+        ".effluent.y_TN": "Total Nitrogen [g/d]",
+        ".effluent.y_TP": "Total  phosphorus [g/g]",
+    }
+    labels2 = {
+        "H2O_sew": "Discharge [g/d]",
+        "NH4_sew": "NH4 Load [mg/s]",
+        "PO4_sew": "PO4 Load [g/d]",
+        "COD_sol": "Dissolved COD Load [g/d]",
+        "X_TSS_sew": "Total Suspended Solids Load [g/d]",
+        "COD_part": "Particulate COD Load [g/d]",
+    }
+    labels_conc2 = {
+        "H2O_sew": "Discharge [g/d]",
+        "NH4_sew": "NH4 Concentration [mg/L]",
+        "PO4_sew": "PO4 Concentration [g/g]",
+        "COD_sol": "Dissolved COD Concentration [g/g]",
+        "X_TSS_sew": "Total Suspended Solids Concentration [g/g]",
+        "COD_part": "Particulate COD Concentration [g/g]",
     }
     start_date = pd.Timestamp("2024-01-01")
     normal = pd.read_csv(
@@ -1490,16 +1492,16 @@ def system_character():
     dry.set_index("timestamp", inplace=True)
     dry.index = dry.index.round("15min")
     scenarios = {
-        "Dry weather flow only": abs(dry.astype(float)),
-        "Constant dry weather flow only": abs(constant.astype(float)),
-        "Dry and wet weather flow": abs(normal.astype(float)),
+        "Baseline": abs(normal.astype(float)),
+        "DWF only": abs(dry.astype(float)),
+        "Constant DWF": abs(constant.astype(float)),
     }
     # Define your time window
-    start_date = pd.Timestamp("2024-05-16")
-    end_date = pd.Timestamp("2024-06-01")
+    start_date = pd.Timestamp("2024-04-15")
+    end_date = pd.Timestamp("2024-10-15")
 
     for key in list(dry.keys()):
-        if "WWTP2river" in key:
+        if "y_TN" in key or "y_TP" in key:
             # Filter by time window and store filtered versions
             filtered_scenarios = {
                 key: df.loc[start_date:end_date] for key, df in scenarios.items()
@@ -1553,12 +1555,76 @@ def system_character():
             # fig.savefig(f"{key}.png")
             plt.show()
 
+    labels3 = {
+        ".effluent.y_TN": "Total Nitrogen [g/d]",
+        ".effluent.y_TP": "Total  phosphorus [g/d]",
+    }
+
+    labels_conc3 = {
+        ".effluent.y_TN": "Total Nitrogen [g/d]",
+        ".effluent.y_TP": "Total  phosphorus [g/g]",
+    }
     from collections import defaultdict
 
     summary_stats = defaultdict(dict)
     # Iterate over all relevant pollutant keys
     for key in list(dry.keys()):
-        if "WWTP2river" in key:
+        if "y_TN" in key or "y_TP" in key:
+            # Filter the time window
+            filtered_scenarios = {
+                label: df.loc[start_date:end_date] for label, df in scenarios.items()
+            }
+
+            for label, df in filtered_scenarios.items():
+                if key not in df.columns:
+                    continue  # Skip if key missing
+
+                # Parse float just in case
+                df_key = abs(df[key].astype(float))
+
+                # 1. Load stats
+                flow = df[".effluent.y_Q"].astype(float)
+                load = df_key * flow / 1000 * 24
+                daily_avg_load = (load).resample("D").mean()
+                daily_max_load = (load).resample("D").max()
+
+                # 2. Concentration stats (if applicable)
+                if "Q" not in key and ".effluent.y_Q" in df.columns:
+
+                    conc = df[key].astype(float)
+
+                    daily_avg_conc = conc.resample("D").mean()
+                    daily_max_conc = conc.resample("D").max()
+
+                    # Store average of daily stats
+                    summary_stats[key][label] = {
+                        "avg_daily_load": np.round(daily_avg_load.mean() / 1000, 2),
+                        "max_daily_load": np.round(daily_max_load.mean() / 1000, 2),
+                        "avg_daily_concentration": np.round(daily_avg_conc.mean(), 2),
+                        "max_daily_concentration": np.round(daily_max_conc.mean(), 2),
+                    }
+                else:
+                    summary_stats[key][label] = {
+                        "avg_daily_load": np.round(
+                            daily_avg_load.mean().values[0] / 1000, 2
+                        ),
+                        "max_daily_load": np.round(
+                            daily_max_load.mean().values[0] / 1000, 2
+                        ),
+                        "avg_daily_concentration": None,
+                        "max_daily_concentration": None,
+                    }
+    records = []
+    for key, scenarios_dict in summary_stats.items():
+        for scenario, metrics in scenarios_dict.items():
+            record = {"Key": key, "Scenario": scenario, **metrics}
+            records.append(record)
+    summary_df = pd.DataFrame(records)
+
+    summary_stats = defaultdict(dict)
+    # Iterate over all relevant pollutant keys
+    for key in list(dry.keys()):
+        if "fractionation" in key:
             # Filter the time window
             filtered_scenarios = {
                 label: df.loc[start_date:end_date] for label, df in scenarios.items()
@@ -1576,8 +1642,8 @@ def system_character():
                 daily_max_load = df_key.resample("D").max()
 
                 # 2. Concentration stats (if applicable)
-                if "H2O" not in key and ".WWTP2river.Outflow(rH2O)" in df.columns:
-                    flow = df[".WWTP2river.Outflow(rH2O)"].astype(float)
+                if "H2O" not in key and ".fractionation.Inflow(H2O_sew)" in df.columns:
+                    flow = df[".fractionation.Inflow(H2O_sew)"].astype(float)
                     conc = df[key].astype(float) / flow.replace(0, pd.NA)
 
                     daily_avg_conc = conc.resample("D").mean()
@@ -1585,15 +1651,27 @@ def system_character():
 
                     # Store average of daily stats
                     summary_stats[key][label] = {
-                        "avg_daily_load": daily_avg_load.mean().values[0],
-                        "max_daily_load": daily_max_load.mean().values[0],
-                        "avg_daily_concentration": daily_avg_conc.mean(),
-                        "max_daily_concentration": daily_max_conc.mean(),
+                        "avg_daily_load": np.round(
+                            daily_avg_load.mean().values[0] / 1000, 2
+                        ),
+                        "max_daily_load": np.round(
+                            daily_max_load.mean().values[0] / 1000, 2
+                        ),
+                        "avg_daily_concentration": np.round(
+                            daily_avg_conc.mean() * 1e6, 2
+                        ),
+                        "max_daily_concentration": np.round(
+                            daily_max_conc.mean() * 1e6, 2
+                        ),
                     }
                 else:
                     summary_stats[key][label] = {
-                        "avg_daily_load": daily_avg_load.mean().values[0],
-                        "max_daily_load": daily_max_load.mean().values[0],
+                        "avg_daily_load": np.round(
+                            daily_avg_load.mean().values[0] / 1000, 2
+                        ),
+                        "max_daily_load": np.round(
+                            daily_max_load.mean().values[0] / 1000, 2
+                        ),
                         "avg_daily_concentration": None,
                         "max_daily_concentration": None,
                     }
@@ -2382,7 +2460,7 @@ def research_2_3_combined():
     catchment = "ES"
     start_date = pd.Timestamp("2024-01-01")
     NORMAL = pd.read_csv(
-        rf"output_swmm\06-01_16-25_out_{catchment}_No_RTC.csv",
+        rf"output_swmm\07-03_15-41_out_{catchment}_No_RTC.csv",
         decimal=",",
         delimiter=";",
         index_col=0,
@@ -2463,7 +2541,7 @@ def research_2_3_combined():
     ################# WWTP INFLUENT ##################
     labels = {
         "H2O_sew": "Discharge [g/d]",
-        "NH4_sew": "NH4 Load [g/d]",
+        "NH4_sew": "NH4 Load [mg/s]",
         "PO4_sew": "PO4 Load [g/d]",
         "COD_sol": "Dissolved COD Load [g/d]",
         "X_TSS_sew": "Total Suspended Solids Load [g/d]",
@@ -2471,28 +2549,31 @@ def research_2_3_combined():
     }
     labels_conc = {
         "H2O_sew": "Discharge [g/d]",
-        "NH4_sew": "NH4 Concentration [g/g]",
+        "NH4_sew": "NH4 Concentration [mg/L]",
         "PO4_sew": "PO4 Concentration [g/g]",
         "COD_sol": "Dissolved COD Concentration [g/g]",
         "X_TSS_sew": "Total Suspended Solids Concentration [g/g]",
         "COD_part": "Particulate COD Concentration [g/g]",
     }
     # Define your time window
+    # Entire period
+    # start_date = pd.Timestamp("2024-04-15")
+    # end_date = pd.Timestamp("2024-10-15")
     # DWF
-    start_date = pd.Timestamp("2024-05-13")
-    end_date = pd.Timestamp("2024-06-01")
+    start_date = pd.Timestamp("2024-09-15")
+    end_date = pd.Timestamp("2024-09-21")
     # WWF
-    # start_date = pd.Timestamp("2024-05-01")
-    # end_date = pd.Timestamp("2024-05-15")
+    # start_date = pd.Timestamp("2024-07-02")
+    # end_date = pd.Timestamp("2024-07-07")
 
     scenarios = {
-        "RTC with ensembles": abs(ENSEMBLE.astype(float)),
         "No RTC": abs(NORMAL.astype(float)),
         "RTC": abs(RTC.astype(float)),
-        "Constant flow": abs(IDEAL.astype(float)),
+        "RTC with ensembles": abs(ENSEMBLE.astype(float)),
+        # "Constant flow": abs(IDEAL.astype(float)),
     }
     for key in list(NORMAL.keys()):
-        if not ("FD" in key or "Q_out" in key):
+        if not ("FD" in key or "Q_out" in key) and "NH" in key:
             # Filter by time window and store filtered versions
             filtered_scenarios = {
                 key: df.loc[start_date:end_date] for key, df in scenarios.items()
@@ -2510,7 +2591,7 @@ def research_2_3_combined():
             # --- Absolute values plot ---
             for label, df in filtered_scenarios.items():
                 if key in df.columns:
-                    ax1.plot(df.index, abs(df[key]), label=label)
+                    ax1.plot(df.index, abs(df[key]) * 1000 / (86400), label=label)
                 else:
                     print(f"Column '{key}' not found in scenario '{label}'")
 
@@ -2522,7 +2603,7 @@ def research_2_3_combined():
             if include_conc:
                 for label, df in filtered_scenarios.items():
                     if key in df.columns and "H2O_sew" in df.columns:
-                        ax2.plot(df.index, df[key] / df["H2O_sew"], label=label)
+                        ax2.plot(df.index, df[key] / df["H2O_sew"] * 1e6, label=label)
                     else:
                         print(
                             f"Column '{key}' or 'H2O_sew' not found in scenario '{label}'"
@@ -2553,7 +2634,7 @@ def research_2_3_combined():
     summary_stats = defaultdict(dict)
     # Iterate over all relevant pollutant keys
     for key in list(NORMAL.keys()):
-        if not ("FD" in key or "Q_out" in key):
+        if not ("FD" in key or "Q_out" in key) and ("NH" in key):
             # Filter the time window
             filtered_scenarios = {
                 label: df.loc[start_date:end_date] for label, df in scenarios.items()
@@ -2573,22 +2654,30 @@ def research_2_3_combined():
                 # 2. Concentration stats (if applicable)
                 if "H2O" not in key:
                     flow = df["H2O_sew"].astype(float)
-                    conc = df[key].astype(float) / flow.replace(0, pd.NA)
+                    conc = df[key].astype(float) / flow.replace(0, pd.NA) * 1e6
 
                     daily_avg_conc = conc.resample("D").mean()
                     daily_max_conc = conc.resample("D").max()
 
                     # Store average of daily stats
                     summary_stats[key][label] = {
-                        "avg_daily_load": daily_avg_load.mean().values[0],
-                        "max_daily_load": daily_max_load.mean().values[0],
+                        "avg_daily_load": daily_avg_load.mean().values[0]
+                        / 86400
+                        * 1000,
+                        "max_daily_load": daily_max_load.mean().values[0]
+                        / 86400
+                        * 1000,
                         "avg_daily_concentration": daily_avg_conc.mean(),
                         "max_daily_concentration": daily_max_conc.mean(),
                     }
                 else:
                     summary_stats[key][label] = {
-                        "avg_daily_load": daily_avg_load.mean().values[0],
-                        "max_daily_load": daily_max_load.mean().values[0],
+                        "avg_daily_load": daily_avg_load.mean().values[0]
+                        / 86400
+                        * 1000,
+                        "max_daily_load": daily_max_load.mean().values[0]
+                        / 86400
+                        * 1000,
                         "avg_daily_concentration": None,
                         "max_daily_concentration": None,
                     }
@@ -2674,14 +2763,14 @@ def research_2_3_combined():
     IDEAL.index = IDEAL.index.round("15min")
 
     scenarios = {
-        "RTC with ensembles": abs(ENSEMBLE.astype(float)),
+        # "RTC with ensembles": abs(ENSEMBLE.astype(float)),
         "No RTC": abs(NORMAL.astype(float)),
-        "RTC": abs(RTC.astype(float)),
+        # "RTC": abs(RTC.astype(float)),
         # "Constant flow": abs(IDEAL.astype(float))
     }
     # Define your time window
-    start_date = pd.Timestamp("2024-05-10")
-    end_date = pd.Timestamp("2024-06-01")
+    # start_date = pd.Timestamp("2024-05-10")
+    # end_date = pd.Timestamp("2024-06-01")
 
     for key in list(NORMAL.keys()):
         if "WWTP2river" in key:
@@ -2739,9 +2828,18 @@ def research_2_3_combined():
     from collections import defaultdict
 
     summary_stats = defaultdict(dict)
+    # Entire period
+    # start_date = pd.Timestamp("2024-04-15")
+    # end_date = pd.Timestamp("2024-10-15")
+    # DWF
+    start_date = pd.Timestamp("2024-09-15")
+    end_date = pd.Timestamp("2024-09-21")
+    # WWF
+    # start_date = pd.Timestamp("2024-07-02")
+    # end_date = pd.Timestamp("2024-07-07")
     # Iterate over all relevant pollutant keys
     for key in list(NORMAL.keys()):
-        if "WWTP2river" in key:
+        if ("WWTP2river" in key) and ("NH4" in key):
             # Filter the time window
             filtered_scenarios = {
                 label: df.loc[start_date:end_date] for label, df in scenarios.items()
@@ -2918,6 +3016,76 @@ def research_2_3_combined():
             fig.tight_layout()
             fig.savefig(f"{key}WWTPeffluentWWF.png")
             plt.show()
+
+    labels3 = {
+        ".effluent.y_TN": "Total Nitrogen [g/d]",
+        ".effluent.y_TP": "Total  phosphorus [g/d]",
+    }
+
+    labels_conc3 = {
+        ".effluent.y_TN": "Total Nitrogen [g/d]",
+        ".effluent.y_TP": "Total  phosphorus [g/g]",
+    }
+
+    # Entire period
+    start_date = pd.Timestamp("2024-04-15")
+    end_date = pd.Timestamp("2024-10-15")
+    from collections import defaultdict
+
+    summary_stats = defaultdict(dict)
+    # Iterate over all relevant pollutant keys
+    for key in list(NORMAL.keys()):
+        if "y_TN" in key or "y_TP" in key:
+            # Filter the time window
+            filtered_scenarios = {
+                label: df.loc[start_date:end_date] for label, df in scenarios.items()
+            }
+
+            for label, df in filtered_scenarios.items():
+                if key not in df.columns:
+                    continue  # Skip if key missing
+
+                # Parse float just in case
+                df_key = abs(df[key].astype(float))
+
+                # 1. Load stats
+                flow = df[".effluent.y_Q"].astype(float)
+                load = df_key * flow / 1000 * 24
+                daily_avg_load = (load).resample("D").mean()
+                daily_max_load = (load).resample("D").max()
+
+                # 2. Concentration stats (if applicable)
+                if "Q" not in key and ".effluent.y_Q" in df.columns:
+
+                    conc = df[key].astype(float)
+
+                    daily_avg_conc = conc.resample("D").mean()
+                    daily_max_conc = conc.resample("D").max()
+
+                    # Store average of daily stats
+                    summary_stats[key][label] = {
+                        "avg_daily_load": np.round(daily_avg_load.mean() / 1000, 2),
+                        "max_daily_load": np.round(daily_max_load.mean() / 1000, 2),
+                        "avg_daily_concentration": np.round(daily_avg_conc.mean(), 2),
+                        "max_daily_concentration": np.round(daily_max_conc.mean(), 2),
+                    }
+                else:
+                    summary_stats[key][label] = {
+                        "avg_daily_load": np.round(
+                            daily_avg_load.mean().values[0] / 1000, 2
+                        ),
+                        "max_daily_load": np.round(
+                            daily_max_load.mean().values[0] / 1000, 2
+                        ),
+                        "avg_daily_concentration": None,
+                        "max_daily_concentration": None,
+                    }
+    records = []
+    for key, scenarios_dict in summary_stats.items():
+        for scenario, metrics in scenarios_dict.items():
+            record = {"Key": key, "Scenario": scenario, **metrics}
+            records.append(record)
+    summary_df = pd.DataFrame(records)
 
 
 def OF_all(catchment="ES", start="2024-04-15", end="2045-10-15"):
@@ -3288,3 +3456,641 @@ def objective_function_4(loads, concs):
             "avg_max_daily_concentration": daily_max_conc.mean(),
         }
     return summary_stats
+
+
+def river_quality():
+    start_date = pd.Timestamp("2024-01-01")
+    NORMAL = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    NORMAL["timestamp"] = start_date + pd.to_timedelta(
+        NORMAL.index.astype(float), unit="D"
+    )
+    NORMAL.set_index("timestamp", inplace=True)
+    NORMAL.index = NORMAL.index.round("15min")
+
+    RTC = pd.read_csv(
+        f"data\WEST\Pollutant_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("15min")
+
+    ENSEMBLE = pd.read_csv(
+        f"data\WEST\Pollutant_RTC_ensemble\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    ENSEMBLE["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE.index.astype(float), unit="D"
+    )
+    ENSEMBLE.set_index("timestamp", inplace=True)
+    ENSEMBLE.index = ENSEMBLE.index.round("15min")
+
+    IDEAL = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC_no_rain_constant\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    IDEAL["timestamp"] = start_date + pd.to_timedelta(
+        IDEAL.index.astype(float), unit="D"
+    )
+    IDEAL.set_index("timestamp", inplace=True)
+    IDEAL.index = IDEAL.index.round("15min")
+
+    scenarios = {
+        "Baseline": abs(NORMAL.astype(float)),
+        "Perfect predictions": abs(RTC.astype(float)),
+        "Ensemble predictions": abs(ENSEMBLE.astype(float)),
+    }
+    # Define your time window
+    start_date = pd.Timestamp("2024-04-15")
+    end_date = pd.Timestamp("2024-10-15")
+
+    filtered_scenarios = {
+        key: df.loc[start_date:end_date] for key, df in scenarios.items()
+    }
+    for label, df in filtered_scenarios.items():
+        print(label)
+        print(f"mean {df['.S031.NH4'].mean()}")
+        print(f"median {df['.S031.NH4'].median()}")
+        print(f"max {df['.S031.NH4'].max()}")
+
+    # Define your time window
+    start_date = pd.Timestamp("2024-09-15")
+    end_date = pd.Timestamp("2024-09-21")
+
+    filtered_scenarios = {
+        key: df.loc[start_date:end_date] for key, df in scenarios.items()
+    }
+    fig1, ax1 = plt.subplots(figsize=(14, 6))
+
+    for label, df in filtered_scenarios.items():
+        nh4_series = df[".S031.NH4"]
+        print(f"[{label}] Full Series (2024-09-15 to 2024-09-21)")
+        print(f"Mean: {nh4_series.mean()}")
+        print(f"Median: {nh4_series.median()}")
+        print(f"Max: {nh4_series.max()}")
+        ax1.plot(nh4_series.index, nh4_series.values, label=label)
+
+    ax1.set_xlabel("Date")
+    ax1.set_ylabel("Ammonium (mg NH4/L)")
+    ax1.grid(True, linestyle="--", alpha=0.5)
+    ax1.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+    ax1.tick_params(axis="x", rotation=45)
+
+    plt.tight_layout()
+    plt.show()
+
+    # ---------- Second Figure: Time Window 2 ----------
+    start_date = pd.Timestamp("2024-07-02")
+    end_date = pd.Timestamp("2024-07-07")
+
+    filtered_scenarios_2 = {
+        key: df.loc[start_date:end_date] for key, df in scenarios.items()
+    }
+
+    fig2, ax2 = plt.subplots(figsize=(14, 6))
+
+    for label, df in filtered_scenarios_2.items():
+        nh4_series = df[".S031.NH4"]
+        print(f"[{label}] Filtered Series (2024-07-02 to 2024-07-07)")
+        print(f"Mean: {nh4_series.mean()}")
+        print(f"Median: {nh4_series.median()}")
+        print(f"Max: {nh4_series.max()}")
+        ax2.plot(nh4_series.index, nh4_series.values, label=label)
+
+    ax2.set_xlabel("Date")
+    ax2.set_ylabel("Ammonium (mg NH4/L)")
+    ax2.grid(True, linestyle="--", alpha=0.5)
+    ax2.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+    ax2.tick_params(axis="x", rotation=45)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def wwtp_influent():
+    start_date = pd.Timestamp("2024-01-01")
+    NORMAL = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    NORMAL["timestamp"] = start_date + pd.to_timedelta(
+        NORMAL.index.astype(float), unit="D"
+    )
+    NORMAL.set_index("timestamp", inplace=True)
+    NORMAL.index = NORMAL.index.round("15min")
+
+    RTC = pd.read_csv(
+        f"data\WEST\Pollutant_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("15min")
+
+    ENSEMBLE = pd.read_csv(
+        f"data\WEST\Pollutant_RTC_ensemble\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    ENSEMBLE["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE.index.astype(float), unit="D"
+    )
+    ENSEMBLE.set_index("timestamp", inplace=True)
+    ENSEMBLE.index = ENSEMBLE.index.round("15min")
+
+    IDEAL = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC_no_rain_constant\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    IDEAL["timestamp"] = start_date + pd.to_timedelta(
+        IDEAL.index.astype(float), unit="D"
+    )
+    IDEAL.set_index("timestamp", inplace=True)
+    IDEAL.index = IDEAL.index.round("15min")
+
+    scenarios = {
+        "Baseline": abs(NORMAL.astype(float)),
+        "Perfect predictions": abs(RTC.astype(float)),
+        "Ensemble predictions": abs(ENSEMBLE.astype(float)),
+    }
+    # Define your time window
+    start_date = pd.Timestamp("2024-04-15")
+    end_date = pd.Timestamp("2024-10-15")
+
+    filtered_scenarios = {
+        key: df.loc[start_date:end_date] for key, df in scenarios.items()
+    }
+    for label, df in filtered_scenarios.items():
+        print(label)
+        df[".fractionation.Inflow(NH4_sew)"] = (
+            df[".fractionation.Inflow(NH4_sew)"]
+            * 1e6
+            / df[".fractionation.Inflow(H2O_sew)"]
+        )
+        nh4_series = df[".fractionation.Inflow(NH4_sew)"]
+        print(f"mean {nh4_series.mean()}")
+        print(f"median {nh4_series.median()}")
+        print(f"max {nh4_series.max()}")
+
+    # Define your time window
+    start_date = pd.Timestamp("2024-09-15")
+    end_date = pd.Timestamp("2024-09-21")
+
+    filtered_scenarios = {
+        key: df.loc[start_date:end_date] for key, df in scenarios.items()
+    }
+    fig1, ax1 = plt.subplots(figsize=(14, 6))
+
+    for label, df in filtered_scenarios.items():
+        df[".fractionation.Inflow(NH4_sew)"] = (
+            df[".fractionation.Inflow(NH4_sew)"]
+            * 1e6
+            / df[".fractionation.Inflow(H2O_sew)"]
+        )
+        nh4_series = df[".fractionation.Inflow(NH4_sew)"]
+        print(f"[{label}] Full Series (2024-09-15 to 2024-09-21)")
+        print(f"Mean: {nh4_series.mean()}")
+        print(f"Median: {nh4_series.median()}")
+        print(f"Max: {nh4_series.max()}")
+        ax1.plot(nh4_series.index, nh4_series.values, label=label)
+
+    ax1.set_xlabel("Date")
+    ax1.set_ylabel("Ammonium (mg NH4/L)")
+    ax1.grid(True, linestyle="--", alpha=0.5)
+    ax1.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+    ax1.tick_params(axis="x", rotation=45)
+
+    plt.tight_layout()
+    plt.show()
+
+    # ---------- Second Figure: Time Window 2 ----------
+    start_date = pd.Timestamp("2024-07-02")
+    end_date = pd.Timestamp("2024-07-07")
+
+    filtered_scenarios_2 = {
+        key: df.loc[start_date:end_date] for key, df in scenarios.items()
+    }
+
+    fig2, ax2 = plt.subplots(figsize=(14, 6))
+
+    for label, df in filtered_scenarios_2.items():
+        df[".fractionation.Inflow(NH4_sew)"] = (
+            df[".fractionation.Inflow(NH4_sew)"]
+            * 1e6
+            / df[".fractionation.Inflow(H2O_sew)"]
+        )
+        nh4_series = df[".fractionation.Inflow(NH4_sew)"]
+        print(f"[{label}] Filtered Series (2024-07-02 to 2024-07-07)")
+        print(f"Mean: {nh4_series.mean()}")
+        print(f"Median: {nh4_series.median()}")
+        print(f"Max: {nh4_series.max()}")
+        ax2.plot(nh4_series.index, nh4_series.values, label=label)
+
+    ax2.set_xlabel("Date")
+    ax2.set_ylabel("Ammonium (mg NH4/L)")
+    ax2.grid(True, linestyle="--", alpha=0.5)
+    ax2.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+    ax2.tick_params(axis="x", rotation=45)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def pollutants():
+    start_date = pd.Timestamp("2024-01-01")
+    catchment = "ES"
+    NORMAL = pd.read_csv(
+        rf"output_swmm\07-03_15-41_out_{catchment}_No_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    NORMAL["timestamp"] = start_date + pd.to_timedelta(
+        NORMAL.index.astype(float), unit="D"
+    )
+    NORMAL.set_index("timestamp", inplace=True)
+    NORMAL.index = NORMAL.index.round("5min")
+    ENSEMBLE = pd.read_csv(
+        rf"output_swmm\06-01_13-50_out_{catchment}_Ensemble_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    ENSEMBLE["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE.index.astype(float), unit="D"
+    )
+    ENSEMBLE.set_index("timestamp", inplace=True)
+    ENSEMBLE.index = ENSEMBLE.index.round("5min")
+
+    RTC = pd.read_csv(
+        rf"output_swmm\06-01_13-14_out_{catchment}_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("5min")
+    ES_catchments = {
+        "Baseline": abs(NORMAL.astype(float)),
+        "RTC": abs(RTC.astype(float)),
+        "RTC w/ ensembles": abs(ENSEMBLE.astype(float)),
+    }
+    catchment = "RZ"
+    NORMAL = pd.read_csv(
+        rf"output_swmm\07-03_15-41_out_{catchment}_No_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    NORMAL["timestamp"] = start_date + pd.to_timedelta(
+        NORMAL.index.astype(float), unit="D"
+    )
+    NORMAL.set_index("timestamp", inplace=True)
+    NORMAL.index = NORMAL.index.round("5min")
+    ENSEMBLE = pd.read_csv(
+        rf"output_swmm\06-01_13-50_out_{catchment}_Ensemble_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    ENSEMBLE["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE.index.astype(float), unit="D"
+    )
+    ENSEMBLE.set_index("timestamp", inplace=True)
+    ENSEMBLE.index = ENSEMBLE.index.round("5min")
+
+    RTC = pd.read_csv(
+        rf"output_swmm\06-01_13-14_out_{catchment}_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("5min")
+    RZ_catchments = {
+        "Baseline": abs(NORMAL.astype(float)),
+        "RTC": abs(RTC.astype(float)),
+        "RTC w/ ensembles": abs(ENSEMBLE.astype(float)),
+    }
+    start_date = pd.Timestamp("2024-01-01")
+    NORMAL = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    NORMAL["timestamp"] = start_date + pd.to_timedelta(
+        NORMAL.index.astype(float), unit="D"
+    )
+    NORMAL.set_index("timestamp", inplace=True)
+    NORMAL.index = NORMAL.index.round("15min")
+
+    RTC = pd.read_csv(
+        f"data\WEST\Pollutant_RTC\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("15min")
+
+    ENSEMBLE = pd.read_csv(
+        f"data\WEST\Pollutant_RTC_ensemble\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    ENSEMBLE["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE.index.astype(float), unit="D"
+    )
+    ENSEMBLE.set_index("timestamp", inplace=True)
+    ENSEMBLE.index = ENSEMBLE.index.round("15min")
+    WWTP = {
+        "Baseline": abs(NORMAL.astype(float)),
+        "RTC": abs(RTC.astype(float)),
+        "RTC w/ ensembles": abs(ENSEMBLE.astype(float)),
+    }
+
+    results = {
+        "ES_Baseline": ES_catchments["Baseline"],
+        "ES_RTC": ES_catchments["RTC"],
+        "ES_RTC_ensemble": ES_catchments["RTC w/ ensembles"],
+        "RZ_Baseline": RZ_catchments["Baseline"],
+        "RZ_RTC": RZ_catchments["RTC"],
+        "RZ_RTC_ensemble": RZ_catchments["RTC w/ ensembles"],
+        "WWTP_Baseline": WWTP["Baseline"],
+        "WWTP_RTC": WWTP["RTC"],
+        "WWTP_RTC_ensemble": WWTP["RTC w/ ensembles"],
+    }
+
+    time_periods = {
+        "Extended": {
+            "start": pd.Timestamp("2024-04-15"),
+            "end": pd.Timestamp("2024-10-15"),
+        },
+        "DWF": {
+            "start": pd.Timestamp("2024-09-15"),
+            "end": pd.Timestamp("2024-09-21"),
+        },
+        "WWF": {
+            "start": pd.Timestamp("2024-07-02"),
+            "end": pd.Timestamp("2024-07-07"),
+        },
+    }
+
+    summary_stats = defaultdict(lambda: defaultdict(dict))
+    for label, df in results.items():
+        if "ES_" in label or "RZ_" in label:
+            for key in list(df.keys()):
+                if not ("FD" in key or "Q_out" in key) and ("NH" in key or "PO" in key):
+                    for period, dates in time_periods.items():
+                        df_perioded = df.loc[dates["start"] : dates["end"]]
+                        df_parsed = abs(
+                            df_perioded[[key]].astype(float)
+                        )  # all collumns in g/d
+
+                        daily_avg_load = df_parsed.resample("D").mean()  # g/d
+                        daily_max_load = df_parsed.resample("D").max()  # g/d
+                        flow = df_perioded["H2O_sew"].astype(float)  # in g/d
+                        waterdensity = 1e6
+                        conc = (
+                            df_parsed[key].astype(float)
+                            / flow.replace(0, pd.NA)
+                            * waterdensity
+                        )
+
+                        daily_avg_conc = conc.resample("D").mean()
+                        daily_max_conc = conc.resample("D").max()
+
+                        if "NH4" in key:
+                            # Store average of daily stats
+                            summary_stats[label][period]["NH4"] = {
+                                "Average load [kg/d]": np.round(
+                                    daily_avg_load.mean().values[0] / 1000, 2
+                                ),
+                                "Average daily maximum load [kg/d]": np.round(
+                                    daily_max_load.mean().values[0] / 1000, 2
+                                ),
+                                "Average concentration [mg/L]": np.round(
+                                    daily_avg_conc.mean(), 2
+                                ),
+                                "Average daily maximum concentration [mg/L]": np.round(
+                                    daily_max_conc.mean(), 2
+                                ),
+                            }
+                        elif "PO4" in key:
+                            # Store average of daily stats
+                            summary_stats[label][period]["PO4"] = {
+                                "Average load [kg/d]": np.round(
+                                    daily_avg_load.mean().values[0] / 1000, 2
+                                ),
+                                "Average daily maximum load [kg/d]": np.round(
+                                    daily_max_load.mean().values[0] / 1000, 2
+                                ),
+                                "Average concentration [mg/L]": np.round(
+                                    daily_avg_conc.mean(), 2
+                                ),
+                                "Average daily maximum concentration [mg/L]": np.round(
+                                    daily_max_conc.mean(), 2
+                                ),
+                            }
+        else:
+            for key in list(df.keys()):
+                for period, dates in time_periods.items():
+                    df_perioded = df.loc[dates["start"] : dates["end"]]
+                    df_parsed = abs(df_perioded[[key]].astype(float))
+
+                    if ".effluent.y_TN" in key or ".effluent.y_TP" in key:
+                        flow = df_perioded[".effluent.y_Q"].astype(float)  # m3/h
+                        concentration = df_perioded[key].astype(float)  # g/m3
+                        load = concentration * flow / 1000 * 24
+                        daily_avg_load = (load).resample("D").mean()
+                        daily_max_load = (load).resample("D").max()
+
+                        daily_avg_conc = concentration.resample("D").mean()
+                        daily_max_conc = concentration.resample("D").max()
+
+                        if "TN" in key:
+                            # Store average of daily stats
+                            summary_stats[label + " Effluent"][period]["NH4"] = {
+                                "Average load [kg/d]": np.round(
+                                    daily_avg_load.mean(), 2
+                                ),
+                                "Average daily maximum load [kg/d]": np.round(
+                                    daily_max_load.mean(), 2
+                                ),
+                                "Average concentration [mg/L]": np.round(
+                                    daily_avg_conc.mean(), 2
+                                ),
+                                "Average daily maximum concentration [mg/L]": np.round(
+                                    daily_max_conc.mean(), 2
+                                ),
+                            }
+                        elif "TP" in key:
+                            summary_stats[label + " Effluent"][period]["PO4"] = {
+                                "Average load [kg/d]": np.round(
+                                    daily_avg_load.mean(), 2
+                                ),
+                                "Average daily maximum load [kg/d]": np.round(
+                                    daily_max_load.mean(), 2
+                                ),
+                                "Average concentration [mg/L]": np.round(
+                                    daily_avg_conc.mean(), 2
+                                ),
+                                "Average daily maximum concentration [mg/L]": np.round(
+                                    daily_max_conc.mean(), 2
+                                ),
+                            }
+
+                    elif (
+                        ".fractionation.Inflow(NH4_sew)" in key
+                        or ".fractionation.Inflow(PO4_sew)" in key
+                    ):
+                        daily_avg_load = df_parsed.resample("D").mean()  # g/d
+                        daily_max_load = df_parsed.resample("D").max()  # g/d
+                        flow = df_perioded[".fractionation.Inflow(H2O_sew)"].astype(
+                            float
+                        )  # all collumns in g/d (where flow is given in g/d with water density of 1000 kg/m3)
+                        water_density = 1e6  # g/m3 for water
+                        conc = (
+                            df_parsed[key].astype(float) / flow.replace(0, pd.NA)
+                        ) * water_density  # now in g/m3 ( g/d / g/d * density)
+
+                        daily_avg_conc = conc.resample("D").mean()  # equivalent to mg/L
+                        daily_max_conc = conc.resample("D").max()  # equivalent to mg/L
+
+                        if "NH4" in key:
+                            summary_stats[label + " Influent"][period]["NH4"] = {
+                                "Average load [kg/d]": np.round(
+                                    daily_avg_load.mean().values[0] / 1000, 2
+                                ),
+                                "Average daily maximum load [kg/d]": np.round(
+                                    daily_max_load.mean().values[0] / 1000, 2
+                                ),
+                                "Average concentration [mg/L]": np.round(
+                                    daily_avg_conc.mean(), 2
+                                ),  # g/m3 to mg/L multiply by 1000
+                                "Average daily maximum concentration [mg/L]": np.round(
+                                    daily_max_conc.mean(), 2
+                                ),
+                            }
+                        elif "PO4" in key:
+                            summary_stats[label + " Influent"][period]["PO4"] = {
+                                "Average load [kg/d]": np.round(
+                                    daily_avg_load.mean().values[0] / 1000, 2
+                                ),
+                                "Average daily maximum load [kg/d]": np.round(
+                                    daily_max_load.mean().values[0] / 1000, 2
+                                ),
+                                "Average concentration [mg/L]": np.round(
+                                    daily_avg_conc.mean(), 2
+                                ),
+                                "Average daily maximum concentration [mg/L]": np.round(
+                                    daily_max_conc.mean(), 2
+                                ),
+                            }
+
+                    elif ".S031.NH4" in key:
+                        flow = df_perioded[".S031.Q"].astype(float)  # m3/d
+                        concentration = df_perioded[key].astype(float)  # g/m3
+                        load = concentration * flow / 1000
+                        daily_avg_load = (load).resample("D").mean()  # kg/d
+                        daily_max_load = (load).resample("D").max()  # kg/d
+
+                        conc = df_parsed[key]  # equivalent to mg/L
+                        daily_avg_conc = conc.resample("D").mean()
+                        daily_max_conc = conc.resample("D").max()
+
+                        summary_stats[label + " River"][period]["NH4"] = {
+                            "Average load [kg/d]": np.round(daily_avg_load.mean(), 2),
+                            "Average daily maximum load [kg/d]": np.round(
+                                daily_max_load.mean(), 2
+                            ),
+                            "Average concentration [mg/L]": np.round(
+                                daily_avg_conc.mean(), 2
+                            ),
+                            "Average daily maximum concentration [mg/L]": np.round(
+                                daily_max_conc.mean(), 2
+                            ),
+                        }
+
+    records = []
+
+    for label, periods in summary_stats.items():
+        for period, pollutants in periods.items():
+            for key, stats in pollutants.items():
+                row = {
+                    "catchment_scenario": label,
+                    "period": period,
+                    "pollutant": key,
+                    **stats,
+                }
+                records.append(row)
+
+    summary_df = pd.DataFrame(records)
+    melted = summary_df.melt(
+        id_vars=["catchment_scenario", "period", "pollutant"],
+        value_vars=[
+            "Average concentration [mg/L]",
+            "Average load [kg/d]",
+            "Average daily maximum concentration [mg/L]",
+            "Average daily maximum load [kg/d]",
+        ],
+        var_name="metric",
+        value_name="value",
+    )
+
+    # Then, pivot pollutants to columns
+    reshaped = melted.pivot_table(
+        index=["catchment_scenario", "period", "metric"],
+        columns="pollutant",
+        values="value",
+    ).reset_index()
+
+    csv_text = reshaped.to_csv(
+        index=False, float_format="%.2f"
+    )  # format floats to 2 decimals with dot
+
+    # Replace decimal points with commas, but carefully:
+    # To avoid messing with separators, first change separator to semicolon:
+    csv_text = reshaped.to_csv(index=False, sep=";", float_format="%.2f")
+
+    # Now replace decimal points with commas in the CSV text:
+    csv_text = csv_text.replace(".", ",")
+
+    # Save to file
+    with open("reshaped_comma_decimal.csv", "w", encoding="utf-8", newline="") as f:
+        f.write(csv_text)
+    reshaped

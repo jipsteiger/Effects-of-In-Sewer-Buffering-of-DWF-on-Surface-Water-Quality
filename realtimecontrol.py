@@ -7,6 +7,8 @@ from simulation import Simulation
 from storage import Storage, RZ_storage
 from scipy.interpolate import interp1d
 from typing import Callable, Tuple
+import csv
+import os
 
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
@@ -208,8 +210,23 @@ class RealTimeControl(Simulation):
             self.ES_predicted = st_ES_predicted
             self.RZ_predicted = st_RZ_predicted
 
+        log_file = "rain_prediction_log.csv"
+        file_exists = os.path.isfile(log_file)
+
+        with open(log_file, mode="a", newline="") as file:
+            writer = csv.writer(file)
+            if not file_exists:
+                writer.writerow(["timestamp", "ES_predicted", "RZ_predicted"])
+            writer.writerow(
+                [
+                    self.sim.current_time.isoformat(),
+                    int(self.ES_predicted),
+                    int(self.RZ_predicted),
+                ]
+            )
+
     def orchestrate_rtc(self):
-        ES_raining, RZ_raining = self.is_raining(2, 3 * 1)
+        ES_raining, RZ_raining = self.is_raining(2, 2)
 
         ES_dwf = not self.ES_predicted and not ES_raining
         RZ_dwf = not self.RZ_predicted and not RZ_raining

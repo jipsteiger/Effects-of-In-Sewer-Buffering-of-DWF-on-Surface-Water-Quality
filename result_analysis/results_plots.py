@@ -19,6 +19,7 @@ import matplotlib.dates as mdates
 import numpy as np
 import logging
 from collections import defaultdict
+from scipy.interpolate import interp1d
 
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
@@ -51,6 +52,7 @@ def plot(
     labels: List[str],
     x_label: str,
     y_label: str,
+    figsize=(7,7)
 ):
     for x, y, label in zip(x_list, y_list, labels):
         plt.plot(x.index, y.values, label=label)
@@ -121,7 +123,7 @@ def plot_two_regions_side_by_side(
     y_label: str,
     region_titles: List[str],  # e.g., ["Region A", "Region B"]
 ):
-    fig, axes = plt.subplots(2, 1, figsize=(14, 10), sharey=True)
+    fig, axes = plt.subplots(2, 1, figsize=(14, 7), sharey=True)
 
     # First region
     for x, y, label in zip(x_list1, y_list1, labels):
@@ -423,6 +425,71 @@ def model_creation_csos():
     # Aalst         16      22
     # Would need to be updated tho if swmm change (but then onyl sswmm values are adjusted i quess)
 
+def wq_model_cod_P():
+    df_west = pd.read_csv(
+        rf"data\WEST\WEST_modelRepository\Model_Dommel_Full\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west["timestamp"] = (
+        start_date + pd.to_timedelta(df_west.index.astype(float), unit="D")
+    ).astype("O")
+    df_west.set_index("timestamp", inplace=True)
+    df_west = df_west.loc["2024-04-15":"2024-10-15", :]
+
+    model_result_ES = pd.read_csv(
+        "output_effluent\compare_ES_WQ_model_check.Effluent.csv", index_col=0
+    )
+    model_result_ES.index = df_west.index
+
+    model_result_RZ = pd.read_csv(
+        "output_effluent\compare_rz_WQ_model_check.Effluent.csv", index_col=0
+    )
+    model_result_RZ.index = df_west.index
+
+    start = "2024-08-23"
+    end = "2024-09-02"
+    df_west_selected = df_west.loc[start:end]
+    model_result_ES_selected = model_result_ES.loc[start:end]
+    model_result_RZ_selected = model_result_RZ.loc[start:end]
+    xlist = []
+    ylist = []
+    xlistRZ = []
+    ylistRZ = []
+    
+    ylist.append(abs(df_west_selected['.ES_out.Outflow(COD_part)'].astype(float) / 1000))
+    ylist.append(abs(model_result_ES_selected['COD_part'].astype(float) / 1000))
+    xlist.append(df_west_selected)
+    xlist.append(model_result_ES_selected)
+    ylistRZ.append(abs(df_west_selected['.RZ_out.Outflow(COD_part)'].astype(float) / 1000))
+    ylistRZ.append(abs(model_result_RZ_selected['COD_part'].astype(float) / 1000))
+    xlistRZ.append(df_west_selected)
+    xlistRZ.append(model_result_RZ_selected)
+    
+    plot_two_regions_side_by_side(xlist, ylist, xlistRZ, ylistRZ, ['COD particulate  \noriginal model', 'COD particulate \nrecreated model'], 'Datetime [mm-dd hh:mm]', 'Load [kg/d]', ['Eindhoven', 'Riool Zuid'])
+    
+    
+    xlist = []
+    ylist = []
+    ylist.append(abs(df_west_selected['.ES_out.Outflow(COD_part)'].astype(float) / 1000))
+    ylist.append(abs(model_result_ES_selected['COD_part'].astype(float) / 1000))
+    xlist.append(df_west_selected)
+    xlist.append(model_result_ES_selected)
+    ylist.append(abs(df_west_selected['.RZ_out.Outflow(COD_part)'].astype(float) / 1000))
+    ylist.append(abs(model_result_RZ_selected['COD_part'].astype(float) / 1000))
+    xlist.append(df_west_selected)
+    xlist.append(model_result_RZ_selected)
+    
+    plt.figure(figsize=(15,5))
+    plot(xlist, ylist, ['ES COD particulate  \noriginal model', 'ES COD particulate \nrecreated model', 'RZ COD particulate  \noriginal model', 'RZ COD particulate \nrecreated model'], 'Datetime [mm-dd hh:mm]', 'Load [kg/d]')
+    
+    
+    
+
+
 
 def wq_model():
     df_west = pd.read_csv(
@@ -452,84 +519,23 @@ def wq_model():
     df_west = df_west.loc["2024-06-27":"2024-06-30"]
     model_result_ES = model_result_ES.loc["2024-06-27":"2024-06-30"]
     model_result_RZ = model_result_RZ.loc["2024-06-27":"2024-06-30"]
+    
 
     xlist = []
     ylist = []
     labels = []
     labels = [
         "Original COD particulate",
-        "Original COD soluable",
-        "Original NH4",
-        "Original PO4",
-        "Original # TSS",
+        # "Original COD soluable",
+        # "Original NH4",
+        # "Original PO4",
+        # "Original # TSS",
         "Recreated COD particulate",
-        "Recreated COD soluable",
-        "Recreated NH4",
-        "Recreated PO4",
-        "Recreated # TSS",
+        # "Recreated COD soluable",
+        # "Recreated NH4",
+        # "Recreated PO4",
+        # "Recreated # TSS",
     ]
-    for key in df_west.keys():
-        if (
-            "_out.Outflow" in key
-            and not ".NS" in key
-            and "ES" in key
-            and not "H2O" in key
-            and ("NH4" in key or "PO4" in key)
-        ):
-            xlist.append(df_west)
-            ylist.append(abs(df_west[key].astype(float)))
-            # labels.append(f"Original model {key}")
-
-    for key in model_result_ES.keys():
-        if not "H2O" in key and ("NH4" in key or "PO4" in key):
-            xlist.append(model_result_ES)
-            ylist.append(abs(model_result_ES[key].astype(float)))
-            # labels.append(f"Script model {key}")
-
-    NSE_COD_p = nash_sutcliff(
-        abs(df_west[".RZ_out.Outflow(COD_part)"].astype(float)),
-        abs(model_result_RZ["COD_part"].astype(float)),
-    )
-    NSE_COD_s = nash_sutcliff(
-        abs(df_west[".RZ_out.Outflow(COD_sol)"].astype(float)),
-        abs(model_result_RZ["COD_sol"].astype(float)),
-    )
-    NSE_NH4 = nash_sutcliff(
-        abs(df_west[".RZ_out.Outflow(NH4_sew)"].astype(float)),
-        abs(model_result_RZ["NH4_sew"].astype(float)),
-    )
-    NSE_PO4 = nash_sutcliff(
-        abs(df_west[".RZ_out.Outflow(PO4_sew)"].astype(float)),
-        abs(model_result_RZ["PO4_sew"].astype(float)),
-    )
-    NSE_TSS = nash_sutcliff(
-        abs(df_west[".RZ_out.Outflow(X_TSS_sew)"].astype(float)),
-        abs(model_result_RZ["X_TSS_sew"].astype(float)),
-    )
-
-    # RMSE_COD_p = rmse(
-    #     abs(df_west[".ES_out.Outflow(COD_part)"].astype(float)),
-    #     abs(model_result_ES["COD_part"].astype(float)),
-    # )
-    # RMSE_COD_s = rmse(
-    #     abs(df_west[".ES_out.Outflow(COD_sol)"].astype(float)),
-    #     abs(model_result_ES["COD_sol"].astype(float)),
-    # )
-    # RMSE_NH4 = rmse(
-    #     abs(df_west[".ES_out.Outflow(NH4_sew)"].astype(float)),
-    #     abs(model_result_ES["NH4_sew"].astype(float)),
-    # )
-    # RMSE_PO4 = rmse(
-    #     abs(df_west[".ES_out.Outflow(PO4_sew)"].astype(float)),
-    #     abs(model_result_ES["PO4_sew"].astype(float)),
-    # )
-    # RMSE_TSS = rmse(
-    #     abs(df_west[".ES_out.Outflow(X_TSS_sew)"].astype(float)),
-    #     abs(model_result_ES["X_TSS_sew"].astype(float)),
-    # )
-
-    # plt.figure(figsize=(15, 8))
-    # plot(xlist, ylist, labels, "Date and time", "Catchment effluent load [g/d]")
     xlist1 = xlist
     ylist1 = ylist
 
@@ -537,15 +543,15 @@ def wq_model():
     ylist = []
     labels = []
     labels = [
-        # "Original COD particulate",
+        "Original COD particulate",
         # "Original COD soluable",
-        "Original NH4",
-        "Original PO4",
+        # "Original NH4",
+        # "Original PO4",
         # "Original # TSS",
-        # "Recreated COD particulate",
+        "Recreated COD particulate",
         # "Recreated COD soluable",
-        "Recreated NH4",
-        "Recreated PO4",
+        # "Recreated NH4",
+        # "Recreated PO4",
         # "Recreated # TSS",
     ]
     for key in df_west.keys():
@@ -554,41 +560,20 @@ def wq_model():
             and not ".NS" in key
             and "RZ" in key
             and not "H2O" in key
-            and ("NH4" in key or "PO4" in key)
+            and ("COD_p" in key)
         ):
             xlist.append(df_west)
             ylist.append(abs(df_west[key].astype(float)))
             # labels.append(f"Original model {key}")
 
     for key in model_result_RZ.keys():
-        if not "H2O" in key and ("NH4" in key or "PO4" in key):
+        if not "H2O" in key and ("COD_p" in key):
             xlist.append(model_result_RZ)
             ylist.append(abs(model_result_RZ[key].astype(float)))
             # labels.append(f"Script model {key}")
 
-    NSE_COD_p = nash_sutcliff(
-        abs(df_west[".RZ_out.Outflow(COD_part)"].astype(float)),
-        abs(model_result_RZ["COD_part"].astype(float)),
-    )
-    NSE_COD_s = nash_sutcliff(
-        abs(df_west[".RZ_out.Outflow(COD_sol)"].astype(float)),
-        abs(model_result_RZ["COD_sol"].astype(float)),
-    )
-    NSE_NH4 = nash_sutcliff(
-        abs(df_west[".RZ_out.Outflow(NH4_sew)"].astype(float)),
-        abs(model_result_RZ["NH4_sew"].astype(float)),
-    )
-    NSE_PO4 = nash_sutcliff(
-        abs(df_west[".RZ_out.Outflow(PO4_sew)"].astype(float)),
-        abs(model_result_RZ["PO4_sew"].astype(float)),
-    )
-    NSE_TSS = nash_sutcliff(
-        abs(df_west[".RZ_out.Outflow(X_TSS_sew)"].astype(float)),
-        abs(model_result_RZ["X_TSS_sew"].astype(float)),
-    )
-
     plt.figure()
-    plot(xlist1, ylist, labels, "Date and time", "Catchment effluent load [g/d]")
+    # plot(xlist1, ylist, labels, "Date and time", "Catchment effluent load [g/d]")
     plot_two_regions_side_by_side(
         xlist1,
         ylist1,
@@ -634,9 +619,10 @@ def wq_model_flow_param():
     values_ES = [getattr(Q_95_norm_ES, f"H_{h}") * average_flow_ES for h in hours]
 
     swmm = sa.read_out_file(
-        r"data\SWMM\model_jip_no_RTC_no_rain_constant.out"
+        r"data\SWMM\model_jip_no_RTC_no_rain.out"
     ).to_frame()
     inflow_ES = swmm.node.pipe_ES.total_inflow["2023-04-25"].resample("h").mean().values
+    out_ES = swmm.link.P_eindhoven_out.flow["2023-04-25"].resample("h").mean().values
     inflow_norm_ES = inflow_ES / inflow_ES.mean()
     transformed_ES = np.round(inflow_norm_ES, 2) + 0.05
 
@@ -644,6 +630,7 @@ def wq_model_flow_param():
     plt.figure(figsize=(10, 5))
     plt.scatter(hours, values_ES, color="blue", label="Original DWF inflow threshold")
     plt.plot(hours, inflow_ES, color="orange", label="Relocated model inflow")
+    plt.plot(hours, out_ES, color="black", label="original model outflow")
     plt.scatter(
         hours,
         transformed_ES * inflow_ES.mean(),
@@ -690,9 +677,10 @@ def wq_model_flow_param():
     values_RZ = [getattr(Q_95_norm_RZ, f"H_{h}") * average_flow_RZ for h in hours]
 
     swmm = sa.read_out_file(
-        r"data\SWMM\model_jip_no_RTC_no_rain_constant.out"
+        r"data\SWMM\model_jip_no_RTC_no_rain.out"
     ).to_frame()
     RZ_in = swmm.node["Nod_112"].total_inflow + swmm.node["Nod_104"].total_inflow
+    out_RZ = swmm.link.P_riool_zuid_out.flow["2023-04-25"].resample("h").mean().values
     inflow_RZ = RZ_in["2023-04-25"].resample("h").mean().values
     inflow_norm_RZ = inflow_RZ / inflow_RZ.mean()
     transformed_RZ = np.round(inflow_norm_RZ, 2) + 0.05
@@ -701,6 +689,7 @@ def wq_model_flow_param():
     plt.figure(figsize=(10, 5))
     plt.scatter(hours, values_RZ, color="blue", label="Original DWF inflow threshold")
     plt.plot(hours, inflow_RZ, color="orange", label="Relocated model inflow")
+    plt.plot(hours, out_RZ, color="black", label="Original model outflow")
     plt.scatter(
         hours,
         transformed_RZ * inflow_RZ.mean(),
@@ -1001,9 +990,9 @@ def WQ_model_location2():
     simulation = Simulation(
         model_path=rf"data\SWMM\{MODEL_NAME}.inp",
         step_size=300,
-        report_start=dt.datetime(year=2023, month=4, day=15),
-        start_time=dt.datetime(year=2023, month=4, day=15),
-        end_time=dt.datetime(year=2023, month=5, day=30),
+        report_start=dt.datetime(year=2023, month=7, day=1),
+        start_time=dt.datetime(year=2023, month=7, day=1),
+        end_time=dt.datetime(year=2023, month=8, day=1),
         virtual_pump_max=10,
     )
     simulation.start_simulation()
@@ -1053,8 +1042,8 @@ def WQ_model_location2():
     afterstorage.index = afterstorage.index.round("15min")
 
     # Define your time window
-    start_date = pd.Timestamp("2024-04-15")
-    end_date = pd.Timestamp("2024-04-20")
+    start_date = pd.Timestamp("2024-07-01")
+    end_date = pd.Timestamp("2024-07-30")
 
     scenarios = {
         "Water quality model placed after the storage unit": afterstorage,
@@ -1062,7 +1051,7 @@ def WQ_model_location2():
     }
 
     for key in list(afterstorage.keys()):
-        if not ("FD" in key or "Q_out" in key):
+        if not ("FD" in key or "Q_out" in key) and ('NH' in key):
             # Filter by time window and store filtered versions
             filtered_scenarios = {
                 key: df.loc[start_date:end_date] for key, df in scenarios.items()
@@ -1240,7 +1229,7 @@ def precipitation_data_forecast():
 def system_character():
     catchment = "ES"
     labels = {
-        "H2O_sew": "Discharge [g/d]",
+        "H2O_sew": "Discharge [m3/s]",
         "NH4_sew": "NH4 Load [g/d]",
         # "PO4_sew": "PO4 Load [g/d]",
         # "COD_sol": "Dissolved COD Load [g/d]",
@@ -1297,8 +1286,8 @@ def system_character():
     }
 
     # Define your time window
-    # start_date = pd.Timestamp("2024-05-16")
-    # end_date = pd.Timestamp("2024-06-01")
+    start_date = pd.Timestamp("2024-05-16")
+    end_date = pd.Timestamp("2024-06-01")
 
     for key in list(dry.keys()):
         if not ("FD" in key or "Q_out" in key):
@@ -1319,7 +1308,7 @@ def system_character():
             # --- Absolute values plot ---
             for label, df in filtered_scenarios.items():
                 if key in df.columns:
-                    ax1.plot(df.index, abs(df[key]), label=label)
+                    ax1.plot(df.index, abs(df[key])  / 86400 / 1e6, label=label)
                 else:
                     print(f"Column '{key}' not found in scenario '{label}'")
 
@@ -2763,17 +2752,20 @@ def research_2_3_combined():
     IDEAL.index = IDEAL.index.round("15min")
 
     scenarios = {
-        # "RTC with ensembles": abs(ENSEMBLE.astype(float)),
+        "RTC with ensembles": abs(ENSEMBLE.astype(float)),
         "No RTC": abs(NORMAL.astype(float)),
-        # "RTC": abs(RTC.astype(float)),
+        "RTC": abs(RTC.astype(float)),
         # "Constant flow": abs(IDEAL.astype(float))
     }
     # Define your time window
     # start_date = pd.Timestamp("2024-05-10")
     # end_date = pd.Timestamp("2024-06-01")
+    
+    start_date = pd.Timestamp("2024-09-15")
+    end_date = pd.Timestamp("2024-09-21")
 
     for key in list(NORMAL.keys()):
-        if "WWTP2river" in key:
+        if ("WWTP2river" in key and 'NH4' in key):
             # Filter by time window and store filtered versions
             filtered_scenarios = {
                 key: df.loc[start_date:end_date] for key, df in scenarios.items()
@@ -3509,7 +3501,7 @@ def river_quality():
     )
     IDEAL.set_index("timestamp", inplace=True)
     IDEAL.index = IDEAL.index.round("15min")
-
+    
     scenarios = {
         "Baseline": abs(NORMAL.astype(float)),
         "Perfect predictions": abs(RTC.astype(float)),
@@ -3529,13 +3521,17 @@ def river_quality():
         print(f"max {df['.S031.NH4'].max()}")
 
     # Define your time window
-    start_date = pd.Timestamp("2024-09-15")
-    end_date = pd.Timestamp("2024-09-21")
+    start_date = pd.Timestamp("2024-07-01")
+    end_date = pd.Timestamp("2024-08-01")
 
     filtered_scenarios = {
         key: df.loc[start_date:end_date] for key, df in scenarios.items()
     }
     fig1, ax1 = plt.subplots(figsize=(14, 6))
+    # fig2, ax2 = plt.subplots(figsize=(14, 6))
+    # fig2, ax3 = plt.subplots(figsize=(14, 6))
+    # fig2, ax4 = plt.subplots(figsize=(14, 6))
+    # fig2, ax5 = plt.subplots(figsize=(14, 6))
 
     for label, df in filtered_scenarios.items():
         nh4_series = df[".S031.NH4"]
@@ -3544,12 +3540,46 @@ def river_quality():
         print(f"Median: {nh4_series.median()}")
         print(f"Max: {nh4_series.max()}")
         ax1.plot(nh4_series.index, nh4_series.values, label=label)
+        
+        # ax2.plot(df[".effluent.y_TN"].index, df[".effluent.y_TN"].values, label=label)
+        
+        # ax3.plot(df[".fractionation.Inflow(NH4_sew)"].index, df[".fractionation.Inflow(NH4_sew)"].values /  df[".fractionation.Inflow(H2O_sew)"].values * 1e6, label=label)
+
+        # ax4.plot(df[".fractionation.Inflow(H2O_sew)"].index, df[".fractionation.Inflow(H2O_sew)"].values * 1e6, label=label)
+
+
+        # ax5.plot(df[".Connector_1.Outflow(NH4_sew)"].index, df[".Connector_1.Outflow(NH4_sew)"].values /  df[".Connector_1.Outflow(H2O_sew)"].values * 1e6, label=label)
 
     ax1.set_xlabel("Date")
-    ax1.set_ylabel("Ammonium (mg NH4/L)")
+    ax1.set_ylabel("Total Nitrogen [mg/L]")
     ax1.grid(True, linestyle="--", alpha=0.5)
     ax1.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
     ax1.tick_params(axis="x", rotation=45)
+    
+    # ax2.set_xlabel("Date")
+    # ax2.set_ylabel("Effluent Ammonium (mg NH4/L)")
+    # ax2.grid(True, linestyle="--", alpha=0.5)
+    # ax2.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+    # ax2.tick_params(axis="x", rotation=45)
+    
+    # ax3.set_xlabel("Date")
+    # ax3.set_ylabel("Influent Ammonium (mg NH4/L)")
+    # ax3.grid(True, linestyle="--", alpha=0.5)
+    # ax3.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+    # ax3.tick_params(axis="x", rotation=45)
+    
+    # ax4.set_xlabel("Date")
+    # ax4.set_ylabel("Flow (g/d)")
+    # ax4.grid(True, linestyle="--", alpha=0.5)
+    # ax4.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+    # ax4.tick_params(axis="x", rotation=45)
+    
+    # ax5.set_xlabel("Date")
+    # ax5.set_ylabel("Riool Zuid TN concentration (mg/L)")
+    # ax5.grid(True, linestyle="--", alpha=0.5)
+    # ax5.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+    # ax5.tick_params(axis="x", rotation=45)
+
 
     plt.tight_layout()
     plt.show()
@@ -3577,6 +3607,146 @@ def river_quality():
     ax2.grid(True, linestyle="--", alpha=0.5)
     ax2.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
     ax2.tick_params(axis="x", rotation=45)
+
+    plt.tight_layout()
+    plt.show()
+    
+def concentration_WWF_dif():
+    start_date = pd.Timestamp("2024-01-01")
+    catchment = "ES"
+    NORMAL = pd.read_csv(
+        rf"output_swmm\07-03_15-41_out_{catchment}_No_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    NORMAL["timestamp"] = start_date + pd.to_timedelta(
+        NORMAL.index.astype(float), unit="D"
+    )
+    NORMAL.set_index("timestamp", inplace=True)
+    NORMAL.index = NORMAL.index.round("5min")
+    NORMAL_FIXED = pd.read_csv(
+        rf"output_swmm\07-25_14-28_out_{catchment}_No_RTC_mixed_sim.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    NORMAL_FIXED["timestamp"] = start_date + pd.to_timedelta(
+        NORMAL_FIXED.index.astype(float), unit="D"
+    )
+    NORMAL_FIXED.set_index("timestamp", inplace=True)
+    NORMAL_FIXED.index = NORMAL_FIXED.index.round("5min")
+    ENSEMBLE = pd.read_csv(
+        rf"output_swmm\06-01_13-50_out_{catchment}_Ensemble_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    ENSEMBLE["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE.index.astype(float), unit="D"
+    )
+    ENSEMBLE.set_index("timestamp", inplace=True)
+    ENSEMBLE.index = ENSEMBLE.index.round("5min")
+
+    RTC = pd.read_csv(
+        rf"output_swmm\06-01_13-14_out_{catchment}_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("5min")
+    ES_catchments = {
+        "Baseline": abs(NORMAL.astype(float)),
+        "Baseline Fixed": abs(NORMAL_FIXED.astype(float)),
+        "RTC": abs(RTC.astype(float)),
+        "RTC w/ ensembles": abs(ENSEMBLE.astype(float)),
+    }
+    catchment = "RZ"
+    NORMAL = pd.read_csv(
+        rf"output_swmm\07-03_15-41_out_{catchment}_No_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    NORMAL["timestamp"] = start_date + pd.to_timedelta(
+        NORMAL.index.astype(float), unit="D"
+    )
+    NORMAL.set_index("timestamp", inplace=True)
+    NORMAL.index = NORMAL.index.round("5min")
+    NORMAL_FIXED = pd.read_csv(
+        rf"output_swmm\07-25_14-28_out_{catchment}_No_RTC_mixed_sim.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    NORMAL_FIXED["timestamp"] = start_date + pd.to_timedelta(
+        NORMAL_FIXED.index.astype(float), unit="D"
+    )
+    NORMAL_FIXED.set_index("timestamp", inplace=True)
+    NORMAL_FIXED.index = NORMAL_FIXED.index.round("5min")
+    ENSEMBLE = pd.read_csv(
+        rf"output_swmm\06-01_13-50_out_{catchment}_Ensemble_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    ENSEMBLE["timestamp"] = start_date + pd.to_timedelta(
+        ENSEMBLE.index.astype(float), unit="D"
+    )
+    ENSEMBLE.set_index("timestamp", inplace=True)
+    ENSEMBLE.index = ENSEMBLE.index.round("5min")
+
+    RTC = pd.read_csv(
+        rf"output_swmm\06-01_13-14_out_{catchment}_RTC.csv",
+        decimal=",",
+        delimiter=";",
+        index_col=0,
+    )
+    RTC["timestamp"] = start_date + pd.to_timedelta(RTC.index.astype(float), unit="D")
+    RTC.set_index("timestamp", inplace=True)
+    RTC.index = RTC.index.round("5min")
+    RZ_catchments = {
+        "Baseline": abs(NORMAL.astype(float)),
+        "Baseline Fixed": abs(NORMAL_FIXED.astype(float)),
+        "RTC": abs(RTC.astype(float)),
+        "RTC w/ ensembles": abs(ENSEMBLE.astype(float)),
+    }
+
+    results = {
+        "ES_Baseline": ES_catchments["Baseline"],
+        "ES_Baseline_fixed": ES_catchments['Baseline Fixed'],
+        "ES_RTC": ES_catchments["RTC"],
+        "ES_RTC_ensemble": ES_catchments["RTC w/ ensembles"],
+        "RZ_Baseline": RZ_catchments["Baseline"],
+        # "RZ_Baseline_fixed": RZ_catchments['Baseline Fixed'],
+        "RZ_RTC": RZ_catchments["RTC"],
+        "RZ_RTC_ensemble": RZ_catchments["RTC w/ ensembles"],
+    }
+    
+    start_date = pd.Timestamp("2024-07-01")
+    end_date = pd.Timestamp("2024-08-01")
+
+    filtered_scenarios = {
+        key: df.loc[start_date:end_date] for key, df in results.items()
+    }
+    
+
+    fig2, ax5 = plt.subplots(figsize=(14, 6))
+
+    catchment = 'RZ'
+    for label, df in filtered_scenarios.items():
+        if catchment in label:
+            print(f"[{label}] Full Series (2024-09-15 to 2024-09-21)")
+            ax5.plot(df["NH4_sew"].index, df["NH4_sew"].values /  df["H2O_sew"].values * 1e6, label = label)
+
+    ax5.set_xlabel("Date")
+    ax5.set_ylabel(f"Total Nitrogen [mg/L]")
+    ax5.grid(True, linestyle="--", alpha=0.5)
+    ax5.legend(loc=1, frameon=True, facecolor="white", framealpha=0.8)
+    ax5.tick_params(axis="x", rotation=45)
+
 
     plt.tight_layout()
     plt.show()
@@ -3638,6 +3808,7 @@ def wwtp_influent():
         "Baseline": abs(NORMAL.astype(float)),
         "Perfect predictions": abs(RTC.astype(float)),
         "Ensemble predictions": abs(ENSEMBLE.astype(float)),
+        "Constant": abs(IDEAL.astypefloat)
     }
     # Define your time window
     start_date = pd.Timestamp("2024-04-15")
@@ -3837,10 +4008,38 @@ def pollutants():
     )
     ENSEMBLE.set_index("timestamp", inplace=True)
     ENSEMBLE.index = ENSEMBLE.index.round("15min")
+    IDEAL = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC_no_rain_constant\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    IDEAL["timestamp"] = start_date + pd.to_timedelta(
+        IDEAL.index.astype(float), unit="D"
+    )
+    IDEAL.set_index("timestamp", inplace=True)
+    IDEAL.index = IDEAL.index.round("15min")
+    
+    DRY = pd.read_csv(
+        f"data\WEST\Pollutant_no_RTC_no_rain\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    DRY["timestamp"] = start_date + pd.to_timedelta(
+        DRY.index.astype(float), unit="D"
+    )
+    DRY.set_index("timestamp", inplace=True)
+    DRY.index = IDEAL.index.round("15min")
+
     WWTP = {
         "Baseline": abs(NORMAL.astype(float)),
         "RTC": abs(RTC.astype(float)),
         "RTC w/ ensembles": abs(ENSEMBLE.astype(float)),
+        "Constant": abs(IDEAL.astype(float)),
+        'Dry': abs(DRY.astype(float))
     }
 
     results = {
@@ -3853,6 +4052,8 @@ def pollutants():
         "WWTP_Baseline": WWTP["Baseline"],
         "WWTP_RTC": WWTP["RTC"],
         "WWTP_RTC_ensemble": WWTP["RTC w/ ensembles"],
+        "WWTP_Constant": WWTP['Constant'],
+        "WWTP_Dry": WWTP['Dry']
     }
 
     time_periods = {
@@ -4045,6 +4246,30 @@ def pollutants():
                                 daily_max_conc.mean(), 2
                             ),
                         }
+                        
+                    elif ".S009.NH4" in key:
+                        flow = df_perioded[".S009.Q"].astype(float)  # m3/d
+                        concentration = df_perioded[key].astype(float)  # g/m3
+                        load = concentration * flow / 1000
+                        daily_avg_load = (load).resample("D").mean()  # kg/d
+                        daily_max_load = (load).resample("D").max()  # kg/d
+
+                        conc = df_parsed[key]  # equivalent to mg/L
+                        daily_avg_conc = conc.resample("D").mean()
+                        daily_max_conc = conc.resample("D").max()
+
+                        summary_stats[label + " River 09"][period]["NH4"] = {
+                            "Average load [kg/d]": np.round(daily_avg_load.mean(), 2),
+                            "Average daily maximum load [kg/d]": np.round(
+                                daily_max_load.mean(), 2
+                            ),
+                            "Average concentration [mg/L]": np.round(
+                                daily_avg_conc.mean(), 2
+                            ),
+                            "Average daily maximum concentration [mg/L]": np.round(
+                                daily_max_conc.mean(), 2
+                            ),
+                        }
 
     records = []
 
@@ -4094,3 +4319,110 @@ def pollutants():
     with open("reshaped_comma_decimal.csv", "w", encoding="utf-8", newline="") as f:
         f.write(csv_text)
     reshaped
+
+def pollutant_outflow_catchments():
+    start_base = pd.Timestamp("2024-01-01")
+    time_windows = {
+        "Dry": (pd.Timestamp("2024-08-08"), pd.Timestamp("2024-08-13")),
+        "Wet": (pd.Timestamp("2024-07-02"), pd.Timestamp("2024-07-07")),
+    }
+
+
+    # Load function for each catchment
+    def load_scenario_data(catchment):
+        def load_file(suffix, scenario_name):
+            df = pd.read_csv(
+                rf"output_swmm\{suffix}_out_{catchment}_{scenario_name}.csv",
+                decimal=",",
+                delimiter=";",
+                index_col=0,
+            )
+            df["timestamp"] = start_base + pd.to_timedelta(df.index.astype(float), unit="D")
+            df.set_index("timestamp", inplace=True)
+            df.index = df.index.round("5min")
+            return df
+
+        return {
+            "No RTC": load_file("07-03_15-41", "No_RTC"),
+            "RTC": load_file("06-04_11-40", "RTC"),
+            "RTC with ensembles": load_file("06-04_12-10", "Ensemble_RTC"),
+        }
+
+
+    # Load both catchments
+    scenarios_ES = load_scenario_data("ES")
+    scenarios_RZ = load_scenario_data("RZ")
+
+    # Plot labels
+    labels = {
+        "NH4_sew": "NH4 Load [kg/d]",
+    }
+    labels_conc = {
+        "NH4_sew": "NH4 Concentration [mg/L]",
+    }
+    linestyles = {"ES": "-", "RZ": "--"}
+    colors = {
+        "No RTC": "tab:blue",
+        "RTC": "tab:green",
+        "RTC with ensembles": "tab:orange",
+    }
+
+    # Loop over pollutants
+    for key in labels:
+        include_conc = key != "H2O_sew"
+        fig, axes = plt.subplots(2, 2, figsize=(14, 8), sharex=False)
+
+        for col_i, (period_label, (start, end)) in enumerate(time_windows.items()):
+            for scenario_label in ["No RTC", "RTC", "RTC with ensembles"]:
+                for catchment_label, scenario_dict in [
+                    ("ES", scenarios_ES),
+                    ("RZ", scenarios_RZ),
+                ]:
+                    df = scenario_dict[scenario_label].loc[start:end]
+                    if key not in df.columns or "H2O_sew" not in df.columns:
+                        continue
+
+                    # Plot load
+                    ax_load = axes[0][col_i]
+                    ax_load.plot(
+                        df.index,
+                        abs(df[key]) / 1000,  # g/d to mg/s
+                        label=f"{scenario_label} - {catchment_label}",
+                        color=colors[scenario_label],
+                        linestyle=linestyles[catchment_label],
+                    )
+                    ax_load.set_title(f"{period_label} Period - Load")
+                    ax_load.set_ylabel(labels[key])
+                    ax_load.grid(True)
+
+                    # Plot concentration
+                    if include_conc:
+                        ax_conc = axes[1][col_i]
+                        ax_conc.plot(
+                            df.index,
+                            (df[key] / df["H2O_sew"]) * 1e6,
+                            label=f"{scenario_label} - {catchment_label}",
+                            color=colors[scenario_label],
+                            linestyle=linestyles[catchment_label],
+                        )
+                        ax_conc.set_title(f"{period_label} Period - Concentration")
+                        ax_conc.set_ylabel(labels_conc[key])
+                        ax_conc.grid(True)
+
+        # Final layout
+        for ax in axes.flatten():
+            ax.set_xlabel("Date")
+            ax.legend(fontsize=8)
+            ax.tick_params(axis="x", rotation=45)
+
+        fig.tight_layout(rect=[0, 0, 1, 0.95])
+        plt.show()
+
+
+def diff_in_TN_concentratioN():
+    DRY.loc['2024-07-01':'2024-07-08']['.effluent.y_TN'].astype(float).plot(label='DWF only')
+    IDEAL.loc['2024-07-01':'2024-07-08']['.effluent.y_TN'].astype(float).plot(label='Constant')
+    plt.xlabel('Date [yyyy-mm-dd]')
+    plt.ylabel('Total Nitrogen concentration [m3/d]')
+    plt.grid()
+    plt.legend(loc=4)

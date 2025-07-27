@@ -4,6 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.offline as pyo
 import plotly.io as pio
+from plotly.subplots import make_subplots
 
 from sklearn.metrics import r2_score
 
@@ -128,6 +129,181 @@ def check_any_west_results():
     pio.show(fig, renderer="browser")
 
 
+def compare_csos():
+    df_west = pd.read_csv(
+        r"data\WEST\WEST_modelRepository\Model_Dommel_Full\CSO_AND_INFLOW.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west["timestamp"] = start_date + pd.to_timedelta(
+        df_west.index.astype(float), unit="D"
+    )
+    df_west.set_index("timestamp", inplace=True)
+    df_west = df_west.loc["2024-04-15":"2024-10-15"]
+
+    output = sa.SwmmOutput(rf"data\SWMM\model_jip_WEST_regen.out").to_frame()
+
+    swmm_total = sum(
+        output.node[cso].total_inflow * 3600
+        for cso in [
+            "cso_AALST",
+            "cso_c_123",
+            "cso_c_122",
+            "cso_c_119_1",
+            "cso_c_119_2",
+            "cso_c_119_3",
+            "cso_c_112",
+            "cso_c_99",
+        ]
+    )
+
+    swmm_series = pd.Series(swmm_total.values, index=output.index)
+    swmm_resampled = swmm_series.resample("15min").mean()
+
+    Q_keys = df_west.keys()
+    cso_AALST_keys = [
+        key
+        for key in Q_keys
+        if any(
+            substring in key
+            for substring in [
+                "Aalst",
+                "Valkenswaard",
+                "Dom",
+                "Westerhoven",
+                "Bergeijk",
+            ]
+        )
+        and not ".Aalst_gemaal" in key
+    ] + [".Waalre.Q_in", ".Aalst.Q_in"]
+
+    west_series = df_west[cso_AALST_keys].astype(float).sum(axis=1)
+    west_resampled = west_series.resample("15min").mean()
+
+    def group_boolean_events(series: pd.Series, min_duration="15min"):
+        """Group consecutive True values into event groups."""
+        series = series.astype(bool)
+        # Identify start of events
+        event_id = (series != series.shift()).cumsum()
+        grouped = series[series].groupby(event_id)
+
+        events = []
+        for _, group in grouped:
+            start = group.index[0]
+            end = group.index[-1]
+            if (end - start) >= pd.to_timedelta(min_duration):
+                events.append((start, end))
+        return events
+
+    cso_threshold = 0.01
+
+    # Already resampled
+    west_events = west_resampled > cso_threshold
+    swmm_events = swmm_resampled > cso_threshold
+
+    # Group WEST CSO events
+    # Group events into start/end windows
+    west_event_windows = group_boolean_events(west_events)
+    swmm_event_windows = group_boolean_events(swmm_events)
+
+    def overlaps(west_start, west_end, swmm_windows):
+        for swmm_start, swmm_end in swmm_windows:
+            # Check for overlap
+            if west_end >= swmm_start and swmm_end >= west_start:
+                return True
+        return False
+
+    rainfall_resampled = output.subcatchment.c_119_catchment.rainfall.resample(
+        "15min"
+    ).mean()
+
+    from datetime import timedelta
+
+    buffer = timedelta(hours=6)
+    missed_events = []
+
+    for start, end in west_event_windows:
+        # Check for overlap between this WEST event and any SWMM event
+        if not overlaps(start, end, swmm_event_windows):
+
+            # RAINFALL: Get ±6h window around the WEST event
+            rainfall_window = rainfall_resampled.loc[start - buffer : end + buffer]
+
+            # CSO volumes (sum of flows × 15min timestep = m³/h × h)
+            dt_hours = 15 / 60  # 15-minute step in hours
+
+            total_west_volume = west_resampled.loc[start:end].sum() * dt_hours
+            total_swmm_volume = swmm_resampled.loc[start:end].sum() * dt_hours
+            total_rainfall_mm = rainfall_window.sum() * dt_hours
+
+            missed_events.append(
+                {
+                    "start": start,
+                    "end": end,
+                    "duration": end - start,
+                    "max_rainfall_±6h": rainfall_window.max(),
+                    "mean_rainfall_±6h": rainfall_window.mean(),
+                    "total_rainfall_±6h": total_rainfall_mm,
+                    "total_west_cso_m3": total_west_volume,
+                    "total_swmm_cso_m3": total_swmm_volume,
+                }
+            )
+
+    missed_df = pd.DataFrame(missed_events).round(2)
+
+    # Create figure with secondary y-axis
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    fig.add_trace(
+        go.Scatter(
+            x=swmm_resampled.index,
+            y=swmm_resampled,
+            mode="lines",
+            name=f"SWMM cso flow RZ",
+        ),
+        secondary_y=False,
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=west_resampled.index,
+            y=west_resampled.values,
+            mode="lines",
+            name=f"WEST cso flow  RZ",
+        ),
+        secondary_y=False,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=output.index,
+            y=output.subcatchment.c_119_catchment.rainfall.values,
+            mode="lines",
+            name="Valkenswaard precipitation",
+            line=dict(color="green"),
+            opacity=0.8,
+        ),
+        secondary_y=True,
+    )
+    # Update layout
+    fig.update_layout(
+        title_text="Total CSO flow per catchment comparison",
+        xaxis_title="Date",
+        yaxis_title="Flow [m3/h]",
+        legend_title="",
+        bargap=0.1,
+    )
+
+    # Set y-axis titles
+    fig.update_yaxes(title_text="Flow [m3/h]", secondary_y=False)
+    fig.update_yaxes(title_text="Precipitation [mm/h]", secondary_y=True)
+
+    # Show figure
+    pio.show(fig, renderer="browser")
+
+
 def compare_models():
     df_west = pd.read_csv(
         r"data\WEST\WEST_modelRepository\Model_Dommel_Full\CSO_AND_INFLOW.out.txt",
@@ -141,14 +317,18 @@ def compare_models():
         df_west.index.astype(float), unit="D"
     )
     df_west.set_index("timestamp", inplace=True)
+    df_west = df_west.loc["2024-04-15":"2025-10-15"]
 
     output = sa.SwmmOutput(rf"data\SWMM\model_jip_WEST_regen.out").to_frame()
 
+    swmm_resampled = pd.Series(output, index=output.index).resample("15min").mean()
+    west_resampled = df_west.resample("15min").mean()
+
     swmm_csos = {
-        "ES": ["cso_ES_1"],
-        "GB": ["cso_gb_136"],
-        "GE": ["cso_Geldrop", "cso_gb127"],
-        "TL": ["cso_RZ"],
+        # "ES": ["cso_ES_1"],
+        # "GB": ["cso_gb_136"],
+        # "GE": ["cso_Geldrop", "cso_gb127"],
+        # "TL": ["cso_RZ"],
         "RZ": [
             "cso_AALST",
             "cso_c_123",
@@ -195,50 +375,19 @@ def compare_models():
     ] + [".Waalre.Q_in", ".Aalst.Q_in"]
 
     west_csos = {
-        "ES": cso_ES_1_keys,
-        "GB": cso_gb_136_keys,
-        "GE": cso_Geldrop_keys,
-        "TL": cso_RZ_keys,
         "RZ": cso_AALST_keys,
     }
 
-    fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
-            x=df_west.index,
-            y=df_west[".pipe_ES.Q_Out"].astype(float),
-            mode="lines",
-            name=f"WEST Pipe ES Q-out",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=df_west.index,
-            y=df_west[".pipe_RZ.Q_Out"].astype(float),
-            mode="lines",
-            name=f"WEST Pipe RZ Q-out",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.index,
-            y=output.node.out_ES.total_inflow * 3600,
-            mode="lines",
-            name=f"SWMM pipe ES Q-out",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=output.index,
-            y=output.node.out_RZ.total_inflow * 3600,
-            mode="lines",
-            name=f"SWMM pipe RZ Q-out",
-        )
-    )
+    # Create figure with secondary y-axis
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    # Add SWMM and WEST CSO flows (primary y-axis)
     for key in swmm_csos.keys():
         swmm_values = 0
         for swmm_cso in swmm_csos[key]:
-            swmm_values += output.node[swmm_cso].total_inflow.values * 3600
+            swmm_values += (
+                output.node[swmm_cso].total_inflow.values * 3600
+            )  # Convert to m3/h
 
         west_values = df_west[west_csos[key][:]].astype(float).sum(axis=1)
 
@@ -248,7 +397,8 @@ def compare_models():
                 y=swmm_values,
                 mode="lines",
                 name=f"SWMM cso flow {key}",
-            )
+            ),
+            secondary_y=False,
         )
 
         fig.add_trace(
@@ -257,15 +407,34 @@ def compare_models():
                 y=west_values.values,
                 mode="lines",
                 name=f"WEST cso flow {key}",
-            )
+            ),
+            secondary_y=False,
         )
+    fig.add_trace(
+        go.Scatter(
+            x=output.index,
+            y=output.subcatchment.c_119_catchment.rainfall.values,
+            mode="lines",
+            name="Valkenswaard precipitation",
+            line=dict(color="green"),
+            opacity=0.8,
+        ),
+        secondary_y=True,
+    )
+    # Update layout
     fig.update_layout(
         title_text="Total CSO flow per catchment comparison",
         xaxis_title="Date",
         yaxis_title="Flow [m3/h]",
         legend_title="",
-        bargap=0.1,  # Reducing gap between bars for better visibility
+        bargap=0.1,
     )
+
+    # Set y-axis titles
+    fig.update_yaxes(title_text="Flow [m3/h]", secondary_y=False)
+    fig.update_yaxes(title_text="Precipitation [mm/h]", secondary_y=True)
+
+    # Show figure
     pio.show(fig, renderer="browser")
 
 
@@ -1469,3 +1638,227 @@ def analyse_concentrate_out():
                 )
             )
     pio.show(fig, renderer="browser")
+
+
+def compare_forecast_analysis():
+    from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+    ensembles = pd.read_csv(
+        rf"rain_prediction_log_ensemble.csv", index_col=0, parse_dates=True
+    )
+    perfect = pd.read_csv(
+        rf"rain_prediction_log_perfect.csv", index_col=0, parse_dates=True
+    )
+    ensembles.columns = [f"{col}_ensemble" for col in ensembles.columns]
+    perfect.columns = [f"{col}_perfect" for col in perfect.columns]
+    combined = pd.concat([ensembles, perfect], axis=1)
+    combined = combined.dropna()
+
+    # combined = combined.loc['2024-09-01': '2024-10-01']
+
+    combined = combined.sort_index()
+
+    # Boolean series: True if predictions match, False otherwise
+    es_match = combined["ES_predicted_ensemble"] == combined["ES_predicted_perfect"]
+    rz_match = combined["RZ_predicted_ensemble"] == combined["RZ_predicted_perfect"]
+
+    # Add to DataFrame for inspection (optional)
+    combined["ES_match"] = es_match
+    combined["RZ_match"] = rz_match
+    es_accuracy = es_match.mean()  # mean of boolean series gives proportion of True
+    rz_accuracy = rz_match.mean()
+    print(f"ES forecast agreement: {es_accuracy:.2%}")
+    print(f"RZ forecast agreement: {rz_accuracy:.2%}")
+    # Drop rows where any of the relevant columns have NaN
+    es_valid = combined[["ES_predicted_ensemble", "ES_predicted_perfect"]].dropna()
+    rz_valid = combined[["RZ_predicted_ensemble", "RZ_predicted_perfect"]].dropna()
+
+    # Extract clean true/pred arrays
+    es_true = es_valid["ES_predicted_perfect"]
+    es_pred = es_valid["ES_predicted_ensemble"]
+
+    rz_true = rz_valid["RZ_predicted_perfect"]
+    rz_pred = rz_valid["RZ_predicted_ensemble"]
+
+    # Now compute confusion matrices safely
+    from sklearn.metrics import confusion_matrix
+
+    es_cm = confusion_matrix(es_true, es_pred, labels=[1, 0])
+    rz_cm = confusion_matrix(rz_true, rz_pred, labels=[1, 0])
+
+    print("Confusion Matrix for ES:\n", es_cm)
+    print("Confusion Matrix for RZ:\n", rz_cm)
+
+    import pandas as pd
+    import numpy as np
+    from scipy.ndimage import label
+
+    def get_event_labels(series):
+        """Label contiguous 1s in a boolean series."""
+        return label(series.values)[0]
+
+    def get_event_ranges(labels, index):
+        """Return dict of event_id -> (start_time, end_time)"""
+        ranges = {}
+        for eid in np.unique(labels):
+            if eid == 0:
+                continue
+            positions = np.where(labels == eid)[0]
+            start = index[positions[0]]
+            end = index[positions[-1]]
+            ranges[eid] = (start, end)
+        return ranges
+
+    def match_events_with_tn(pred_series, truth_series):
+        index = pred_series.index
+        pred_labels = get_event_labels(pred_series == 1)
+        truth_labels = get_event_labels(truth_series == 1)
+
+        pred_ranges = get_event_ranges(pred_labels, index)
+        truth_ranges = get_event_ranges(truth_labels, index)
+
+        pred_event_ids = set(pred_ranges.keys())
+        truth_event_ids = set(truth_ranges.keys())
+
+        true_positive_preds = set()
+        true_positive_truths = set()
+
+        for pred_id in pred_event_ids:
+            pred_mask = pred_labels == pred_id
+            overlapping_truth_ids = set(np.unique(truth_labels[pred_mask])) - {0}
+            if overlapping_truth_ids:
+                true_positive_preds.add(pred_id)
+                true_positive_truths.update(overlapping_truth_ids)
+
+        false_positive_preds = pred_event_ids - true_positive_preds
+        false_negative_truths = truth_event_ids - true_positive_truths
+
+        # True Negative Detection — label 0 blocks as events
+        pred_inv_labels = get_event_labels(pred_series == 0)
+        truth_inv_labels = get_event_labels(truth_series == 0)
+
+        tn_ranges = []
+        pred_inv_ids = np.unique(pred_inv_labels)
+        for inv_id in pred_inv_ids:
+            if inv_id == 0:
+                continue
+            pred_mask = pred_inv_labels == inv_id
+            overlap_truth_ids = set(np.unique(truth_inv_labels[pred_mask])) - {0}
+            if overlap_truth_ids:
+                # Find start/end of TN range
+                positions = np.where(pred_mask)[0]
+                start = index[positions[0]]
+                end = index[positions[-1]]
+                tn_ranges.append((start, end))
+
+        result = {
+            "TP_events": len(true_positive_preds),
+            "FP_events": len(false_positive_preds),
+            "FN_events": len(false_negative_truths),
+            "TN_events": len(tn_ranges),
+            "Precision": len(true_positive_preds)
+            / (len(true_positive_preds) + len(false_positive_preds) + 1e-9),
+            "Recall": len(true_positive_preds)
+            / (len(true_positive_preds) + len(false_negative_truths) + 1e-9),
+            "TP_ranges": [pred_ranges[i] for i in sorted(true_positive_preds)],
+            "FP_ranges": [pred_ranges[i] for i in sorted(false_positive_preds)],
+            "FN_ranges": [truth_ranges[i] for i in sorted(false_negative_truths)],
+            "TN_ranges": tn_ranges,
+        }
+
+        return result
+
+    # Example usage:
+    print("Eindhoven")
+    es_eval = match_events_with_tn(
+        combined["ES_predicted_ensemble"], combined["ES_predicted_perfect"]
+    )
+    print("TP:", es_eval["TP_events"])
+    print("FP:", es_eval["FP_events"])
+    print("FN:", es_eval["FN_events"])
+    print("TN:", es_eval["TN_events"])
+    print("RZ")
+    rz_eval = match_events_with_tn(
+        combined["RZ_predicted_ensemble"], combined["RZ_predicted_perfect"]
+    )
+    print("TP:", rz_eval["TP_events"])
+    print("FP:", rz_eval["FP_events"])
+    print("FN:", rz_eval["FN_events"])
+    print("TN:", rz_eval["TN_events"])
+
+    fig = go.Figure()
+
+    # Add traces for ES
+    fig.add_trace(
+        go.Scatter(
+            x=combined.index,
+            y=combined["ES_predicted_ensemble"],
+            mode="lines+markers",
+            name="ES Ensemble",
+            line=dict(color="blue", dash="dot"),
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=combined.index,
+            y=combined["ES_predicted_perfect"],
+            mode="lines+markers",
+            name="ES Perfect",
+            line=dict(color="blue"),
+        )
+    )
+
+    # Add traces for RZ
+    fig.add_trace(
+        go.Scatter(
+            x=combined.index,
+            y=combined["RZ_predicted_ensemble"],
+            mode="lines+markers",
+            name="RZ Ensemble",
+            line=dict(color="green", dash="dot"),
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=combined.index,
+            y=combined["RZ_predicted_perfect"],
+            mode="lines+markers",
+            name="RZ Perfect",
+            line=dict(color="green"),
+        )
+    )
+
+    # Update layout
+    fig.update_layout(
+        title="Rain Forecast Comparison: Ensemble vs. Perfect",
+        xaxis_title="Time",
+        yaxis_title="Rain Forecast (0 = No, 1 = Yes)",
+        yaxis=dict(tickvals=[0, 1]),
+        hovermode="x unified",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    )
+
+    pio.show(fig, renderer="browser")
+
+
+def river_water_ph_temp():
+    df_west = pd.read_csv(
+        f"data\WEST\WEST_modelRepository\Model_Dommel_Full\comparison.out.txt",
+        delimiter="\t",
+        header=0,
+        index_col=0,
+        low_memory=False,
+    ).iloc[1:, :]
+    start_date = pd.Timestamp("2024-01-01")
+    df_west["timestamp"] = start_date + pd.to_timedelta(
+        df_west.index.astype(float), unit="D"
+    )
+    df_west.set_index("timestamp", inplace=True)
+    
+    df_west = df_west.loc['2024-04-15':'2024-10-15']
+    
+    df_west[".S031.T_wat"].astype(float).plot()
+    df_west['.S031.pH'].plot()
+    df_west[".S031.T_wat"].astype(float).mean()

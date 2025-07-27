@@ -107,6 +107,18 @@ WWTP_Baseline River;WWF;Average concentration [mg/L];0,57;
 WWTP_Baseline River;WWF;Average daily maximum concentration [mg/L];1,35;
 WWTP_Baseline River;WWF;Average daily maximum load [kg/d];849,92;
 WWTP_Baseline River;WWF;Average load [kg/d];289,47;
+WWTP_Baseline River 09;DWF;Average concentration [mg/L];0,59;
+WWTP_Baseline River 09;DWF;Average daily maximum concentration [mg/L];0,82;
+WWTP_Baseline River 09;DWF;Average daily maximum load [kg/d];235,23;
+WWTP_Baseline River 09;DWF;Average load [kg/d];151,76;
+WWTP_Baseline River 09;Extended;Average concentration [mg/L];0,72;
+WWTP_Baseline River 09;Extended;Average daily maximum concentration [mg/L];1,37;
+WWTP_Baseline River 09;Extended;Average daily maximum load [kg/d];712,36;
+WWTP_Baseline River 09;Extended;Average load [kg/d];307,28;
+WWTP_Baseline River 09;WWF;Average concentration [mg/L];0,69;
+WWTP_Baseline River 09;WWF;Average daily maximum concentration [mg/L];1,43;
+WWTP_Baseline River 09;WWF;Average daily maximum load [kg/d];700,64;
+WWTP_Baseline River 09;WWF;Average load [kg/d];269,71;
 WWTP_Constant Effluent;DWF;Average concentration [mg/L];4,95;0,41
 WWTP_Constant Effluent;DWF;Average daily maximum concentration [mg/L];4,96;0,41
 WWTP_Constant Effluent;DWF;Average daily maximum load [kg/d];526,09;43,06
@@ -143,6 +155,18 @@ WWTP_Constant River;WWF;Average concentration [mg/L];0,40;
 WWTP_Constant River;WWF;Average daily maximum concentration [mg/L];0,40;
 WWTP_Constant River;WWF;Average daily maximum load [kg/d];165,77;
 WWTP_Constant River;WWF;Average load [kg/d];163,66;
+WWTP_Constant River 09;DWF;Average concentration [mg/L];0,65;
+WWTP_Constant River 09;DWF;Average daily maximum concentration [mg/L];0,66;
+WWTP_Constant River 09;DWF;Average daily maximum load [kg/d];166,87;
+WWTP_Constant River 09;DWF;Average load [kg/d];163,69;
+WWTP_Constant River 09;Extended;Average concentration [mg/L];0,54;
+WWTP_Constant River 09;Extended;Average daily maximum concentration [mg/L];0,55;
+WWTP_Constant River 09;Extended;Average daily maximum load [kg/d];161,69;
+WWTP_Constant River 09;Extended;Average load [kg/d];157,06;
+WWTP_Constant River 09;WWF;Average concentration [mg/L];0,54;
+WWTP_Constant River 09;WWF;Average daily maximum concentration [mg/L];0,55;
+WWTP_Constant River 09;WWF;Average daily maximum load [kg/d];151,71;
+WWTP_Constant River 09;WWF;Average load [kg/d];148,76;
 WWTP_Dry Effluent;DWF;Average concentration [mg/L];4,80;0,40
 WWTP_Dry Effluent;DWF;Average daily maximum concentration [mg/L];5,09;0,44
 WWTP_Dry Effluent;DWF;Average daily maximum load [kg/d];688,36;59,19
@@ -179,6 +203,18 @@ WWTP_Dry River;WWF;Average concentration [mg/L];0,36;
 WWTP_Dry River;WWF;Average daily maximum concentration [mg/L];0,47;
 WWTP_Dry River;WWF;Average daily maximum load [kg/d];206,17;
 WWTP_Dry River;WWF;Average load [kg/d];151,92;
+WWTP_Dry River 09;DWF;Average concentration [mg/L];0,57;
+WWTP_Dry River 09;DWF;Average daily maximum concentration [mg/L];0,81;
+WWTP_Dry River 09;DWF;Average daily maximum load [kg/d];231,26;
+WWTP_Dry River 09;DWF;Average load [kg/d];145,65;
+WWTP_Dry River 09;Extended;Average concentration [mg/L];0,47;
+WWTP_Dry River 09;Extended;Average daily maximum concentration [mg/L];0,73;
+WWTP_Dry River 09;Extended;Average daily maximum load [kg/d];241,90;
+WWTP_Dry River 09;Extended;Average load [kg/d];141,18;
+WWTP_Dry River 09;WWF;Average concentration [mg/L];0,45;
+WWTP_Dry River 09;WWF;Average daily maximum concentration [mg/L];0,69;
+WWTP_Dry River 09;WWF;Average daily maximum load [kg/d];213,99;
+WWTP_Dry River 09;WWF;Average load [kg/d];128,89;
 WWTP_RTC Effluent;DWF;Average concentration [mg/L];4,88;0,38
 WWTP_RTC Effluent;DWF;Average daily maximum concentration [mg/L];4,91;0,39
 WWTP_RTC Effluent;DWF;Average daily maximum load [kg/d];535,69;42,14
@@ -215,6 +251,18 @@ WWTP_RTC River;WWF;Average concentration [mg/L];0,47;
 WWTP_RTC River;WWF;Average daily maximum concentration [mg/L];0,78;
 WWTP_RTC River;WWF;Average daily maximum load [kg/d];449,48;
 WWTP_RTC River;WWF;Average load [kg/d];224,31;
+WWTP_RTC River 09;DWF;Average concentration [mg/L];0,65;
+WWTP_RTC River 09;DWF;Average daily maximum concentration [mg/L];0,67;
+WWTP_RTC River 09;DWF;Average daily maximum load [kg/d];168,42;
+WWTP_RTC River 09;DWF;Average load [kg/d];163,82;
+WWTP_RTC River 09;Extended;Average concentration [mg/L];0,76;
+WWTP_RTC River 09;Extended;Average daily maximum concentration [mg/L];1,23;
+WWTP_RTC River 09;Extended;Average daily maximum load [kg/d];650,42;
+WWTP_RTC River 09;Extended;Average load [kg/d];315,90;
+WWTP_RTC River 09;WWF;Average concentration [mg/L];0,61;
+WWTP_RTC River 09;WWF;Average daily maximum concentration [mg/L];0,93;
+WWTP_RTC River 09;WWF;Average daily maximum load [kg/d];394,30;
+WWTP_RTC River 09;WWF;Average load [kg/d];209,76;
 WWTP_RTC_ensemble Effluent;DWF;Average concentration [mg/L];4,88;0,38
 WWTP_RTC_ensemble Effluent;DWF;Average daily maximum concentration [mg/L];4,91;0,39
 WWTP_RTC_ensemble Effluent;DWF;Average daily maximum load [kg/d];530,16;41,86
@@ -251,3 +299,15 @@ WWTP_RTC_ensemble River;WWF;Average concentration [mg/L];0,56;
 WWTP_RTC_ensemble River;WWF;Average daily maximum concentration [mg/L];1,25;
 WWTP_RTC_ensemble River;WWF;Average daily maximum load [kg/d];774,69;
 WWTP_RTC_ensemble River;WWF;Average load [kg/d];280,33;
+WWTP_RTC_ensemble River 09;DWF;Average concentration [mg/L];0,65;
+WWTP_RTC_ensemble River 09;DWF;Average daily maximum concentration [mg/L];0,67;
+WWTP_RTC_ensemble River 09;DWF;Average daily maximum load [kg/d];168,04;
+WWTP_RTC_ensemble River 09;DWF;Average load [kg/d];164,09;
+WWTP_RTC_ensemble River 09;Extended;Average concentration [mg/L];0,76;
+WWTP_RTC_ensemble River 09;Extended;Average daily maximum concentration [mg/L];1,27;
+WWTP_RTC_ensemble River 09;Extended;Average daily maximum load [kg/d];677,19;
+WWTP_RTC_ensemble River 09;Extended;Average load [kg/d];317,15;
+WWTP_RTC_ensemble River 09;WWF;Average concentration [mg/L];0,71;
+WWTP_RTC_ensemble River 09;WWF;Average daily maximum concentration [mg/L];1,23;
+WWTP_RTC_ensemble River 09;WWF;Average daily maximum load [kg/d];568,57;
+WWTP_RTC_ensemble River 09;WWF;Average load [kg/d];268,40;

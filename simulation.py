@@ -155,7 +155,7 @@ class Simulation:
                 "TSS": TSS_conc_RZ,
                 "NH4": NH4_conc_RZ,
                 "PO4": PO4_conc_RZ,
-                "Q_95_norm": Q_95_norm_RZ,
+                "Q_95_norm": Q_95_norm_RZ_adjusted,
             }
 
         self.WQ_RZ = EmpericalSewerWQ(

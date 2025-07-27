@@ -17,6 +17,7 @@ ES_baseline = ES_df[ES_df.isna().any(axis=1)]
 ES_df = ES_df.dropna()
 RZ_baseline = RZ_df[RZ_df.isna().any(axis=1)]
 RZ_df = RZ_df.dropna()
+RZ_df["rain_threshold"] = RZ_df["rain_threshold"] / 3
 
 # Objective Function (OF) columns
 OF_columns = [col for col in ES_df.columns if "OF" in col]

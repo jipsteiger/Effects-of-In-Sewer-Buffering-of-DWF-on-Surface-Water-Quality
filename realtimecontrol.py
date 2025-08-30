@@ -1,7 +1,6 @@
 import datetime as dt
 import pandas as pd
 import numpy as np
-import logging
 from data.pump_curves import EsPumpCurve, RzPumpCurve
 from simulation import Simulation
 from storage import Storage, RZ_storage
@@ -9,16 +8,6 @@ from scipy.interpolate import interp1d
 from typing import Callable, Tuple
 import csv
 import os
-
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    filename="rtc_log.txt",
-    filemode="w",
-)
 
 
 class RealTimeControl(Simulation):
@@ -294,21 +283,15 @@ class RealTimeControl(Simulation):
 
     def ES_dwf_logic_load(self):
         V, concentrations = self.ESConcentrationStorage.get_current_state()
-        logging.debug("##############################")
-        logging.debug(self.sim.current_time)
 
         NH4_conc = concentrations["NH4_sew"]
         if NH4_conc > 0.1:
             Q_target = self.ES_target_avg_load / NH4_conc  # g/s / g/m3 = m3/s
-            logging.debug(f"{Q_target=}")
         else:
             Q_target = self.ES_out_ideal
-        logging.debug(f"{NH4_conc=}")
         volume_error = V - self.ES_V_avg_target
-        logging.debug(f"{volume_error=}")
         Q_target_correction = self.Kp * volume_error
         Q_target_corrected = Q_target + Q_target_correction
-        logging.debug(f"{Q_target_corrected=}")
         self.links["P_eindhoven_out"].target_setting = (
             max(0, Q_target_corrected) / self.ES_out_max
         )
@@ -636,90 +619,3 @@ if __name__ == "__main__":
     SUFFIX = "RTC_load"
     postprocess = PostProcess(model_name=MODEL_NAME)
     postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="RTC")
-
-    import pandas as pd
-    import numpy as np
-    import plotly.graph_objects as go
-    import plotly.io as pio
-
-    df_west = pd.read_csv(
-        r"output_swmm\latest_out_ES_out.csv",
-        # rf'data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt',
-        delimiter=";",
-        decimal=",",
-        index_col=0,
-        parse_dates=True,
-    )
-
-    fig = go.Figure()
-
-    for key in df_west.keys():
-        fig.add_trace(
-            go.Scatter(
-                x=df_west.index,
-                y=df_west[key].astype(float),
-                mode="lines",
-                name=f"WEST {key}",
-            )
-        )
-
-    df_west2 = pd.read_csv(
-        r"output_swmm\06-04_11-40_out_ES_RTC.txt",
-        # rf'data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt',
-        delimiter="\t",
-        header=0,
-        index_col=0,
-        low_memory=False,
-    ).iloc[1:, :]
-    start_date = pd.Timestamp("2024-01-01")
-    df_west2["timestamp"] = start_date + pd.to_timedelta(
-        df_west2.index.astype(float), unit="D"
-    )
-    df_west2.set_index("timestamp", inplace=True)
-
-    for key in df_west2.keys():
-        fig.add_trace(
-            go.Scatter(
-                x=df_west2.index,
-                y=df_west2[key].astype(float),
-                mode="lines",
-                name=f"RTC base {key}",
-            )
-        )
-
-    df_west3 = pd.read_csv(
-        r"output_swmm\06-01_16-25_out_ES_No_RTC.txt",
-        # rf'data\WEST\WEST_modelRepository\Model_Dommel_Full\wwtp_control.out.txt',
-        delimiter="\t",
-        header=0,
-        index_col=0,
-        low_memory=False,
-    ).iloc[1:, :]
-    start_date = pd.Timestamp("2024-01-01")
-    df_west3["timestamp"] = start_date + pd.to_timedelta(
-        df_west3.index.astype(float), unit="D"
-    )
-    df_west3.set_index("timestamp", inplace=True)
-
-    for key in df_west3.keys():
-        fig.add_trace(
-            go.Scatter(
-                x=df_west3.index,
-                y=df_west3[key].astype(float),
-                mode="lines",
-                name=f"NO RTC base {key}",
-            )
-        )
-
-    pio.show(fig, renderer="browser")
-
-    a = np.mean(
-        abs(df_west.loc["2024-07-08":"2024-07-09", "NH4_sew"].values.astype(float))
-    ) / (24 * 60 * 60)
-    b = np.mean(
-        abs(df_west2.loc["2024-07-08":"2024-07-09", "NH4_sew"].values.astype(float))
-    ) / (24 * 60 * 60)
-    c = np.mean(
-        abs(df_west3.loc["2024-07-08":"2024-07-09", "NH4_sew"].values.astype(float))
-    ) / (24 * 60 * 60)
-    print(a, b, c)

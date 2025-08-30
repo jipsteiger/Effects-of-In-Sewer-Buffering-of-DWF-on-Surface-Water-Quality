@@ -374,7 +374,7 @@ def get_precipitation():
 
 ##################################################################################################
 if __name__ == "__main__":
-    MODEL_NAME = "model_jip_with_pump_curve"
+    MODEL_NAME = "model_jip"
     suffix = "Reg. sim"
     simulation = Simulation(
         model_path=rf"data\SWMM\{MODEL_NAME}.inp",
@@ -392,18 +392,3 @@ if __name__ == "__main__":
     postprocess.plot_pumps(
         save=False, plot_rain=True, target_setting=True, suffix=suffix, storage=True
     )
-
-    SUFFIX = "No_RTC_no_rain_constant"
-    MODEL_NAME = "model_jip_no_rtc_no_rain_constant"
-    simulation = Simulation(
-        model_path=rf"data\SWMM\{MODEL_NAME}.inp",
-        step_size=300,
-        report_start=dt.datetime(year=2023, month=4, day=15),
-        start_time=dt.datetime(year=2023, month=4, day=15),
-        end_time=dt.datetime(year=2023, month=4, day=30),
-        virtual_pump_max=10,
-        constant_outflow=True,
-    )
-    simulation.start_simulation()
-    postprocess = PostProcess(model_name=MODEL_NAME)
-    postprocess.create_outfall_txt_concentrate(suffix=SUFFIX, specific_version="no_RTC")

@@ -12,16 +12,15 @@ def main():
     simulation = RealTimeControl(
         model_path=rf"data\SWMM\{MODEL_NAME}.inp",
         step_size=300,
-        # Extended summer period:
         report_start=dt.datetime(year=2024, month=4, day=15),
         start_time=dt.datetime(year=2024, month=4, day=15),
-        end_time=dt.datetime(year=2024, month=10, day=16),
+        end_time=dt.datetime(year=2024, month=4, day=20),
         virtual_pump_max=10,
-        constant_outflow=False,
-        use_ensemble_forecast=False,
-        ES_threshold=1,
-        RZ_threshold=3,
-        certainty_threshold=0.9,
+        use_ensemble_forecast=True,
+        ES_threshold=0.75,
+        RZ_threshold=1,
+        ES_certainty_threshold=0.7,
+        RZ_certainty_threshold=0.925,
     )
     simulation.start_simulation()
 

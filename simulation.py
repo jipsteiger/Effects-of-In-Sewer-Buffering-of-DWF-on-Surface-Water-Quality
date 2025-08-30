@@ -6,17 +6,6 @@ from storage import ConcentrationStorage
 from emprical_sewer_wq import EmpericalSewerWQ
 from storage import Storage, RZ_storage
 from data.concentration_curves import *
-import logging
-
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    filename="sim_log.txt",
-    filemode="w",
-)
 
 
 class Simulation:
